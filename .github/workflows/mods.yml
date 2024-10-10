@@ -31,7 +31,7 @@ jobs:
           git clone -b main https://github.com/ublue-os/bluefin.git mods/upstream
           ls -lt mods
           ls -lt mods/upstream
-          rsync -anv --progress mods/upstream/ ./ --exclude .git
+          rsync -av --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
           ls -lt .
           git status
