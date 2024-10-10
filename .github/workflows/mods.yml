@@ -15,31 +15,24 @@ jobs:
           VARS_JSON: ${{ toJSON(vars) }}
         run: echo "${VARS_JSON}"
 
-      - name: Sync with upstream
+      - name: Checkout dx4homelab/bluefin main
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
-        run: gh repo sync dx4homelab/bluefin --branch main --force
-
-      - name: Checkout dx4homelab bluefin
-        uses: actions/checkout@v4
-        with:
           token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
-
-      - name: Checkout dx4homelab/bluefin main and mods
         run: |
           echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          echo "=== fetch unshallow ==="
-          git fetch --unshallow
           git checkout main
           echo "=== confirming main branch status after checkout ==="
+          echo "=== checkout upstream bluefin ==="
+          git --branch main https://github.com/ublue-os/bluefin.git mods/upstream
+          rsync -av --progress mods/upstream . --exclude .git
+          rm -rf mods/upstream
           git status
 
       - name: Update main with custom actions and cosign.pub
         run: |
           echo "=== copy cosign.pub file from dx4homelab-mods ==="
-          git checkout main
           cp mods/build-dx4homelab-bluefin-dx-gts.yml .github/workflows
           cp mods/build-dx4homelab-bluefin-dx-latest.yml .github/workflows
           cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
@@ -75,7 +68,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
-          gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+          echo gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
           #
           # gh workflow run build-latest-bluefin-stable-dx4homelab.yml --ref main
           #
