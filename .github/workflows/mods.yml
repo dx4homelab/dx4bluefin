@@ -29,8 +29,11 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           echo "=== checkout upstream bluefin ==="
           git clone -b main https://github.com/ublue-os/bluefin.git mods/upstream
-          rsync -anv --progress mods/upstream/ . --exclude .git
+          ls -lt mods
+          ls -lt mods/upstream
+          rsync -anv --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
+          ls -lt .
           git status
 
       - name: Update main with custom actions and cosign.pub
@@ -41,7 +44,8 @@ jobs:
           cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
           cp mods/cosign.pub cosign.pub
           cp mods/README.md README.md
-          git add .github/workflows/build-dx4homelab*.yml
+          git add .
+          # git add .github/workflows/build-dx4homelab*.yml
           echo "=== confirming main branch status after mods ==="
           git status
 
