@@ -29,7 +29,7 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           echo "=== checkout upstream bluefin ==="
           git clone -b main https://github.com/ublue-os/bluefin.git mods/upstream
-          rsync -av --progress mods/upstream . --exclude .git
+          rsync -anv --progress mods/upstream/ . --exclude .git
           rm -rf mods/upstream
           git status
 
