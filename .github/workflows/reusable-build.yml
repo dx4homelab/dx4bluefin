@@ -372,7 +372,7 @@ jobs:
         id: registry_case
         uses: ASzc/change-string-case-action@d0603cd0a7dd490be678164909f65c7737470a7f # v6
         with:
-          string: ${{ env.IMAGE_REGISTRY }}
+          string: ghcr.io/dx4homelab
       - name: Rechunk Image
         id: rechunk
         if: inputs.rechunk == true && ( github.event_name == 'pull_request' && ( matrix.image_flavor == 'main' || matrix.image_flavor == 'nvidia' ) || github.event_name != 'pull_request' )
