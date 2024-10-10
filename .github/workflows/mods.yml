@@ -16,14 +16,17 @@ jobs:
         run: echo "${VARS_JSON}"
 
       - name: Checkout dx4homelab/bluefin main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Checkout ublue-os/bluefin to mods/upstream
         env:
           token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
           echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git checkout main
-          echo "=== confirming main branch status after checkout ==="
           echo "=== checkout upstream bluefin ==="
           git --branch main https://github.com/ublue-os/bluefin.git mods/upstream
           rsync -av --progress mods/upstream . --exclude .git
