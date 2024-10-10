@@ -24,13 +24,13 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.fedora_version }}
   cancel-in-progress: true
+permissions:
+  packages: write
 jobs:
   build_container:
     name: image
     runs-on: ubuntu-24.04
     continue-on-error: false
-    permissions:
-      packages: write
     outputs:
       image_full: ${{ steps.generate-outputs.outputs.image }}
     strategy:
