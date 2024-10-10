@@ -29,6 +29,8 @@ jobs:
     name: image
     runs-on: ubuntu-24.04
     continue-on-error: false
+    permissions:
+      packages: write
     outputs:
       image_full: ${{ steps.generate-outputs.outputs.image }}
     strategy:
