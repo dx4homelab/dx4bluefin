@@ -1,0 +1,81 @@
+name: Mod and build dx4bluefin
+on:
+  workflow_dispatch:
+# push:
+  
+jobs:
+  update-and-trigger-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Dump vars context
+        env:
+          VARS_JSON: ${{ toJSON(vars) }}
+        run: echo "${VARS_JSON}"
+
+      - name: Sync with upstream
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+        run: gh repo sync dx4homelab/bluefin --branch main --force
+
+      - name: Checkout dx4homelab bluefin
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+
+      - name: Checkout dx4homelab/bluefin main and mods
+        run: |
+          echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          echo "=== fetch unshallow ==="
+          git fetch --unshallow
+          git checkout main
+          echo "=== confirming main branch status after checkout ==="
+          git status
+
+      - name: Update main with custom actions and cosign.pub
+        run: |
+          echo "=== copy cosign.pub file from dx4homelab-mods ==="
+          git checkout main
+          cp mods/build-dx4homelab-bluefin-dx-gts.yml .github/workflows
+          cp mods/build-dx4homelab-bluefin-dx-latest.yml .github/workflows
+          cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
+          cp mods/cosign.pub cosign.pub
+          cp mods/README.md README.md
+          git add .github/workflows/build-dx4homelab*.yml
+          echo "=== confirming main branch status after mods ==="
+          git status
+
+      - name: Update packages.json
+        run: |
+          echo "=== updating: packages.json, reusable-build.yml ==="
+          yq -i 'del( .all.exclude.all[] |  select( . == "firefox" ) )' packages.json
+          yq -i 'del( .all.exclude.all[] |  select( . == "firefox-langpacks" ) )' packages.json
+          yq -i '.env.IMAGE_REGISTRY = "ghcr.io/ublue-os"' .github/workflows/reusable-build.yml
+          yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
+          echo "=== confirming: packages.json, reusable-build.yml ==="
+          git status
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'chore: automated customization packages.json cosign.pub'
+          committer_name: "${GITHUB_ACTOR}"
+          committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
+          add: packages.json cosign.pub .github/workflows/reusable-build.yml
+      
+      - name: Sleep for 60 seconds while above commit is effective
+        shell: bash
+        run: sleep 60s
+    
+      - name: Start build-latest-bluefin workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+        run: |
+          gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+          #
+          # gh workflow run build-latest-bluefin-stable-dx4homelab.yml --ref main
+          #
