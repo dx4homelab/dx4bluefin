@@ -40,6 +40,7 @@ jobs:
       - name: Update main with custom actions and cosign.pub
         run: |
           echo "=== copy cosign.pub file from dx4homelab-mods ==="
+          rm -f .github/workflows/build-*.yml
           cp mods/build-dx4homelab-bluefin-dx-gts.yml .github/workflows
           cp mods/build-dx4homelab-bluefin-dx-latest.yml .github/workflows
           cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
@@ -56,6 +57,7 @@ jobs:
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox-langpacks" ) )' packages.json
           yq -i '.env.IMAGE_REGISTRY = "ghcr.io/ublue-os"' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
+          yq -i '(.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string) = "ghcr.io/${{ github.repository_owner }}"' .github/workflows/reusable-build.yml
           echo "=== confirming: packages.json, reusable-build.yml ==="
           git add .
           git status
