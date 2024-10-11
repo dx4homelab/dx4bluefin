@@ -6,7 +6,7 @@ unzip -o mods/main.zip
 
 find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$' | xargs -n1  echo found # rm -rf
 
-# find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$' | xargs -n1 rm -rf
+find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$|^\./\.github$' | xargs -n1 rm -rf
 
 # find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$' | xargs -n1  echo found # rm -rf
 
