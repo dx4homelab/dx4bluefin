@@ -94,7 +94,7 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'mods: automated customization of upstream bluefin/dx build workflow files'
+          message: 'chore: automated customization of upstream bluefin/dx build workflow files'
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
           add: .
