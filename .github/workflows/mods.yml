@@ -2,6 +2,9 @@ name: MODS (new approach to build bluefin)
 on:
   workflow_dispatch:
   push:
+    paths:
+      - 'mods/**.*'
+      - '.github\workflows\mods.yml'
   schedule:
     - cron: '0 7 * * *'  # At 07:00 AM UTC everyday => 1AM MST
               
