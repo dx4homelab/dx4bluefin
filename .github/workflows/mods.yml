@@ -91,10 +91,10 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'chore: automated customization packages.json cosign.pub'
+          message: 'mods: automated customization of upstream bluefin/dx build workflow files'
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
-          add: packages.json cosign.pub .github/workflows/reusable-build.yml
+          add: .
       
       - name: Sleep for 10 seconds while above commit is effective
         shell: bash
