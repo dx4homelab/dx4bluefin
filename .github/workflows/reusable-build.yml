@@ -24,8 +24,6 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.fedora_version }}
   cancel-in-progress: true
-permissions:
-  packages: write
 jobs:
   build_container:
     name: image
@@ -492,14 +490,14 @@ jobs:
               exit 1
             fi
           done
-  # build_iso:
-  #   name: iso
-  #   needs: [check]
-  #   if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (github.ref_name == 'main' || github.ref_name == 'testing') && inputs.fedora_version != 'beta' && inputs.fedora_version != 'latest'
-  #   # Eventually would be nice for building images in PRs
-  #   #if: ${{ endsWith(github.event.pull_request.title, '[ISO]') }}
-  #   uses: ./.github/workflows/reusable-build-iso.yml
-  #   secrets: inherit
-  #   with:
-  #     brand_name: ${{ inputs.brand_name }}
-  #     fedora_version: ${{ inputs.fedora_version }}
+  build_iso:
+    name: iso
+    needs: [check]
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (github.ref_name == 'main' || github.ref_name == 'testing') && inputs.fedora_version != 'beta' && inputs.fedora_version != 'latest'
+    # Eventually would be nice for building images in PRs
+    #if: ${{ endsWith(github.event.pull_request.title, '[ISO]') }}
+    uses: ./.github/workflows/reusable-build-iso.yml
+    secrets: inherit
+    with:
+      brand_name: ${{ inputs.brand_name }}
+      fedora_version: ${{ inputs.fedora_version }}
