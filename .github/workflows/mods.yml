@@ -96,9 +96,9 @@ jobs:
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
           add: packages.json cosign.pub .github/workflows/reusable-build.yml
       
-      - name: Sleep for 60 seconds while above commit is effective
+      - name: Sleep for 10 seconds while above commit is effective
         shell: bash
-        run: sleep 60s
+        run: sleep 10s
     
       - name: Start build-latest-bluefin workflow
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
