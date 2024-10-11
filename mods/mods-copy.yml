@@ -1,7 +1,15 @@
 name: MODS (new approach to build bluefin)
 on:
   workflow_dispatch:
-  # push:
+  push:
+    paths:
+      - 'mods/**.*'
+      - '.github/workflows/mods.yml'
+  schedule:
+    - cron: '0 7 * * *'  # At 07:00 AM UTC everyday => 1AM MST
+              
+env:
+  token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
   
 jobs:
   update-and-trigger-build:
@@ -9,39 +17,53 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    steps:
-      - name: Dump vars context
-        env:
-          VARS_JSON: ${{ toJSON(vars) }}
-        run: echo "${VARS_JSON}"
 
+    steps:
       - name: Checkout dx4homelab/bluefin main
         uses: actions/checkout@v4
         with:
           ref: main
           token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
 
-      - name: Checkout ublue-os/bluefin to mods/upstream
-        env:
-          token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+      - name: Configuring git user.name & user.email
         run: |
           echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          echo "=== upstream bluefin cleanup ==="
+
+      - name: Detecting changes in ublue-os/bluefin main
+        run: |
+          echo "=== detecting changes in ublue-os/bluefin main ==="
+          touch bluefin-head-hash.txt
+          export BLUEFIN_HEAD_HASH_SAVED=$(cat bluefin-head-hash.txt)
+          export BLUEFIN_HEAD_HASH=$(git ls-remote https://github.com/ublue-os/bluefin.git -h refs/heads/main | awk '{print $1}')
+          echo $BLUEFIN_HEAD_HASH > bluefin-head-hash.txt
+          if [[ "$BLUEFIN_HEAD_HASH_SAVED" == "$BLUEFIN_HEAD_HASH" ]]; then
+            echo "=== no changes detected in ublue-os/bluefin main $BLUEFIN_HEAD_HASH ==="
+            echo "BLUEFIN_UPDATED=false" >> "$GITHUB_ENV"
+          else
+            echo "=== changes detected in ublue-os/bluefin main saved hash $BLUEFIN_HEAD_HASH_SAVED new hash $BLUEFIN_HEAD_HASH ==="
+            echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
+          fi
+  
+      - name: refresh ublue-os/bluefin
+        if: ${{ env.BLUEFIN_UPDATED == 'true' }}
+        run: |
+          echo "=== upstream bluefin cleanup: folders ==="
           find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$|^\./\.github$' | xargs -n1 rm -rf
           echo "=== git status after cleanup ==="
           git status
-          echo "=== checkout upstream bluefin ==="
+          echo "=== cloning upstream bluefin to mods/upstream ==="
           git clone -b main https://github.com/ublue-os/bluefin.git mods/upstream
           ls -lt mods
           ls -lt mods/upstream
+          echo "=== replacing all bluefin files from fresh copy in mods/upstream ==="
           rsync -av --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
-          ls -lt .
+          echo "=== git status after replacment ==="
           git status
 
-      - name: Update main with custom actions and cosign.pub
+      - name: Update custom actions, cosign.pub, README.md
         run: |
           echo "=== copy cosign.pub file from dx4homelab-mods ==="
           rm -f .github/workflows/build-*.yml
@@ -60,8 +82,11 @@ jobs:
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox" ) )' packages.json
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox-langpacks" ) )' packages.json
           yq -i '.env.IMAGE_REGISTRY = "ghcr.io/ublue-os"' .github/workflows/reusable-build.yml
+          yq -i 'del( .jobs.build_iso )' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
           yq -i '(.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string) = "ghcr.io/${{ github.repository_owner }}"' .github/workflows/reusable-build.yml
+          # yq -i 'del( .jobs.build-iso.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build-iso.yml
+          rm -f .github/workflows/reusable-build-iso.yml
           echo "=== confirming: packages.json, reusable-build.yml ==="
           git add .
           git status
@@ -69,20 +94,16 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'chore: automated customization packages.json cosign.pub'
+          message: 'mods: automated customization of upstream bluefin/dx build workflow files'
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
-          add: packages.json cosign.pub .github/workflows/reusable-build.yml
+          add: .
       
-      - name: Sleep for 60 seconds while above commit is effective
+      - name: Sleep for 10 seconds while above commit is effective
         shell: bash
-        run: sleep 60s
+        run: sleep 10s
     
       - name: Start build-latest-bluefin workflow
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+        if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         run: |
-          echo gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-          #
-          # gh workflow run build-latest-bluefin-stable-dx4homelab.yml --ref main
-          #
+          echo gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
