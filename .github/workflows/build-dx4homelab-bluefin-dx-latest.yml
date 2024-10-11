@@ -18,9 +18,6 @@ on:
   #   - cron: '40 4 * * *'  # 4:40 UTC everyday
   workflow_dispatch:
 
-permissions:
-  packages: write
-      
 jobs:
   build:
     name: build
