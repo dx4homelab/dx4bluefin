@@ -32,7 +32,7 @@ jobs:
           export BLUEFIN_HEAD_HASH_SAVED=$(cat bluefin-head-hash.txt)
           export BLUEFIN_HEAD_HASH=$(git ls-remote https://github.com/ublue-os/bluefin.git -h refs/heads/main | awk '{print $1}')
           echo $BLUEFIN_HEAD_HASH > bluefin-head-hash.txt
-          if [[ "$BLUEFIN_HEAD_HASH_SAVED" == "$BLUEFIN_HEAD_HASH" ]]
+          if [[ "$BLUEFIN_HEAD_HASH_SAVED" == "$BLUEFIN_HEAD_HASH" ]]; then
             echo "=== no changes detected in ublue-os/bluefin main $BLUEFIN_HEAD_HASH ==="
             echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
           else
