@@ -106,4 +106,4 @@ jobs:
       - name: Start build-latest-bluefin workflow
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         run: |
-          echo gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+          gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
