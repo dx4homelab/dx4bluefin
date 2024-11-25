@@ -81,6 +81,7 @@ jobs:
           echo "=== updating: packages.json, reusable-build.yml ==="
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox" ) )' packages.json
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox-langpacks" ) )' packages.json
+          yq -i 'del( .all.exclude.silverblue[] |  select( . == "gnome-terminal-nautilus" ) )' packages.json
           yq -i '.env.IMAGE_REGISTRY = "ghcr.io/ublue-os"' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_iso )' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
