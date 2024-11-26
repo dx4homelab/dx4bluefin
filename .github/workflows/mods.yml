@@ -79,6 +79,7 @@ jobs:
       - name: Update packages.json
         run: |
           echo "=== updating: packages.json, reusable-build.yml ==="
+          cat packages.json
           yq -i 'del( .all.exclude.all[] | select( . == "firefox" ) )' packages.json
           yq -i 'del( .all.exclude.all[] | select( . == "firefox-langpacks" ) )' packages.json
           yq -i 'del( .all.exclude.silverblue[] | select( . == "gnome-terminal-nautilus" ) )' packages.json
