@@ -28,4 +28,4 @@ jobs:
     secrets: inherit
     with:
       brand_name: bluefin
-      fedora_version: latest
+      stream_name: latest
