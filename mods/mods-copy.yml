@@ -81,6 +81,8 @@ jobs:
           echo "=== updating: packages.json, reusable-build.yml ==="
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox" ) )' packages.json
           yq -i 'del( .all.exclude.all[] |  select( . == "firefox-langpacks" ) )' packages.json
+          yq -i 'del( .all.exclude.silverblue[] |  select( . == "gnome-terminal-nautilus" ) )' packages.json
+          yq -i '.all.include.dx + "gnome-terminal"' packages.json
           yq -i '.env.IMAGE_REGISTRY = "ghcr.io/ublue-os"' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_iso )' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
@@ -94,7 +96,7 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'mods: automated customization of upstream bluefin/dx build workflow files'
+          message: 'chore: automated customization of upstream bluefin/dx build workflow files'
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
           add: .
@@ -105,5 +107,9 @@ jobs:
     
       - name: Start build-latest-bluefin workflow
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}        
         run: |
-          echo gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+          gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+          gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+          gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
