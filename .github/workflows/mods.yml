@@ -31,7 +31,13 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-      - name: Detecting changes in ublue-os/bluefin main
+      - name: Set default BLUEFIN_UPDATED to true
+        run: |
+          echo "set dafault BLUEFIN_UPDATED=true"
+          echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
+  
+      - name: Detecting changes in ublue-os/bluefin main if triggered by schedule
+        if: ${{ github.event_name == 'schedule' }}
         run: |
           echo "=== detecting changes in ublue-os/bluefin main ==="
           touch bluefin-head-hash.txt
