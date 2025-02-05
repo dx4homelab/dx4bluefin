@@ -60,6 +60,7 @@
         "stress-ng",
         "tailscale",
         "tmux",
+        "topgrade",
         "ublue-fastfetch",
         "ublue-motd",
         "usbmuxd",
@@ -165,8 +166,7 @@
     },
     "exclude": {
       "all": [
-        "podman-docker",
-        "ublue-os-update-services"
+        "podman-docker"
       ],
       "silverblue": [
         "gnome-extensions-app",
