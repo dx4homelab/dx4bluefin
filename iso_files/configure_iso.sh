@@ -2,7 +2,7 @@
 
 set -x
 
-dnf --enablerepo="terra" install -y readymade-nightly
+dnf --enablerepo="terra" install -y readymade
 
 IMAGE_INFO="$(cat /usr/share/ublue-os/image-info.json)"
 IMAGE_TAG="$(jq -c -r '."image-tag"' <<< $IMAGE_INFO)"
@@ -12,12 +12,18 @@ OUTPUT_NAME="ghcr.io/ublue-os/bluefin"
 if [ "$IMAGE_FLAVOR" != "main" ] ; then
   OUTPUT_NAME="${OUTPUT_NAME}-${IMAGE_FLAVOR}"
 fi
+KARGS=""
+if [ "$IMAGE_FLAVOR" =~ nvidia ] ; then
+  KARGS='bootc_kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1"]'
+fi 
 
 tee /etc/readymade.toml <<EOF
 [install]
 allowed_installtypes = ["wholedisk", "custom"]
 copy_mode = "bootc"
 bootc_imgref = "containers-storage:$OUTPUT_NAME:$IMAGE_TAG"
+bootc_enforce_sigpolicy = true
+$KARGS
 
 [distro]
 name = "Bluefin"
@@ -25,6 +31,10 @@ name = "Bluefin"
 [[postinstall]]
 module = "Script"
 EOF
+
+rm -f /usr/share/applications/liveinst.desktop
+sed -i '/NoDisplay=.*/d' /usr/share/applications/com.fyralabs.Readymade.desktop
+cp -f /usr/share/applications/com.fyralabs.Readymade.desktop /etc/xdg/autostart
 
 mkdir -p /usr/share/readymade/postinstall.d
 tee /usr/share/readymade/postinstall.d/10-flatpaks.sh <<EOF
@@ -35,10 +45,57 @@ rsync -aWHA /run/host/var/lib/flatpak /ostree/deploy/default/var/lib
 EOF
 chmod +x /usr/share/readymade/postinstall.d/10-flatpaks.sh
 
+# Entirely remove everythign from the livesys configuration for GNOME
+# This file isnt necessary for us considering how much setting up for
+# Anaconda this does. Instead just inline whatever we actually need.
+tee /usr/libexec/livesys/sessions.d/livesys-gnome <<"EOF" 
+#!/bin/sh
+
+if [ ! -d /var/lib/gnome-initial-setup ]; then
+  # don't run gnome-initial-setup
+  mkdir ~liveuser/.config
+  : > ~liveuser/.config/gnome-initial-setup-done
+fi
+EOF
+chmod +x /usr/libexec/livesys/sessions.d/livesys-gnome
+
+# These are only here because we removed the handling from livesys-gnome
+
+tee /usr/share/glib-2.0/schemas/org.gnome.shell.gschema.override <<EOF
+[org.gnome.shell]
+welcome-dialog-last-shown-version='4294967295'
+
+[org.gnome.software]
+allow-updates=false
+download-updates=false
+EOF
+
+# don't autostart gnome-software session service
+rm -f /etc/xdg/autostart/org.gnome.Software.desktop
+
+# disable the gnome-software shell search provider
+tee /usr/share/gnome-shell/search-providers/org.gnome.Software-search-provider.ini <<EOF
+DefaultDisabled=true
+EOF
+
+tee /etc/gdm/custom.conf <<"EOF"
+[daemon]
+AutomaticLoginEnable=True
+AutomaticLogin=liveuser
+EOF
+
+glib-compile-schemas /usr/share/glib-2.0/schemas
+
+systemctl disable rpm-ostree-countme.service
+systemctl disable tailscaled.service
+systemctl disable brew-upgrade.timer
+systemctl disable brew-update.timer
 systemctl disable brew-setup.service
-systemctl --global disable podman-auto-update.timer
 systemctl disable rpm-ostree.service
 systemctl disable uupd.timer
 systemctl disable ublue-system-setup.service
-systemctl --global disable ublue-user-setup.service
+systemctl disable ublue-guest-user.service
 systemctl disable check-sb-key.service
+systemctl --global disable ublue-flatpak-manager.service
+systemctl --global disable podman-auto-update.timer
+systemctl --global disable ublue-user-setup.service
