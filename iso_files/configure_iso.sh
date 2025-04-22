@@ -2,7 +2,7 @@
 
 set -x
 
-dnf --enablerepo="terra" install -y readymade
+dnf --enablerepo="terra" install -y readymade-nightly
 
 IMAGE_INFO="$(cat /usr/share/ublue-os/image-info.json)"
 IMAGE_TAG="$(jq -c -r '."image-tag"' <<< $IMAGE_INFO)"
@@ -19,7 +19,7 @@ fi
 
 tee /etc/readymade.toml <<EOF
 [install]
-allowed_installtypes = ["wholedisk", "custom"]
+allowed_installtypes = ["wholedisk"]
 copy_mode = "bootc"
 bootc_imgref = "containers-storage:$OUTPUT_NAME:$IMAGE_TAG"
 bootc_enforce_sigpolicy = true
@@ -45,6 +45,34 @@ rsync -aWHA /run/host/var/lib/flatpak /ostree/deploy/default/var/lib
 EOF
 chmod +x /usr/share/readymade/postinstall.d/10-flatpaks.sh
 
+tee /usr/share/readymade/postinstall.d/99-mok.sh <<"EOF"
+#!/usr/bin/bash
+set -x
+
+ENROLLMENT_PASSWORD=universalblue
+SECUREBOOT_KEY="/etc/pki/akmods/certs/akmods-ublue.der"
+
+if [[ ! -d "/sys/firmware/efi" ]]; then
+	echo "EFI mode not detected. Skipping key enrollment."
+	exit 0
+fi
+
+if [[ ! -f "$SECUREBOOT_KEY" ]]; then
+	echo "Secure boot key not provided: $SECUREBOOT_KEY"
+	exit 0
+fi
+
+# SYS_ID="(cat /sys/devices/virtual/dmi/id/product_name)"
+# if [[ ":Jupiter:Galileo:" =~ ":$SYS_ID:" ]]; then
+# echo "Steam Deck hardware detected. Skipping key enrollment."
+# exit 0
+# fi
+
+mokutil --timeout -1 || :
+echo -e "$ENROLLMENT_PASSWORD\n$ENROLLMENT_PASSWORD" | mokutil --import "$SECUREBOOT_KEY" || :
+EOF
+chmod +x /usr/share/readymade/postinstall.d/99-mok.sh
+
 # Entirely remove everythign from the livesys configuration for GNOME
 # This file isnt necessary for us considering how much setting up for
 # Anaconda this does. Instead just inline whatever we actually need.
@@ -64,6 +92,7 @@ chmod +x /usr/libexec/livesys/sessions.d/livesys-gnome
 tee /usr/share/glib-2.0/schemas/org.gnome.shell.gschema.override <<EOF
 [org.gnome.shell]
 welcome-dialog-last-shown-version='4294967295'
+favorite-apps = ['com.fyralabs.Readymade.desktop', 'documentation.desktop', 'discourse.desktop', 'org.mozilla.firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Software.desktop']
 
 [org.gnome.software]
 allow-updates=false
