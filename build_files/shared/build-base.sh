@@ -13,6 +13,9 @@ echo "::endgroup::"
 
 echo "::group:: Copy Files"
 
+# Copy ISO list for `install-system-flaptaks`
+install -Dm0644 -t /etc/ublue-os/ /ctx/iso_files/*.list
+
 # Copy Files to Container
 cp -r /ctx/just /tmp/just
 cp /ctx/packages.json /tmp/packages.json
@@ -43,9 +46,6 @@ echo "::endgroup::"
 
 # Make HWE changes
 /ctx/build_files/base/09-hwe-additions.sh
-
-# Install Brew
-/ctx/build_files/base/10-brew.sh
 
 ## late stage changes
 
