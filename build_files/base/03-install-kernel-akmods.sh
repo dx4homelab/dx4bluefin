@@ -104,6 +104,9 @@ if [[ "${IMAGE_NAME}" =~ nvidia ]]; then
     IMAGE_NAME="${BASE_IMAGE_NAME}" RPMFUSION_MIRROR="" /tmp/nvidia-install.sh
     rm -f /usr/share/vulkan/icd.d/nouveau_icd.*.json
     ln -sf libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so
+    tee /usr/lib/bootc/kargs.d/00-nvidia.toml <<EOF
+kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1", "initcall_blacklist=simpledrm_platform_driver_init"]
+EOF
 fi
 
 # ZFS for gts/stable
@@ -119,8 +122,8 @@ if [[ ${AKMODS_FLAVOR} =~ coreos ]]; then
         /tmp/akmods-zfs/kmods/zfs/kmod-zfs-"${KERNEL}"-*.rpm
         /tmp/akmods-zfs/kmods/zfs/libnvpair3-*.rpm
         /tmp/akmods-zfs/kmods/zfs/libuutil3-*.rpm
-        /tmp/akmods-zfs/kmods/zfs/libzfs5-*.rpm
-        /tmp/akmods-zfs/kmods/zfs/libzpool5-*.rpm
+        /tmp/akmods-zfs/kmods/zfs/libzfs6-*.rpm
+        /tmp/akmods-zfs/kmods/zfs/libzpool6-*.rpm
         /tmp/akmods-zfs/kmods/zfs/python3-pyzfs-*.rpm
         /tmp/akmods-zfs/kmods/zfs/zfs-*.rpm
         pv
