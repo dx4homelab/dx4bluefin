@@ -169,7 +169,6 @@
         "fedora-chromium-config-gnome",
         "gnome-extensions-app",
         "gnome-shell-extension-background-logo",
-        "gnome-software",
         "gnome-software-rpm-ostree",
         "gnome-terminal-nautilus",
         "podman-docker",
@@ -202,7 +201,9 @@
       "dx": []
     },
     "exclude": {
-      "all": [],
+      "all": [
+        "gnome-software"
+      ],
       "dx": []
     }
   }
