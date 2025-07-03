@@ -95,7 +95,7 @@ jobs:
           yq -i 'del( .jobs.build_iso )' .github/workflows/reusable-build.yml
           yq -i 'del( .jobs.build_container.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build.yml
           yq -i '(.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string) = "ghcr.io/${{ github.repository_owner }}"' .github/workflows/reusable-build.yml
-          yq -i '.jobs.build.steps = [{name: "Free Disk Space", uses: "jlumbroso/free-disk-space@main", with: {tool-cache: true}}] + .jobs.build.steps' .github/workflows/reusable-build.yml
+          yq -i '.jobs.build_container.steps = [{"name": "Free Disk Space", "uses": "jlumbroso/free-disk-space@main", "with": {"tool-cache": true}}] + .jobs.build_container.steps' .github/workflows/reusable-build.yml
           # yq -i 'del( .jobs.build-iso.strategy.matrix.image_flavor[] | select( . == "*asus*" or . == "*surface*"  ) )' .github/workflows/reusable-build-iso.yml
           rm -f .github/workflows/reusable-build-iso.yml
           echo "=== confirming: packages.json, reusable-build.yml ==="
