@@ -35,12 +35,6 @@ jobs:
         base_name: ["${{ inputs.brand_name }}", "${{ inputs.brand_name }}-dx"]
         stream_name: ["${{ inputs.stream_name }}"]
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # when set to "true" but frees about 6 GB
-          tool-cache: true
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Maximize build space
@@ -78,7 +72,7 @@ jobs:
       - name: Setup Syft
         id: setup-syft
         if: false
-        uses: anchore/sbom-action/download-syft@9246b90769f852b3a8921f330c59e0b3f439d6e9 # v0
+        uses: anchore/sbom-action/download-syft@cee1b8e05ae5b2593a75e197229729eabaa9f8ec # v0
         with:
           syft-version: v1.20.0
       - name: Generate SBOM
