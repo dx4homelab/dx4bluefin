@@ -1,0 +1,1 @@
+yq -i '.jobs.build_container.steps = [{"name": "Free Disk Space", "uses": "jlumbroso/free-disk-space@main", "with": {"tool-cache": true}}] + .jobs.build_container.steps' .github/workflows/reusable-build.yml
