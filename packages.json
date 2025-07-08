@@ -160,7 +160,22 @@
         "virt-v2v",
         "virt-viewer",
         "ydotool",
-        "gnome-terminal"
+        "gnome-terminal",
+        "gnome-terminal",
+        "gdk-pixbuf2-modules-extra",
+        "google-chrome-stable",
+        "gstreamer1-plugin-openh264",
+        "mozilla-openh264",
+        "nmstate",
+        "openh264",
+        "remmina",
+        "snapd",
+        "solaar",
+        "subversion",
+        "subversion-gnome",
+        "subversion-javahl",
+        "unclutter",
+        "xdotool"
       ]
     },
     "exclude": {
