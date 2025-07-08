@@ -33,3 +33,9 @@ echo "Importing Google Signing Key ..."
 rpm --import /tmp/linux_signing_key.pub
 
 echo "Done importing Google Signing Key."
+
+mkdir -p /usr/lib/opt/google
+mkdir -p /opt
+ln -sf /usr/lib/opt/google /opt/google
+
+echo "Done creating Google directory structure."
