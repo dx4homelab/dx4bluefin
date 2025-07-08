@@ -25,17 +25,34 @@ fi
 # rpm-ostree to do it cleanly from the yum repo directly.
 # Possibly related to https://github.com/rpm-software-management/rpm/issues/2577
 
-echo "Downloading Google Signing Key"
+echo "Downloading Google Signing Key ..."
+
 curl https://dl.google.com/linux/linux_signing_key.pub > /tmp/linux_signing_key.pub
 
 echo "Importing Google Signing Key ..."
 
 rpm --import /tmp/linux_signing_key.pub
 
+set +e
+
 echo "Done importing Google Signing Key."
 
-mkdir -p /usr/lib/opt/google
-mkdir -p /opt
-ln -sf /usr/lib/opt/google /opt/google
+echo "making /usr/lib/opt/google ..."
+
+mkdir -p /usr/lib/opt/google || echo "mkdir -p /usr/lib/opt/google failed, but that's OK if it already exists"
+
+echo "Done making /usr/lib/opt/google."
+
+echo "making /opt ..."
+
+mkdir -p /opt || echo "mkdir -p /opt failed, but that's OK if it already exists"
+
+echo "Done making /opt."
+
+echo "Making /opt/google link ..."
+
+ln -sf /usr/lib/opt/google /opt/google || echo "making link /opt/google failed, but that's OK if it already exists"
 
 echo "Done creating Google directory structure."
+
+set -oue pipefail 
