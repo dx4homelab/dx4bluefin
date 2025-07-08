@@ -1,0 +1,13 @@
+del( .all.exclude.all[] | select( . == "firefox" ) )
+|
+del( .all.exclude.all[] | select( . == "firefox-langpacks" ) )
+|
+del( .all.exclude.silverblue[] | select( . == "gnome-terminal-nautilus" ) )
+|
+del( .all.include.dx[] | select( . == "gnome-terminal" ))
+|
+.all.include.dx += "gnome-terminal"
+|
+load("add-packages.json") as $packages
+|
+.all.include.dx += $packages
