@@ -1,4 +1,9 @@
 .env.IMAGE_REGISTRY = "ghcr.io/ublue-os"
 |
+.env.TARGET_IMAGE_REGISTRY = "ghcr.io/${{ github.repository_owner }}"
+|
 .jobs.build_container.steps = [{"name": "Free Disk Space", "uses": "jlumbroso/free-disk-space@main", "with": {"tool-cache": true}}] + .jobs.build_container.steps
+|
+(.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string ) = "${{ env.TARGET_IMAGE_REGISTRY }}"
+
 
