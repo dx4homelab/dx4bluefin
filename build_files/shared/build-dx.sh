@@ -31,9 +31,6 @@ EOF
 # Install AKMODS
 /ctx/build_files/dx/02-install-kernel-akmods-dx.sh
 
-# Install Chrome
-/ctx/build_files/dx/02-enable-chrome-yum-repo.sh
-
 # Install Packages
 /ctx/build_files/dx/03-packages-dx.sh
 
