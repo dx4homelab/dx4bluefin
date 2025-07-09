@@ -62,6 +62,9 @@ jobs:
           cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
           cp mods/cosign.pub cosign.pub
           cp mods/README.md README.md
+          # cp -v mods/02-enable-chrome-yum-repo.sh build_files/dx
+          # git apply mods/build-dx-sh.patch
+          # git diff build_files/shared/build-dx.sh
           git add .
           echo "=== confirming main branch status after mods ==="
           git status
