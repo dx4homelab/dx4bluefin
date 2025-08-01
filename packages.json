@@ -84,6 +84,7 @@
         "uld",
         "usbip",
         "usbmuxd",
+        "waypipe",
         "wireguard-tools",
         "wl-clipboard",
         "xprop",
