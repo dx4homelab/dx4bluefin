@@ -233,6 +233,7 @@
   "43": {
     "include": {
       "all": [
+        "bazaar",
         "evolution-ews-core"
       ],
       "dx": []
