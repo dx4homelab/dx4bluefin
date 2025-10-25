@@ -19,8 +19,8 @@ source /ctx/build_files/shared/copr-helpers.sh
 FEDORA_PACKAGES=(
     adcli
     adw-gtk3-theme
+    adwaita-fonts-all
     bash-color-prompt
-    bcache-tools
     bootc
     borgbackup
     cryfs
@@ -39,12 +39,13 @@ FEDORA_PACKAGES=(
     gnome-shell-extension-blur-my-shell
     gnome-shell-extension-caffeine
     gnome-shell-extension-dash-to-dock
+    gnome-shell-extension-gsconnect
     gnome-tweaks
     gum
     hplip
     ibus-mozc
-    igt-gpu-tools
     ifuse
+    igt-gpu-tools
     input-remapper
     iwd
     jetbrains-mono-fonts-all
@@ -59,6 +60,7 @@ FEDORA_PACKAGES=(
     make
     mesa-libGLU
     mozc
+    nautilus-gsconnect
     oddjob-mkhomedir
     opendyslexic-fonts
     openssh-askpass
@@ -78,6 +80,7 @@ FEDORA_PACKAGES=(
     sssd-ad
     sssd-krb5
     sssd-nfs-idmap
+    switcheroo-control
     tailscale
     tmux
     usbip
@@ -86,7 +89,6 @@ FEDORA_PACKAGES=(
     wireguard-tools
     wl-clipboard
     xprop
-    yaru-theme
     zenity
     zsh
 )
@@ -127,11 +129,8 @@ copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 
 # From ublue-os/staging
 copr_install_isolated "ublue-os/staging" \
-    "gnome-shell-extension-gsconnect" \
     "gnome-shell-extension-logo-menu" \
     "gnome-shell-extension-search-light" \
-    "gnome-shell-extension-tailscale-gnome-qs" \
-    "nautilus-gsconnect"
 
 # From ublue-os/packages
 copr_install_isolated "ublue-os/packages" \
@@ -153,10 +152,10 @@ case "$FEDORA_MAJOR_VERSION" in
         # bazaar and uupd from ublue-os/packages
         copr_install_isolated "ublue-os/packages" "bazaar" "uupd"
         ;;
-    43)
+    # 43)
         # bazaar from ublue-os/packages
-        copr_install_isolated "ublue-os/packages" "bazaar"
-        ;;
+        # copr_install_isolated "ublue-os/packages" "bazaar"
+        # ;;
 esac
 
 # Packages to exclude - common to all versions
@@ -194,28 +193,6 @@ if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     fi
 fi
 
-
-# shellcheck disable=SC2016
-if [[ "${FEDORA_MAJOR_VERSION}" -lt "43" ]]; then
-    thirdparty_repo_install "terra" \
-                           'terra,https://repos.fyralabs.com/terra$releasever' \
-                           "terra-release" \
-                           "terra-release-extras" \
-                           "terra*"
-fi
-
-# shellcheck disable=SC2016
-if [[ "${FEDORA_MAJOR_VERSION}" -lt "43" ]]; then
-    dnf -y swap \
-        --repo=terra --repo=terra-extras \
-        gnome-shell gnome-shell
-    dnf versionlock add gnome-shell
-    dnf -y swap \
-        --repo=terra --repo=terra-extras \
-        switcheroo-control switcheroo-control
-    dnf versionlock add switcheroo-control
-fi
-
 # Fix for ID in fwupd
 if [[ "${FEDORA_MAJOR_VERSION}" -lt "43" ]]; then
     dnf -y swap \
@@ -224,7 +201,7 @@ if [[ "${FEDORA_MAJOR_VERSION}" -lt "43" ]]; then
 fi
 
 # TODO: remove me on next flatpak release when preinstall landed
-if [[ "${UBLUE_IMAGE_TAG}" == "beta" ]]; then
+if [[ "$(rpm -E %fedora)" -ge "42" ]]; then
   dnf copr enable -y ublue-os/flatpak-test
   dnf copr disable -y ublue-os/flatpak-test
   dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak flatpak
@@ -244,12 +221,6 @@ fi
 #    Workaround pkcs11-provider regression, see issue #1943
 #    rpm-ostree override replace https://bodhi.fedoraproject.org/updates/FEDORA-2024-dd2e9fb225
 #fi
-
-# Only downgrade for F42
-if [ "$FEDORA_MAJOR_VERSION" -eq "42" ]; then
-    # Downgrade libdex to 0.9.1 because 0.10 makes bazaar crash under VMs and PCs with low specs
-    dnf5 install -y libdex-0.9.1
-fi
 
 # Swap/install bluefin branding packages from ublue-os/packages COPR using isolated enablement
 dnf -y swap \

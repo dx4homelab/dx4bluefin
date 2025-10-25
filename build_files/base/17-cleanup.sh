@@ -15,6 +15,7 @@ systemctl enable rpm-ostree-countme.service
 systemctl enable tailscaled.service
 systemctl enable dconf-update.service
 systemctl enable ublue-guest-user.service
+systemctl --global enable bazaar.service
 systemctl enable brew-setup.service
 systemctl enable brew-upgrade.timer
 systemctl enable brew-update.timer
@@ -25,11 +26,8 @@ systemctl --global enable podman-auto-update.timer
 systemctl enable check-sb-key.service
 systemctl enable input-remapper.service
 
-# Autostart bazaar, enable this when we fully moved over to flatpak
-#systemctl --global enable bazaar.service
-
 # run flatpak preinstall once at startup
-if [[ "${UBLUE_IMAGE_TAG}" == "beta" ]]; then
+if [[ "$(rpm -E %fedora)" -ge "42" ]]; then
   systemctl enable flatpak-preinstall.service
 fi
 
@@ -60,13 +58,6 @@ systemctl disable flatpak-add-fedora-repos.service
 for repo in negativo17-fedora-multimedia tailscale fedora-cisco-openh264; do
     if [[ -f "/etc/yum.repos.d/${repo}.repo" ]]; then
         sed -i 's@enabled=1@enabled=0@g' "/etc/yum.repos.d/${repo}.repo"
-    fi
-done
-
-# Disable Terra repos (installed on F42 and earlier)
-for i in /etc/yum.repos.d/terra*.repo; do
-    if [[ -f "$i" ]]; then
-        sed -i 's@enabled=1@enabled=0@g' "$i"
     fi
 done
 
