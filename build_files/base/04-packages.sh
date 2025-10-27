@@ -81,7 +81,6 @@ FEDORA_PACKAGES=(
     sssd-krb5
     sssd-nfs-idmap
     switcheroo-control
-    tailscale
     tmux
     usbip
     usbmuxd
@@ -99,14 +98,12 @@ case "$FEDORA_MAJOR_VERSION" in
         FEDORA_PACKAGES+=(
             epson-inkjet-printer-escpr
             epson-inkjet-printer-escpr2
-            google-noto-fonts-all
             uld
         )
         ;;
     42)
         FEDORA_PACKAGES+=(
             evolution-ews-core
-            google-noto-fonts-all
             uld
         )
         ;;
@@ -121,8 +118,9 @@ esac
 echo "Installing ${#FEDORA_PACKAGES[@]} packages from Fedora repos..."
 dnf -y install "${FEDORA_PACKAGES[@]}"
 
-# Install COPR packages using isolated enablement (secure)
-echo "Installing COPR packages with isolated repo enablement..."
+dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+dnf config-manager setopt tailscale-stable.enabled=0
+dnf -y install --enablerepo='tailscale-stable' tailscale
 
 # From che/nerd-fonts
 copr_install_isolated "che/nerd-fonts" "nerd-fonts"
@@ -144,19 +142,20 @@ copr_install_isolated "ublue-os/packages" \
     "ublue-fastfetch" \
     "ublue-motd" \
     "ublue-polkit-rules" \
-    "ublue-setup-services"
+    "ublue-setup-services" \
+    "uupd"
 
 # Version-specific COPR packages
-case "$FEDORA_MAJOR_VERSION" in
-    42)
+# case "$FEDORA_MAJOR_VERSION" in
+#    42)
         # bazaar and uupd from ublue-os/packages
-        copr_install_isolated "ublue-os/packages" "bazaar" "uupd"
-        ;;
+        # copr_install_isolated "ublue-os/packages" "bazaar" "uupd"
+        # ;;
     # 43)
         # bazaar from ublue-os/packages
         # copr_install_isolated "ublue-os/packages" "bazaar"
         # ;;
-esac
+# esac
 
 # Packages to exclude - common to all versions
 EXCLUDED_PACKAGES=(
