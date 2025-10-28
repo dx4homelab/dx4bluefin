@@ -2,7 +2,13 @@ del( .all.exclude.all[] | select( . == "firefox" ) )
 |
 del( .all.exclude.all[] | select( . == "firefox-langpacks" ) )
 |
-del( .all.exclude.silverblue[] | select( . == "gnome-terminal-nautilus" ) )
+del( .all.exclude.all[] | select( . == "gnome-terminal-nautilus" ) )
+|
+del( .all.exclude.all[] | select( . == "fedora-bookmarks" ) )
+|
+del( .all.exclude.all[] | select( . == "fedora-chromium-config" ) )
+|
+del( .all.exclude.all[] | select( . == "fedora-chromium-config-gnome" ) )
 |
 del( .all.include.dx[] | select( . == "gnome-terminal" ))
 |
