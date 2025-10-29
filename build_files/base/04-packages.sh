@@ -17,6 +17,7 @@ source /ctx/build_files/shared/copr-helpers.sh
 
 # Base packages from Fedora repos - common to all versions
 FEDORA_PACKAGES=(
+source "mods/build_scripts_update_functions.sh"; [[ -f "mods/add_packages.txt" ]] && add_packages_to_fedora_packages_array "mods/add_packages.txt"
     adcli
     adw-gtk3-theme
     adwaita-fonts-all
@@ -176,7 +177,7 @@ case "$FEDORA_MAJOR_VERSION" in
 esac
 
 # Remove excluded packages if they are installed
-[[ -f "/ctx/mods/remove_packages_from_excluded_list.txt" ]] && remove_excluded_packages "/ctx/mods/remove_packages_from_excluded_list.txt"
+source "mods/build_scripts_update_functions.sh"; [[ -f "mods/remove_packages_from_excluded_list.txt" ]] && remove_packages_from_excluded_list "mods/remove_packages_from_excluded_list.txt"
 if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     readarray -t INSTALLED_EXCLUDED < <(rpm -qa --queryformat='%{NAME}\n' "${EXCLUDED_PACKAGES[@]}" 2>/dev/null || true)
     if [[ "${#INSTALLED_EXCLUDED[@]}" -gt 0 ]]; then
