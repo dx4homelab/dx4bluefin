@@ -134,9 +134,15 @@ update_04_packages_sh_to_expand_fedora_packages() {
         return 1
     fi
     
-    # Insert the line after FEDORA_PACKAGES array definition
-    sed -i '/^FEDORA_PACKAGES=(/a '"$insert_line" "$target_file"
-    
+    # Insert the line after the FEDORA_PACKAGES array body (after its closing ')')
+    awk -v ins="$insert_line" '
+    BEGIN{in=0}
+    {
+        print $0
+        if ($0 ~ /^FEDORA_PACKAGES=\(/) { in=1; next }
+        if (in && $0 ~ /^[[:space:]]*\)[[:space:]]*$/) { print ins; in=0 }
+    }' "$target_file" > "${target_file}.tmp" && mv "${target_file}.tmp" "$target_file"
+
     if [[ $? -eq 0 ]]; then
         echo "Successfully updated $target_file"
     else
