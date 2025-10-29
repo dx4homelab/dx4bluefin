@@ -69,14 +69,11 @@ jobs:
           echo "=== confirming main branch status after mods ==="
           git status
 
-      - name: Update packages.json
+      - name: Update build scripts
         run: |
-          echo "=== updating: packages.json, reusable-build.yml ==="
-          cat packages.json
+          echo "=== Update build scripts ==="
           #
-          # updating packages.json
-          export ADD_PACKAGES="mods/add-packages.json"
-          yq eval -v -i --from-file mods/yq-mods4package-json.yq packages.json
+          bash mods/update-build-scripts.sh
           #
       - name: Update reusable-build.yml
         run: |

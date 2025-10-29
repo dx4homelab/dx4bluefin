@@ -176,6 +176,7 @@ case "$FEDORA_MAJOR_VERSION" in
 esac
 
 # Remove excluded packages if they are installed
+[[ -f "/ctx/mods/remove_packages_from_excluded_list.txt" ]] && remove_excluded_packages "/ctx/mods/remove_packages_from_excluded_list.txt"
 if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     readarray -t INSTALLED_EXCLUDED < <(rpm -qa --queryformat='%{NAME}\n' "${EXCLUDED_PACKAGES[@]}" 2>/dev/null || true)
     if [[ "${#INSTALLED_EXCLUDED[@]}" -gt 0 ]]; then
