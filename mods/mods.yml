@@ -80,13 +80,9 @@ jobs:
           # updating reusable-build.yml
           yq eval -v -i --from-file mods/yq-mods4reusable-build-yaml.yq .github/workflows/reusable-build.yml
           #
-      - name: Commit modifications to reusable-build.yml and packages.json
+      - name: Commit modifications to reusable-build.yml
         run: |
-          echo "=== diffs to reusable-build.yml and packages.json ==="
-          git diff .github/workflows/reusable-build.yml
-          git diff packages.json
-
-          echo "=== Commit modifications to reusable-build.yml and packages.json ==="
+          echo "=== Commit modifications to reusable-build.yml ==="
           git add .
           git status
 
