@@ -139,16 +139,29 @@ update_04_packages_sh_to_expand_fedora_packages() {
     echo "Target file: $target_file"
     echo "Insert line: $insert_line"
     
+    # First check if the line is already present
+    if grep -q "$insert_line" "$target_file"; then
+        echo "Line already exists in file, skipping insertion"
+        return 0
+    fi
+    
     awk -v ins="$insert_line" '
-    BEGIN { in_array=0 }
-    /^FEDORA_PACKAGES=\(/ { in_array=1; print; next }
-    in_array && /^\)/ { 
+    BEGIN { in_array=0; found=0 }
+    /^FEDORA_PACKAGES=\(/ { in_array=1 }
+    /^[[:space:]]*\)[[:space:]]*$/ && in_array { 
+        in_array=0;
+        found=1;
         print;
         print ins;
-        in_array=0;
         next
     }
-    { print }' "$target_file" > "${target_file}.tmp"
+    { print }
+    END {
+        if (!found) {
+            print "Warning: Could not find end of FEDORA_PACKAGES array" > "/dev/stderr"
+            exit 1
+        }
+    }' "$target_file" > "${target_file}.tmp"
     
     # Debug: show the difference
     echo "Changes to be made:"
