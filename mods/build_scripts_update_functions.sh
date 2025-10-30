@@ -135,13 +135,33 @@ update_04_packages_sh_to_expand_fedora_packages() {
     fi
     
     # Insert the line after the FEDORA_PACKAGES array body (after its closing ')')
+    echo "Attempting to insert after FEDORA_PACKAGES array..."
+    echo "Target file: $target_file"
+    echo "Insert line: $insert_line"
+    
     awk -v ins="$insert_line" '
-    BEGIN{in=0}
-    {
-        print $0
-        if ($0 ~ /^FEDORA_PACKAGES=\(/) { in=1; next }
-        if (in && $0 ~ /^[[:space:]]*\)[[:space:]]*$/) { print ins; in=0 }
-    }' "$target_file" > "${target_file}.tmp" && mv "${target_file}.tmp" "$target_file"
+    BEGIN { in_array=0 }
+    /^FEDORA_PACKAGES=\(/ { in_array=1; print; next }
+    in_array && /^\)/ { 
+        print;
+        print ins;
+        in_array=0;
+        next
+    }
+    { print }' "$target_file" > "${target_file}.tmp"
+    
+    # Debug: show the difference
+    echo "Changes to be made:"
+    diff "$target_file" "${target_file}.tmp" || true
+    
+    # Only move if changes were made
+    if cmp -s "${target_file}.tmp" "$target_file"; then
+        echo "Warning: No changes were made to the file"
+        rm "${target_file}.tmp"
+        return 1
+    else
+        mv "${target_file}.tmp" "$target_file"
+    fi
 
     if [[ $? -eq 0 ]]; then
         echo "Successfully updated $target_file"
