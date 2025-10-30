@@ -104,8 +104,8 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}        
         run: |
           gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
-          gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-          gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
+        #  gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+        #  gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
         #
         # upstream project seems removed "stable" target
         # gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
