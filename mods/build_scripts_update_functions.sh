@@ -5,7 +5,7 @@ echo "::group:: ===$(basename "$0")==="
 # Function to update build scripts with remove_excluded_packages command
 update_04_packages_sh_to_customize_excluded_packages() {
 
-    local target_file="/ctx/build_files/base/04-packages.sh"
+    local target_file="${GITHUB_WORKSPACE}/build_files/base/04-packages.sh"
 
     # Source the script containing remove_excluded_packages function
     local source_line='source "/ctx/mods/build_scripts_update_functions.sh"'
@@ -115,7 +115,7 @@ add_packages_to_fedora_packages_array() {
 
 # Function to update 04-packages.sh to expand FEDORA_PACKAGES array
 update_04_packages_sh_to_expand_fedora_packages() {
-    local target_file="/ctx/build_files/base/04-packages.sh"
+    local target_file="${GITHUB_WORKSPACE}/build_files/base/04-packages.sh"
     
     # Source line and function call
     local source_line='source "/ctx/mods/build_scripts_update_functions.sh"'
