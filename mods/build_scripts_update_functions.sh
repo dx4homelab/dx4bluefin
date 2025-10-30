@@ -22,10 +22,23 @@ update_04_packages_sh_to_customize_excluded_packages() {
     fi
     
     # Insert the line after the comment about removing excluded packages
+    # Prevent duplicate insertion: skip if the exact line already exists
+    if grep -F -q "$insert_line" "$target_file"; then
+        echo "Line already exists in $target_file, skipping insertion"
+        return 0
+    fi
+
     sed -i '/#.*Remove excluded packages if they are installed/a '"$insert_line" "$target_file"
-    
-    if [[ $? -eq 0 ]]; then
-        echo "Successfully updated $target_file"
+    rc=$?
+
+    if [[ $rc -eq 0 ]]; then
+        # Ensure the updated script is executable
+        if chmod +x "$target_file"; then
+            echo "Successfully updated $target_file and set executable permission"
+        else
+            echo "Updated $target_file but failed to set executable permission"
+            return 1
+        fi
     else
         echo "Error: Failed to update $target_file"
         return 1
@@ -173,14 +186,16 @@ update_04_packages_sh_to_expand_fedora_packages() {
         rm "${target_file}.tmp"
         return 1
     else
-        mv "${target_file}.tmp" "$target_file"
-    fi
-
-    if [[ $? -eq 0 ]]; then
-        echo "Successfully updated $target_file"
-    else
-        echo "Error: Failed to update $target_file"
-        return 1
+        # Move new file into place and make it executable. Use a single conditional so we can
+        # report failure if either operation fails.
+        if mv "${target_file}.tmp" "$target_file" && chmod +x "$target_file"; then
+            echo "Successfully updated $target_file and set executable permission"
+        else
+            echo "Error: Failed to update or set executable permission on $target_file"
+            # Clean up temp file if it still exists
+            [[ -f "${target_file}.tmp" ]] && rm -f "${target_file}.tmp"
+            return 1
+        fi
     fi
 }
 
