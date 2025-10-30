@@ -91,7 +91,7 @@ FEDORA_PACKAGES=(
     zenity
     zsh
 )
-source "mods/build_scripts_update_functions.sh"; add_packages_to_fedora_packages_array
+source "/ctx/mods/build_scripts_update_functions.sh"; add_packages_to_fedora_packages_array
 
 # Version-specific Fedora package additions
 case "$FEDORA_MAJOR_VERSION" in
@@ -177,7 +177,7 @@ case "$FEDORA_MAJOR_VERSION" in
 esac
 
 # Remove excluded packages if they are installed
-source "mods/build_scripts_update_functions.sh"; remove_packages_from_excluded_list
+source "/ctx/mods/build_scripts_update_functions.sh"; remove_packages_from_excluded_list
 if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     readarray -t INSTALLED_EXCLUDED < <(rpm -qa --queryformat='%{NAME}\n' "${EXCLUDED_PACKAGES[@]}" 2>/dev/null || true)
     if [[ "${#INSTALLED_EXCLUDED[@]}" -gt 0 ]]; then

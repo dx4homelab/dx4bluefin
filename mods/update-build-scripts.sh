@@ -5,7 +5,7 @@ echo "::group:: ===$(basename "$0")==="
 # to call this script in github action add the following line:
 # bash mods/update_build_scripts.sh
 
-source "mods/build_scripts_update_functions.sh"
+source "/ctx/mods/build_scripts_update_functions.sh"
 
 # calling the function to insert line into 04-packages.sh to customize excluded packages array
 update_04_packages_sh_to_customize_excluded_packages
