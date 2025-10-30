@@ -8,7 +8,7 @@ update_04_packages_sh_to_customize_excluded_packages() {
     local target_file="${GITHUB_WORKSPACE}/build_files/base/04-packages.sh"
 
     # Source the script containing remove_excluded_packages function
-    local source_line='source "/ctx/mods/build_scripts_update_functions.sh"'
+    local source_line='source "/ctx/build_files/mods/build_scripts_update_functions.sh"'
     
     # Combine source and function call with a semicolon to ensure sequential execution
     local insert_line=''"$source_line"'; remove_packages_from_excluded_list'
@@ -47,7 +47,7 @@ update_04_packages_sh_to_customize_excluded_packages() {
 
 remove_packages_from_excluded_list() {
 
-    local file_with_packages="/ctx/mods/remove_packages_from_excluded_list.txt"
+    local file_with_packages="/ctx/build_files/mods/remove_packages_from_excluded_list.txt"
 
     local new_array=()
     
@@ -86,7 +86,7 @@ remove_packages_from_excluded_list() {
 # Function to add packages to FEDORA_PACKAGES array from a file
 add_packages_to_fedora_packages_array() {
 
-    local file_with_packages="/ctx/mods/add_packages.txt"
+    local file_with_packages="/ctx/build_files/mods/add_packages.txt"
 
     # Check if file exists
     if [[ ! -f "$file_with_packages" ]]; then
@@ -118,7 +118,7 @@ update_04_packages_sh_to_expand_fedora_packages() {
     local target_file="${GITHUB_WORKSPACE}/build_files/base/04-packages.sh"
     
     # Source line and function call
-    local source_line='source "/ctx/mods/build_scripts_update_functions.sh"'
+    local source_line='source "/ctx/build_files/mods/build_scripts_update_functions.sh"'
     local insert_line=''"$source_line"'; add_packages_to_fedora_packages_array'
     
     # Check if target file exists

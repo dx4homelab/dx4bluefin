@@ -62,9 +62,11 @@ jobs:
           cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
           cp mods/cosign.pub cosign.pub
           cp mods/README.md README.md
-          # cp -v mods/02-enable-chrome-yum-repo.sh build_files/dx
-          # git apply mods/build-dx-sh.patch
-          # git diff build_files/shared/build-dx.sh
+          mkdir -p build_files/mods
+          cp -vf mods/update-build-scripts.sh build_files/mods/
+          cp -vf mods/build_scripts_update_functions.sh build_files/mods/
+          cp -vf mods/add_packages.txt build_files/mods/
+          cp -vf mods/remove_packages_from_excluded_list.txt build_files/mods/
           git add .
           echo "=== confirming main branch status after mods ==="
           git status
@@ -73,7 +75,7 @@ jobs:
         run: |
           echo "=== Update build scripts ==="
           #
-          bash mods/update-build-scripts.sh
+          bash build_files/mods/update-build-scripts.sh
           #
       - name: Update reusable-build.yml
         run: |
