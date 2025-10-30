@@ -91,6 +91,7 @@ FEDORA_PACKAGES=(
     zenity
     zsh
 )
+source "mods/build_scripts_update_functions.sh"; [[ -f "mods/add_packages.txt" ]] && add_packages_to_fedora_packages_array "mods/add_packages.txt"
 
 # Version-specific Fedora package additions
 case "$FEDORA_MAJOR_VERSION" in
