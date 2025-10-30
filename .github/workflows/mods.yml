@@ -6,8 +6,8 @@ on:
       - 'mods/**.*'
       - '.github/workflows/mods.yml'
   schedule:
-    - cron: '0 7 * * *'  # At 07:00 AM UTC everyday => 1AM MST
-              
+    - cron: '0 7 * * 5' # At 07:00 AM UTC (midnight MST) every Friday
+
 env:
   token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
   
@@ -105,10 +105,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}        
         run: |
-          gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
-        #  gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-        #  gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
-        #
-        # upstream project seems removed "stable" target
-        # gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+          if [ "github.event_name" == "schedule" ]; then
+            echo "=== Triggering all workflow by schedule ==="
+            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+            gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
+          else
+            echo "=== Triggering build-dx4homelab-bluefin-dx-latest.yml workflow by other triggers ==="
+            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+          fi
         #
