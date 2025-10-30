@@ -49,7 +49,6 @@ remove_packages_from_excluded_list() {
 
     local file_with_packages="mods/remove_packages_from_excluded_list.txt"
 
-    local file_with_packages="$1"
     local new_array=()
     
     # Check if file exists
