@@ -34,6 +34,9 @@ echo "::endgroup::"
 # Install Overrides and Fetch Install
 /ctx/build_files/base/05-override-install.sh
 
+# Build GNOME Extensions from Git Submodules
+/ctx/build_files/shared/build-gnome-extensions.sh
+
 # Get Firmare for Framework
 /ctx/build_files/base/08-firmware.sh
 
@@ -61,3 +64,6 @@ echo "::group:: Cleanup"
 /ctx/build_files/shared/clean-stage.sh
 
 echo "::endgroup::"
+
+# Simple Tests
+/ctx/build_files/base/20-tests.sh
