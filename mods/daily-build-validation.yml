@@ -1,0 +1,97 @@
+name: Daily Build Validation
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Run at 5:00 UTC every day
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  actions: read   # For checking workflow status
+  contents: read  # For repository access
+  packages: write # For package operations
+
+jobs:
+  check-and-trigger:
+    name: Check and Trigger Builds
+    runs-on: ubuntu-latest
+    outputs:
+      stable_status: ${{ steps.check-status.outputs.stable_status }}
+      latest_status: ${{ steps.check-status.outputs.latest_status }}
+      gts_status: ${{ steps.check-status.outputs.gts_status }}
+    steps:
+      - name: Check Build Statuses
+        id: check-status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          check_workflow() {
+            local workflow_file=$1
+            local workflow_name=$2
+            
+            echo "Checking $workflow_name build status..."
+            
+            workflow_status=$(gh api \
+              /repos/${{ github.repository }}/actions/workflows/${workflow_file}/runs \
+              --jq '.workflow_runs[0].conclusion')
+            
+            echo "Last $workflow_name build status: $workflow_status"
+            
+            if [[ "$workflow_status" != "success" ]]; then
+              echo "${workflow_name,,}_needs_rebuild=true" >> $GITHUB_OUTPUT
+              echo "$workflow_name build needs rebuild"
+            else
+              echo "${workflow_name,,}_needs_rebuild=false" >> $GITHUB_OUTPUT
+              echo "$workflow_name build is successful"
+            fi
+          }
+          
+          # Check all workflows
+          check_workflow "build-dx4homelab-bluefin-dx-stable.yml" "Stable"
+          check_workflow "build-dx4homelab-bluefin-dx-latest.yml" "Latest"
+          check_workflow "build-dx4homelab-bluefin-dx-gts.yml" "GTS"
+
+      - name: Trigger Failed Builds
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          trigger_if_needed() {
+            local workflow_file=$1
+            local workflow_name=$2
+            local needs_rebuild=$3
+            
+            if [[ "$needs_rebuild" == "true" ]]; then
+              echo "Triggering $workflow_name build..."
+              gh workflow run $workflow_file
+              echo "$workflow_name build triggered"
+            else
+              echo "No rebuild needed for $workflow_name"
+            fi
+          }
+          
+          # Trigger workflows that need rebuild
+          trigger_if_needed "build-dx4homelab-bluefin-dx-stable.yml" "Stable" "${{ steps.check-status.outputs.stable_needs_rebuild }}"
+          trigger_if_needed "build-dx4homelab-bluefin-dx-latest.yml" "Latest" "${{ steps.check-status.outputs.latest_needs_rebuild }}"
+          trigger_if_needed "build-dx4homelab-bluefin-dx-gts.yml" "GTS" "${{ steps.check-status.outputs.gts_needs_rebuild }}"
+
+  notify:
+    name: Notify Results
+    needs: check-and-trigger
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Workflow Status Summary
+        env:
+          STABLE_STATUS: ${{ needs.check-and-trigger.outputs.stable_needs_rebuild }}
+          LATEST_STATUS: ${{ needs.check-and-trigger.outputs.latest_needs_rebuild }}
+          GTS_STATUS: ${{ needs.check-and-trigger.outputs.gts_needs_rebuild }}
+        run: |
+          if [[ "${{ needs.check-and-trigger.result }}" == "success" ]]; then
+            echo "Daily build validation summary:"
+            echo "--------------------------------"
+            echo "Stable: ${STABLE_STATUS:-OK}"
+            echo "Latest: ${LATEST_STATUS:-OK}"
+            echo "GTS: ${GTS_STATUS:-OK}"
+            echo "--------------------------------"
+          else
+            echo "Daily build validation failed"
+            exit 1
+          fi
