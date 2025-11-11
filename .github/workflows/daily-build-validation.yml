@@ -58,7 +58,7 @@ jobs:
 
       - name: Trigger Failed Builds
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
           trigger_if_needed() {
             local workflow_file=$1
