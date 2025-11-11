@@ -47,6 +47,13 @@ jobs:
           git clone -b main https://github.com/ublue-os/bluefin.git mods/upstream
           ls -lt mods
           ls -lt mods/upstream
+          
+          echo "=== initializing and updating submodules in mods/upstream ==="
+          cd mods/upstream
+          git submodule sync --recursive
+          git submodule update --init --recursive --force --jobs 4
+          cd ../..
+          
           echo "=== replacing all bluefin files from fresh copy in mods/upstream ==="
           rsync -av --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
