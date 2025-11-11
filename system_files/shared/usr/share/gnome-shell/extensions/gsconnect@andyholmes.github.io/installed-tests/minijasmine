@@ -1,0 +1,156 @@
+#!/usr/bin/env -S gjs -m
+
+// SPDX-FileCopyrightText: GSConnect Developers https://github.com/GSConnect
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+import GLib from 'gi://GLib';
+import system from 'system';
+import {getJasmineRequireObj} from './jasmine.js';
+
+
+// Utils
+function _formatMessage(message) {
+    return message.replace(/\n/g, '\\n');
+}
+
+function _formatStack(stack) {
+    if (!stack)
+        return '#   No stack';
+
+    return stack.split('\n')
+        .filter(line => line.indexOf('<Jasmine>') === -1)
+        .filter(line => line.indexOf('minijasmine') === -1)
+        .map(line => `#   ${line}`)
+        .join('\n');
+}
+
+
+/**
+ * Reporter that outputs according to the Test Anything Protocol
+ * See http://testanything.org/tap-specification.html
+ */
+class TapReporter {
+    constructor() {
+        this._failedSuites = [];
+        this._specCount = 0;
+    }
+
+    jasmineStarted(info) {
+        print(`1..${info.totalSpecsDefined}`);
+    }
+
+    jasmineDone() {
+        this._failedSuites.forEach(failure => {
+            failure.failedExpectations.forEach(result => {
+                print('not ok - An error was thrown outside a test');
+                print(`# ${result.message}`);
+            });
+        });
+
+        globalThis._jasmineMain.quit();
+    }
+
+    suiteDone(result) {
+        if (result.failedExpectations && result.failedExpectations.length > 0) {
+            globalThis._jasmineRetval = 1;
+            this._failedSuites.push(result);
+        }
+
+        if (result.status === 'disabled')
+            print('# Suite was disabled:', result.fullName);
+    }
+
+    specStarted() {
+        this._specCount++;
+    }
+
+    specDone(result) {
+        let tapReport = 'ok';
+
+        if (result.status === 'failed') {
+            globalThis._jasmineRetval = 1;
+            tapReport = 'not ok';
+        }
+
+        tapReport += ` ${this._specCount} ${result.fullName}`;
+
+        if (result.status === 'pending' || result.status === 'disabled')
+            tapReport += ` # SKIP ${result.pendingReason || result.status}`;
+
+        print(tapReport);
+
+        // Print additional diagnostic info on failure
+        if (result.status === 'failed' && result.failedExpectations) {
+            result.failedExpectations.forEach(failedExpectation => {
+                print('# Message:', _formatMessage(failedExpectation.message));
+                print(`# Stack:\n${_formatStack(failedExpectation.stack)}`);
+            });
+        }
+    }
+}
+
+
+/**
+ * Initialize Jasmine
+ */
+function initJasmine() {
+    // Load Jasmine
+    const jasmineRequire = getJasmineRequireObj();
+    const jasmineCore = jasmineRequire.core(jasmineRequire);
+    globalThis._jasmineEnv = jasmineCore.getEnv();
+
+    globalThis._jasmineMain = GLib.MainLoop.new(null, false);
+    globalThis._jasmineRetval = 0;
+
+    // Install Jasmine API on the global object
+    const iface = jasmineRequire.interface(jasmineCore, globalThis._jasmineEnv);
+    Object.assign(globalThis, iface);
+
+    // Register the TAP reporter
+    globalThis._jasmineEnv.addReporter(new TapReporter());
+}
+
+
+/**
+ * Initialize test suites
+ */
+async function initTests() {
+    // Load the test suite
+    await import(`file://${ARGV[0]}`);
+}
+
+
+/**
+ * Run initialized tests
+ */
+async function runTests() {
+    GLib.idle_add(GLib.PRIORITY_DEFAULT, function () {
+        try {
+            globalThis._jasmineEnv.execute();
+        } catch (e) {
+            print('Bail out! Exception occurred inside Jasmine:', e);
+            globalThis._jasmineRetval = 1;
+            globalThis._jasmineMain.quit();
+        }
+        return GLib.SOURCE_REMOVE;
+    });
+
+    await globalThis._jasmineMain.runAsync();
+
+    // Exhaust the event loop
+    const context = GLib.MainContext.default();
+
+    while (context.iteration(false))
+        continue;
+
+    // Return the exit status
+    system.exit(globalThis._jasmineRetval);
+}
+
+
+// TODO: add CLI options for isolated XDG, DBus, etc
+initJasmine();
+await initTests();
+await runTests();
+

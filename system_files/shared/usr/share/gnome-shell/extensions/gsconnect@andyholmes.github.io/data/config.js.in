@@ -1,0 +1,24 @@
+// SPDX-FileCopyrightText: GSConnect Developers https://github.com/GSConnect
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+export default {
+    PACKAGE_VERSION: @PACKAGE_VERSION@,
+    PACKAGE_URL: '@PACKAGE_URL@',
+    PACKAGE_BUGREPORT: '@PACKAGE_BUGREPORT@',
+    PACKAGE_DATADIR: '@PACKAGE_DATADIR@',
+    PACKAGE_LOCALEDIR: '@PACKAGE_LOCALEDIR@',
+    GSETTINGS_SCHEMA_DIR: '@GSETTINGS_SCHEMA_DIR@',
+    GNOME_SHELL_LIBDIR: '@GNOME_SHELL_LIBDIR@',
+
+    APP_ID: '@APPLICATION_ID@',
+    APP_PATH: '@APPLICATION_PATH@',
+
+    IS_USER: false,
+
+    // External binary paths
+    OPENSSL_PATH: '@OPENSSL_PATH@',
+    SSHADD_PATH: '@SSHADD_PATH@',
+    SSHKEYGEN_PATH: '@SSHKEYGEN_PATH@',
+    FFMPEG_PATH: '@FFMPEG_PATH@',
+};

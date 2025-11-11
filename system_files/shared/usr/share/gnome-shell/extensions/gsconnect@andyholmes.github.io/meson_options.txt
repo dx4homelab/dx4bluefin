@@ -1,0 +1,113 @@
+# SPDX-FileCopyrightText: GSConnect Developers https://github.com/GSConnect
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# See https://github.com/GSConnect/gnome-shell-extension-gsconnect/wiki/Packaging
+
+# GNOME Shell LIBDIR
+option(
+  'gnome_shell_libdir',
+  type: 'string',
+  value: '',
+  description: 'LIBDIR for GNOME Shell (eg. $LIBDIR/gnome-shell/Gvc-1.0.typelib)'
+)
+
+# DBus service file
+option(
+  'session_bus_services_dir',
+  type: 'string',
+  value: '',
+  description: 'DBus session services directory'
+)
+
+# firewalld service file
+option(
+  'firewalld',
+  type: 'boolean',
+  value: false,
+  description: 'Install firewalld service file'
+)
+
+# External program paths
+# NOTE: these are only useful for distributions like NixOS that don't use PATH
+option(
+  'ffmpeg_path',
+  type: 'string',
+  value: 'ffmpeg',
+  description: 'Absolute path to ffmpeg binary'
+)
+
+option(
+  'openssl_path',
+  type: 'string',
+  value: 'openssl',
+  description: 'Absolute path to openssl binary'
+)
+
+option(
+  'sshadd_path',
+  type: 'string',
+  value: 'ssh-add',
+  description: 'Absolute path to ssh-add binary'
+)
+
+option(
+  'sshkeygen_path',
+  type: 'string',
+  value: 'ssh-keygen',
+  description: 'Absolute path to ssh-keygen binary'
+)
+
+# Nautilus/Nemo Python extension installation
+option(
+  'nautilus',
+  type: 'boolean',
+  value: true,
+  description: 'Install file browser extension for Nautilus (Files)'
+)
+
+option(
+  'nemo',
+  type: 'boolean',
+  value: false,
+  description: 'Install file browser extension for Nemo'
+)
+
+# WebExtension manifest installation
+# NOTE: this is NOT the WebExtension, but is REQUIRED for it to work.
+option(
+  'webextension',
+  type: 'boolean',
+  value: true,
+  description: 'Install WebExtension manifest for Chrome, Chromium & Firefox'
+)
+
+# Override manifest install so that BROWSER_NMHDIR/foo.json
+option(
+  'chrome_nmhdir',
+  type: 'string',
+  value: '',
+  description: 'Native Messaging Host directory for Chrome'
+)
+
+option(
+  'chromium_nmhdir',
+  type: 'string',
+  value: '',
+  description: 'Native Messaging Host directory for Chromium'
+)
+
+option(
+  'mozilla_nmhdir',
+  type: 'string',
+  value: '',
+  description: 'Native Messaging Host directory for Mozilla'
+)
+
+option(
+  'installed_tests',
+  type: 'boolean',
+  value: true,
+  description: 'Install tests'
+)
+

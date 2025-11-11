@@ -1,0 +1,6 @@
+caffeine@patapon.info.zip
+*.mo
+gschemas.compiled
+.idea
+.envrc
+.vscode

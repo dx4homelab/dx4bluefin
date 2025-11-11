@@ -1,0 +1,1046 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the blur-my-shell@aunetx package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: blur-my-shell@aunetx\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-18 21:20+0100\n"
+"PO-Revision-Date: 2025-05-12 08:01+0000\n"
+"Last-Translator: Sergey Ponomarev <stokito@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/blur-my-shell/"
+"blur-my-shell/ru/>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.12-dev\n"
+
+#: src/effects/effects.js:20
+msgid "Blur effects"
+msgstr "Эффекты размытия"
+
+#: src/effects/effects.js:28
+msgid "Texture effects"
+msgstr "Эффекты текстур"
+
+#: src/effects/effects.js:41
+msgid "Shape effects"
+msgstr "Эффекты фигур"
+
+#: src/effects/effects.js:57
+msgid "Native gaussian blur"
+msgstr "Нативное гауссово размытие"
+
+#: src/effects/effects.js:58
+msgid ""
+"An optimized blur effect that smoothly blends pixels within a given radius."
+msgstr ""
+"Оптимизированный эффект размытия, который плавно смешивает пиксели в "
+"пределах заданного радиуса."
+
+#: src/effects/effects.js:62 src/effects/effects.js:91
+#: src/effects/effects.js:120 src/effects/effects.js:312
+#: src/effects/effects.js:317
+msgid "Radius"
+msgstr "Радиус"
+
+#: src/effects/effects.js:63
+msgid "The intensity of the blur effect."
+msgstr "Интенсивность эффекта размытия."
+
+#: src/effects/effects.js:72 src/effects/effects.js:101
+#: src/effects/effects.js:138 resources/ui/applications.ui:42
+#: resources/ui/dash.ui:92 resources/ui/other.ui:77 resources/ui/overview.ui:75
+#: resources/ui/panel.ui:92
+msgid "Brightness"
+msgstr "Яркость"
+
+#: src/effects/effects.js:73 src/effects/effects.js:102
+#: src/effects/effects.js:139 resources/ui/applications.ui:43
+#: resources/ui/dash.ui:93 resources/ui/other.ui:78 resources/ui/overview.ui:76
+#: resources/ui/panel.ui:93
+msgid ""
+"The brightness of the blur effect, a high value might make the text harder "
+"to read."
+msgstr ""
+"Яркость эффекта размытия, высокое значение может сделать текст "
+"трудночитаемым."
+
+#: src/effects/effects.js:86
+msgid "Gaussian blur (advanced effect)"
+msgstr "Гауссово размытие (расширенный эффект)"
+
+#: src/effects/effects.js:87
+msgid ""
+"A blur effect that smoothly blends pixels within a given radius. This effect "
+"is more precise, but way less optimized."
+msgstr ""
+"Эффект размытия, который плавно смешивает пиксели в пределах заданного "
+"радиуса. Этот эффект более точен, но гораздо менее оптимизирован."
+
+#: src/effects/effects.js:92
+msgid ""
+"The intensity of the blur effect. The bigger it is, the slower it will be."
+msgstr ""
+"Интенсивность эффекта размытия. Чем она больше, тем медленнее будет "
+"происходить эффект."
+
+#: src/effects/effects.js:115
+msgid "Monte Carlo blur"
+msgstr "Размытие Монте-Карло"
+
+#: src/effects/effects.js:116
+msgid ""
+"A blur effect that mimics a random walk, by picking pixels further and "
+"further away from its origin and mixing them all together."
+msgstr ""
+"Эффект размытия, который имитирует случайное движение, выбирая пиксели все "
+"дальше и дальше от своего источника и смешивая их вместе."
+
+#: src/effects/effects.js:121
+msgid ""
+"The maximum travel distance for each step in the random walk. A higher value "
+"will make the blur more randomized."
+msgstr ""
+"Максимальное расстояние для каждого шага в случайном движении. При большем "
+"значении размытие будет более случайным."
+
+#: src/effects/effects.js:130
+msgid "Iterations"
+msgstr "Итерации"
+
+#: src/effects/effects.js:131
+msgid "The number of iterations. The more there are, the smoother the blur is."
+msgstr "Количество итераций. Чем их больше, тем более плавным будет размытие."
+
+#: src/effects/effects.js:148
+msgid "Use base pixel"
+msgstr "Использовать исходный пиксель"
+
+#: src/effects/effects.js:149
+msgid ""
+"Whether or not the original pixel is counted for the blur. If it is, the "
+"image will be more legible."
+msgstr ""
+"Учитывается ли исходный пиксель при размытии. Если да, то изображение будет "
+"более разборчивым."
+
+#: src/effects/effects.js:157 src/effects/effects.js:163
+#: src/effects/effects.js:162 src/effects/effects.js:168
+msgid "Color"
+msgstr "Цвет"
+
+#: src/effects/effects.js:158 src/effects/effects.js:163
+msgid "An effect that blends a color into the pipeline."
+msgstr "Эффект, при котором цвет смешивается с каналом."
+
+#: src/effects/effects.js:164 src/effects/effects.js:169
+msgid ""
+"The color to blend in. The blending amount is controled by the opacity of "
+"the color."
+msgstr ""
+"Цвет для смешивания. Величина смешивания регулируется непрозрачностью цвета."
+
+#: src/effects/effects.js:172 src/effects/effects.js:177
+msgid "Pixelize"
+msgstr "Пикселизация"
+
+#: src/effects/effects.js:173 src/effects/effects.js:178
+msgid "An effect that pixelizes the image."
+msgstr "Эффект, который пикселизирует изображение."
+
+#: src/effects/effects.js:177 src/effects/effects.js:204
+#: src/effects/effects.js:231 src/effects/effects.js:182
+#: src/effects/effects.js:209 src/effects/effects.js:236
+msgid "Factor"
+msgstr "Коэффициент"
+
+#: src/effects/effects.js:178 src/effects/effects.js:205
+#: src/effects/effects.js:183 src/effects/effects.js:210
+msgid "How much to scale down the image."
+msgstr "Насколько уменьшить масштаб изображения."
+
+#: src/effects/effects.js:185 src/effects/effects.js:212
+#: src/effects/effects.js:190 src/effects/effects.js:217
+msgid "Downsampling mode"
+msgstr "Режим пониженной дискретизации"
+
+#: src/effects/effects.js:186 src/effects/effects.js:213
+#: src/effects/effects.js:191 src/effects/effects.js:218
+msgid "The downsampling method that is used."
+msgstr "Используемый метод пониженной дискретизации."
+
+#: src/effects/effects.js:189 src/effects/effects.js:216
+#: src/effects/effects.js:194 src/effects/effects.js:221
+msgid "Boxcar"
+msgstr "Boxcar"
+
+#: src/effects/effects.js:190 src/effects/effects.js:217
+#: src/effects/effects.js:195 src/effects/effects.js:222
+msgid "Triangular"
+msgstr "Triangular"
+
+#: src/effects/effects.js:191 src/effects/effects.js:218
+#: src/effects/effects.js:196 src/effects/effects.js:223
+msgid "Dirac"
+msgstr "Dirac"
+
+#: src/effects/effects.js:199 src/effects/effects.js:204
+msgid "Downscale (advanced effect)"
+msgstr "Уменьшение масштаба (расширенный эффект)"
+
+#: src/effects/effects.js:200 src/effects/effects.js:205
+msgid "An effect that downscales the image and put it on the top-left corner."
+msgstr ""
+"Эффект, который уменьшает масштаб изображения и помещает его в левый верхний "
+"угол."
+
+#: src/effects/effects.js:226 src/effects/effects.js:231
+msgid "Upscale (advanced effect)"
+msgstr "Увеличение масштаба (расширенный эффект)"
+
+#: src/effects/effects.js:227 src/effects/effects.js:232
+msgid "An effect that upscales the image from the top-left corner."
+msgstr "Эффект, который увеличивает изображение с левого верхнего угла."
+
+#: src/effects/effects.js:232 src/effects/effects.js:237
+msgid "How much to scale up the image."
+msgstr "Насколько увеличить масштаб изображения."
+
+#: src/effects/effects.js:243 src/effects/effects.js:248
+msgid "Derivative"
+msgstr "Производная"
+
+#: src/effects/effects.js:244 src/effects/effects.js:249
+msgid "Apply a spatial derivative, or a laplacian."
+msgstr "Применить пространственную производную или лапласиан."
+
+#: src/effects/effects.js:248 src/effects/effects.js:253
+msgid "Operation"
+msgstr "Операция"
+
+#: src/effects/effects.js:249 src/effects/effects.js:254
+msgid "The mathematical operation to apply."
+msgstr "Математическая операция, которую необходимо применить."
+
+#: src/effects/effects.js:252 src/effects/effects.js:257
+msgid "1-step derivative"
+msgstr "Одноступенчатая производная"
+
+#: src/effects/effects.js:253 src/effects/effects.js:258
+msgid "2-step derivative"
+msgstr "Двухступенчатая производная"
+
+#: src/effects/effects.js:254 src/effects/effects.js:259
+msgid "Laplacian"
+msgstr "Лапласиан"
+
+#: src/effects/effects.js:262 src/effects/effects.js:267
+#: src/effects/effects.js:272
+msgid "Noise"
+msgstr "Шум"
+
+#: src/effects/effects.js:263 src/effects/effects.js:268
+msgid ""
+"An effect that adds a random noise. Prefer the Monte Carlo blur for a more "
+"organic effect if needed."
+msgstr ""
+"Эффект, добавляющий случайный шум. При необходимости предпочесть размытие "
+"Монте-Карло для более органичного эффекта."
+
+#: src/effects/effects.js:268 src/effects/effects.js:273
+msgid "The amount of noise to add."
+msgstr "Количество добавляемого шума."
+
+#: src/effects/effects.js:277 src/effects/effects.js:282
+msgid "Lightness"
+msgstr "Светимость"
+
+#: src/effects/effects.js:278 src/effects/effects.js:283
+msgid ""
+"The luminosity of the noise. A setting of '1.0' will make the effect "
+"transparent."
+msgstr ""
+"Светимость шума. При установке значения \"1.0\" эффект станет прозрачным."
+
+#: src/effects/effects.js:291 src/effects/effects.js:296
+msgid "RGB to HSL (advanced effect)"
+msgstr "RGB в HSL (расширенный эффект)"
+
+#: src/effects/effects.js:292 src/effects/effects.js:297
+msgid "Converts the image from RGBA colorspace to HSLA."
+msgstr "Преобразует изображение из цветового пространства RGBA в HSLA."
+
+#: src/effects/effects.js:299 src/effects/effects.js:304
+msgid "HSL to RGB (advanced effect)"
+msgstr "HSL в RGB (расширенный эффект)"
+
+#: src/effects/effects.js:300 src/effects/effects.js:305
+msgid "Converts the image from HSLA colorspace to RGBA."
+msgstr "Преобразует изображение из цветового пространства HSLA в RGBA."
+
+#: src/effects/effects.js:307 src/effects/effects.js:312
+msgid "Corner"
+msgstr "Угол"
+
+#: src/effects/effects.js:308 src/effects/effects.js:313
+msgid ""
+"An effect that draws corners. Add it last not to have the other effects "
+"perturb the corners."
+msgstr ""
+"Эффект, рисующий углы. Добавьте его последним, чтобы другие эффекты не "
+"нарушали углы."
+
+#: src/effects/effects.js:313 src/effects/effects.js:318
+msgid "The radius of the corner. GNOME apps use a radius of 12 px by default."
+msgstr ""
+"Радиус угла. В приложениях GNOME по умолчанию используется радиус 12 "
+"пикселей."
+
+#: src/effects/effects.js:320 src/effects/effects.js:325
+msgid "Top corners"
+msgstr "Верхние углы"
+
+#: src/effects/effects.js:321 src/effects/effects.js:326
+msgid "Whether or not to round the top corners."
+msgstr "Закруглять или нет верхние углы."
+
+#: src/effects/effects.js:325 src/effects/effects.js:330
+msgid "Bottom corners"
+msgstr "Нижние углы"
+
+#: src/effects/effects.js:326 src/effects/effects.js:331
+msgid "Whether or not to round the bottom corners."
+msgstr "Закруглять или нет нижние углы."
+
+#: resources/ui/application-row.ui:4
+msgid "Window Name"
+msgstr "Название окна"
+
+#: resources/ui/application-row.ui:8
+msgid "Select window"
+msgstr "Выбрать окно"
+
+#: resources/ui/application-row.ui:9
+msgid "Pick a window or select it by its classname."
+msgstr "Выберите окно или выделите его по имени класса."
+
+#: resources/ui/applications.ui:5
+msgid "Applications"
+msgstr "Приложения"
+
+#: resources/ui/applications.ui:10
+msgid "Applications blur"
+msgstr "Размытие приложений"
+
+#: resources/ui/applications.ui:11
+msgid ""
+"Adds blur to the applications.\n"
+"To get the best results possible, although with reduced performances, you "
+"can choose the option “No artifact” in the “Other → Hack level” tab."
+msgstr ""
+"Добавляет размытие в приложения.\n"
+"Чтобы получить наилучшие результаты, хотя и с пониженной "
+"производительностью, вы можете выбрать опцию \"Без артефактов\" на вкладке "
+"\"Прочее → Уровень взлома\"."
+
+#: resources/ui/applications.ui:21 resources/ui/dash.ui:71
+#: resources/ui/other.ui:56 resources/ui/overview.ui:54
+#: resources/ui/panel.ui:71
+msgid "Sigma"
+msgstr "Сигма"
+
+#: resources/ui/applications.ui:22 resources/ui/dash.ui:72
+#: resources/ui/other.ui:57 resources/ui/overview.ui:55
+#: resources/ui/panel.ui:72
+msgid "The intensity of the blur."
+msgstr "Интенсивность размытия."
+
+#: resources/ui/applications.ui:63
+msgid "Opacity"
+msgstr "Непрозрачность"
+
+#: resources/ui/applications.ui:64
+msgid ""
+"The opacity of the window on top of the blur effect, a higher value will be "
+"more legible."
+msgstr ""
+"Непрозрачность окна поверх эффекта размытия, более высокое значение будет "
+"более четким."
+
+#: resources/ui/applications.ui:85
+msgid "Opaque focused window"
+msgstr "Непрозрачное сфокусированное окно"
+
+#: resources/ui/applications.ui:86
+msgid ""
+"Makes the focused window opaque and the other ones blurred, helping with "
+"legibility."
+msgstr ""
+"Делает сфокусированное окно непрозрачным, а остальные - размытыми, что "
+"способствует разборчивости."
+
+#: resources/ui/applications.ui:100
+msgid "Blur on overview"
+msgstr "Размытие в Обзоре"
+
+#: resources/ui/applications.ui:101
+msgid ""
+"Forces the blur to be properly shown on all workspaces on overview.\n"
+"This may cause some latency or performance issues."
+msgstr ""
+"Заставляет размытие правильно отображаться на всех рабочих столах в Обзоре.\n"
+"Это может вызвать некоторые задержки или проблемы с производительностью."
+
+#: resources/ui/applications.ui:116
+msgid "Enable all by default"
+msgstr "Включить для всех по умолчанию"
+
+#: resources/ui/applications.ui:117
+msgid "Adds blur behind all windows by default."
+msgstr "По умолчанию добавляет размытие позади всех окон."
+
+#: resources/ui/applications.ui:133
+msgid "Whitelist"
+msgstr "Белый список"
+
+#: resources/ui/applications.ui:134
+msgid "A list of windows to blur."
+msgstr "Список окон для размытия."
+
+#: resources/ui/applications.ui:152 resources/ui/applications.ui:189
+msgid "Add Window"
+msgstr "Добавить окно"
+
+#: resources/ui/applications.ui:170
+msgid "Blacklist"
+msgstr "Черный список"
+
+#: resources/ui/applications.ui:171
+msgid "A list of windows not to blur."
+msgstr "Список окон, которые не нужно размывать."
+
+#: resources/ui/dash.ui:5
+msgid "Dash"
+msgstr "Панель приложений"
+
+#: resources/ui/dash.ui:10
+msgid "Dash to Dock blur"
+msgstr "Размытие Dash to Dock"
+
+#: resources/ui/dash.ui:11
+msgid "Blur the background of the Dash to Dock extension, if it is used."
+msgstr "Размытие фона расширения Dash to Dock, если оно используется."
+
+#: resources/ui/dash.ui:20 resources/ui/panel.ui:20
+msgid "Blur type"
+msgstr "Тип размытия"
+
+#: resources/ui/dash.ui:21 resources/ui/panel.ui:21
+msgid ""
+"The dynamic blur is slower and only compatible with a gaussian blur effect."
+msgstr ""
+"Динамическое размытие работает медленнее и совместимо только с эффектом "
+"гауссова размытия."
+
+#: resources/ui/dash.ui:41 resources/ui/panel.ui:41
+msgid "Static"
+msgstr "Статическое"
+
+#: resources/ui/dash.ui:53 resources/ui/panel.ui:53
+msgid "Dynamic"
+msgstr "Динамическое"
+
+#: resources/ui/dash.ui:113 resources/ui/panel.ui:128
+msgid "Override background"
+msgstr "Переопределить фон"
+
+#: resources/ui/dash.ui:114
+msgid ""
+"Makes the background either transparent or semi-transparent, disable this to "
+"use Dash to Dock preferences instead."
+msgstr ""
+"Делает фон прозрачным или полупрозрачным, отключите его, чтобы вместо него "
+"использовать настройки Dash to Dock."
+
+#: resources/ui/dash.ui:120 resources/ui/panel.ui:136
+msgid "Background style"
+msgstr "Стиль фона"
+
+#: resources/ui/dash.ui:121
+msgid "The transparent/semi-transparent style for the dock background."
+msgstr "Прозрачный/полупрозрачный стиль для фона панели приложений."
+
+#: resources/ui/dash.ui:137 resources/ui/panel.ui:167
+msgid "Disable in overview"
+msgstr "Отключить в Обзоре"
+
+#: resources/ui/dash.ui:138
+msgid "Disables the blur from Dash to Dock when entering the overview."
+msgstr "Отключает размытие из Dash to Dock при входе в Обзор."
+
+#: resources/ui/dash.ui:167 resources/ui/overview.ui:118
+#: resources/ui/overview.ui:138 resources/ui/panel.ui:222
+msgid "Transparent"
+msgstr "Прозрачный"
+
+#: resources/ui/dash.ui:168 resources/ui/overview.ui:116
+#: resources/ui/overview.ui:139 resources/ui/panel.ui:223
+msgid "Light"
+msgstr "Светлый"
+
+#: resources/ui/dash.ui:169 resources/ui/overview.ui:117
+#: resources/ui/overview.ui:140 resources/ui/panel.ui:224
+msgid "Dark"
+msgstr "Темный"
+
+#: resources/ui/effects-dialog.ui:4
+msgid "Effects"
+msgstr "Эффекты"
+
+#: resources/ui/effects-dialog.ui:39
+msgid "Add Effect"
+msgstr "Добавить эффект"
+
+#: resources/ui/effects-dialog.ui:72
+msgid "Include advanced effects"
+msgstr "Включить расширенные эффекты"
+
+#: resources/ui/menu.ui:6
+msgid "Project page"
+msgstr "Страница проекта"
+
+#: resources/ui/menu.ui:10
+msgid "Report a Bug"
+msgstr "Сообщить об ошибке"
+
+#: resources/ui/menu.ui:14
+msgid "License"
+msgstr "Лицензия"
+
+#: resources/ui/menu.ui:18
+msgid "Donate"
+msgstr "Пожертвовать"
+
+#: resources/ui/other.ui:5
+msgid "Other"
+msgstr "Прочее"
+
+#: resources/ui/other.ui:10
+msgid "Lockscreen blur"
+msgstr "Размытие экрана блокировки"
+
+#: resources/ui/other.ui:11
+msgid "Change the blur of the lockscreen to use this extension's preferences."
+msgstr ""
+"Использовать настройки этого расширения для изменения размытия экрана "
+"блокировки."
+
+#: resources/ui/other.ui:28
+msgid "Screenshot blur"
+msgstr "Размытие при PrintScreen"
+
+#: resources/ui/other.ui:29
+msgid "Add blur to the background of the window selector in the screenshot UI."
+msgstr ""
+"Добавляет размытие к фону выбора окна в пользовательском интерфейсе "
+"скриншотов."
+
+#: resources/ui/other.ui:46
+msgid "Window list extension blur"
+msgstr "Размытие расширения Window List"
+
+#: resources/ui/other.ui:47
+msgid "Make the window-list extension blurred, if it is used."
+msgstr "Делает расширение Window List размытым, если оно используется."
+
+#: resources/ui/other.ui:100
+msgid "Coverflow Alt-Tab extension blur"
+msgstr "Размытие расширения Coverflow Alt-Tab"
+
+#: resources/ui/other.ui:101
+msgid "Make the coverflow alt-tab extension blurred, if it is used."
+msgstr "Делает расширение Coverflow Alt-Tab размытым, если оно используется."
+
+#: resources/ui/other.ui:118
+msgid "Performance"
+msgstr "Производительность"
+
+#: resources/ui/other.ui:119
+msgid "Various options to tweak the performance."
+msgstr "Различные опции для настройки производительности."
+
+#: resources/ui/other.ui:123
+msgid "Hack level"
+msgstr "Уровень взлома"
+
+#: resources/ui/other.ui:124
+msgid ""
+"Changes the behaviour of the dynamic blur effect. The default value is "
+"highly recommended.\n"
+"The “No artifact” option will entirely disable clipped redraws in GNOME "
+"shell, and will impact your computer performances significantly."
+msgstr ""
+"Изменяет поведение эффекта динамического размытия. Настоятельно "
+"рекомендуется использовать значение по умолчанию.\n"
+"Опция \"Без артефактов\" полностью отключит обрезанные перерисовки в "
+"оболочке GNOME и существенно повлияет на производительность вашего "
+"компьютера."
+
+#: resources/ui/other.ui:138
+msgid "Debug"
+msgstr "Отладка"
+
+#: resources/ui/other.ui:139
+msgid ""
+"Makes the extension verbose in logs, activate when you need to report an "
+"issue."
+msgstr ""
+"Делает работу расширения подробной в журналах, активируется, когда вам нужно "
+"сообщить о проблеме."
+
+#: resources/ui/other.ui:154
+msgid "Reset preferences"
+msgstr "Сброс настроек"
+
+#: resources/ui/other.ui:155
+msgid "Resets preferences of Blur my Shell irreversibly."
+msgstr "Необратимо сбрасывает настройки Blur my Shell."
+
+#: resources/ui/other.ui:174
+msgid "Reset"
+msgstr "Сбросить"
+
+#: resources/ui/other.ui:203
+msgid "High performances"
+msgstr "Высокая производительность"
+
+#: resources/ui/other.ui:204
+msgid "Default"
+msgstr "По умолчанию"
+
+#: resources/ui/other.ui:205
+msgid "No artifact"
+msgstr "Без артефактов"
+
+#: resources/ui/overview.ui:5
+msgid "Overview"
+msgstr "Обзор"
+
+#: resources/ui/overview.ui:10
+msgid "Background blur"
+msgstr "Размытие фона"
+
+#: resources/ui/overview.ui:11
+msgid "Add blur to the overview background, using the wallpaper picture."
+msgstr "Добавляет размытие к фону Обзора, используя картинку обоев."
+
+#: resources/ui/overview.ui:26
+msgid "Overview components style"
+msgstr "Стилизация компонентов Обзора"
+
+#: resources/ui/overview.ui:27
+msgid ""
+"The semi-transparent style for the dash, search entry/results, and "
+"application folders."
+msgstr "Полупрозрачный стиль для панели приложений, поиска и папок приложений."
+
+#: resources/ui/overview.ui:44
+msgid "Application folder blur"
+msgstr "Размытие папки приложений"
+
+#: resources/ui/overview.ui:45
+msgid "Makes the background of application folder dialogs blurred."
+msgstr "Делает фон диалоговых окон папок приложений размытым."
+
+#: resources/ui/overview.ui:96
+msgid "Application folder dialogs style"
+msgstr "Стиль диалоговых окон папок приложений"
+
+#: resources/ui/overview.ui:97
+msgid "The semi-transparent style for the application folder dialogs."
+msgstr "Полупрозрачный стиль для диалоговых окон папок приложений."
+
+#: resources/ui/overview.ui:115 resources/ui/overview.ui:137
+msgid "Do not style"
+msgstr "Не стилизовать"
+
+#: resources/ui/panel.ui:5
+msgid "Panel"
+msgstr "Верхняя панель"
+
+#: resources/ui/panel.ui:10
+msgid "Panel blur"
+msgstr "Размытие верхней панели"
+
+#: resources/ui/panel.ui:11
+msgid "Blur the top panel using the background image."
+msgstr "Размытие верхней панели с помощью фонового изображения."
+
+#: resources/ui/panel.ui:113
+msgid "Force light text"
+msgstr "Принудительно светлый текст"
+
+#: resources/ui/panel.ui:114
+msgid ""
+"Use a light text for the panel, useful when using gnome-shell's light theme."
+msgstr ""
+"Использование светлого текста для верхней панели полезно при использовании "
+"светлой темы gnome-shell."
+
+#: resources/ui/panel.ui:129
+msgid ""
+"Override the background of the panel to use a transparent or semi-"
+"transparent one.\n"
+"Recommended unless you want to customize your GNOME theme."
+msgstr ""
+"Переопределяет фон верхней панели, чтобы использовать прозрачный или "
+"полупрозрачный фон.\n"
+"Рекомендуется, если вы не хотите настраивать тему GNOME."
+
+#: resources/ui/panel.ui:137
+msgid "The transparent/semi-transparent style for the panel background."
+msgstr "Прозрачный/полупрозрачный стиль для фона верхней панели."
+
+#: resources/ui/panel.ui:151
+msgid "Disable when a window is near"
+msgstr "Отключить, когда рядом находится окно"
+
+#: resources/ui/panel.ui:152
+msgid "Disables the transparency of the panel when a window is near it."
+msgstr ""
+"Отключает прозрачность верхней панели, когда рядом с ней находится окно."
+
+#: resources/ui/panel.ui:168
+msgid "Disables the blur from the panel when entering the overview."
+msgstr "Отключает размытие верхней панели при входе в Обзор."
+
+#: resources/ui/panel.ui:184
+msgid "Compatibility"
+msgstr "Совместимость"
+
+#: resources/ui/panel.ui:185
+msgid "Various options to provide compatibility with other extensions."
+msgstr "Различные опции для обеспечения совместимости с другими расширениями."
+
+#: resources/ui/panel.ui:190
+msgid "Hidetopbar extension"
+msgstr "Расширение Hidetopbar"
+
+#: resources/ui/panel.ui:191
+msgid "Does not disable the blur in overview, best used with static blur."
+msgstr ""
+"Не отключает размытие в Обзоре, лучше всего использовать со статическим "
+"размытием."
+
+#: resources/ui/panel.ui:205
+msgid "Blur original panel with Dash to Panel"
+msgstr "Размытие исходной панели с Dash to Panel"
+
+#: resources/ui/panel.ui:206
+msgid ""
+"Enables the blurring of the original panel with Dash to Panel, if selected "
+"in the extension's options."
+msgstr ""
+"Включает размытие исходной панели с Dash to Panel, если это выбрано в опциях "
+"расширения."
+
+#: resources/ui/panel.ui:225
+msgid "Contrasted"
+msgstr "Контрастный"
+
+#: resources/ui/pipeline-choose-row.ui:4
+msgid "Pipeline"
+msgstr "Канал"
+
+#: resources/ui/pipeline-choose-row.ui:5
+msgid "The pipeline to be used with this component."
+msgstr "Канал, который будет использоваться с этим компонентом."
+
+#: resources/ui/pipeline-group.ui:6
+msgid "Pipeline name"
+msgstr "Имя канала"
+
+#: resources/ui/pipeline-group.ui:20
+msgid "Manage effects"
+msgstr "Управление эффектами"
+
+#: resources/ui/pipelines.ui:5
+msgid "Pipelines"
+msgstr "Каналы"
+
+#: resources/ui/pipelines.ui:10
+msgid ""
+"Each component uses a pipeline, which can be chosen in the corresponding "
+"tab. Here you can create, modify and delete the pipelines and their effects."
+msgstr ""
+"Каждый компонент использует канал, который можно выбрать на соответствующей "
+"вкладке. Здесь вы можете создавать, изменять и удалять каналы и их эффекты."
+
+#: resources/ui/pipelines.ui:29
+msgid "Add Pipeline"
+msgstr "Добавить канал"
+
+#: src/effects/effects.js:153
+msgid "Prefer closer pixels"
+msgstr "Предпочитать ближайшие пиксели"
+
+#: src/effects/effects.js:154
+msgid ""
+"Whether or not the pixels that are closer to the original pixel will have "
+"more weight."
+msgstr "Будут ли пиксели которые ближе к оригинальному иметь больший вес."
+
+#~ msgid "Gaussian blur"
+#~ msgstr "Гауссово размытие"
+
+#~ msgid "Divider"
+#~ msgstr "Разделитель"
+
+#~ msgid "Applications blur (beta)"
+#~ msgstr "Размытие приложений (бета)"
+
+#~ msgid ""
+#~ "Adds blur to the applications. This is still beta functionality.\n"
+#~ "To get the best results possible, make sure to choose the option “No "
+#~ "artifact” in the “General → Hack level” preference.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Добавляет размытие к приложениям. Это все еще бета-версия функции.\n"
+#~ "Чтобы получить наилучшие результаты, убедитесь, что выбрали опцию \"Без "
+#~ "артефактов\" в настройках \"Общие → Уровень взлома\".\n"
+#~ "        "
+
+#~ msgid ""
+#~ "Adds blur behind all windows by default.\n"
+#~ "Not recommended because of performance and stability issues."
+#~ msgstr ""
+#~ "По умолчанию добавляет размытие для всех окон.\n"
+#~ "Не рекомендуется из-за проблем с производительностью и стабильностью."
+
+#~ msgid "Customize properties"
+#~ msgstr "Настройка свойств"
+
+#~ msgid ""
+#~ "Uses customized blur properties, instead of the ones set in the General "
+#~ "page."
+#~ msgstr ""
+#~ "Использовать пользовательские свойства размытия вместо тех, которые "
+#~ "заданы на странице Общие."
+
+#~ msgid ""
+#~ "Changes the color of the blur. The opacity of the color controls how much "
+#~ "it is blended into the blur effect."
+#~ msgstr ""
+#~ "Изменяет цвет размытия. Непрозрачность цвета определяет, насколько он "
+#~ "смешивается с эффектом размытия."
+
+#~ msgid "Noise amount"
+#~ msgstr "Уровень шума"
+
+#~ msgid ""
+#~ "The amount of noise to add to the blur effect, useful on low-contrast "
+#~ "screens or for aesthetic purpose."
+#~ msgstr ""
+#~ "Уровень шума, добавляемый к эффекту размытия, полезен на экранах с низкой "
+#~ "контрастностью или в эстетических целях."
+
+#~ msgid "Noise lightness"
+#~ msgstr "Светлота шума"
+
+#~ msgid "The lightness of the noise added to the blur effect."
+#~ msgstr "Светлота шума усиливает эффект размытия."
+
+#~ msgid "Notice"
+#~ msgstr "Уведомление"
+
+#~ msgid ""
+#~ "Noise and color can't be activated on dynamically blurred components, "
+#~ "such as this one."
+#~ msgstr ""
+#~ "Шум и цвет не могут быть активированы на динамически размытых "
+#~ "компонентах, таких как этот."
+
+#~ msgid "Static blur"
+#~ msgstr "Статичное размытие"
+
+#~ msgid ""
+#~ "Uses a static blurred image, can be used with rounding effect.\n"
+#~ "<b>Important notice:</b> with this activated, you should not use a big "
+#~ "sigma value as it will deteriorate performances."
+#~ msgstr ""
+#~ "Использует статичное размытое изображение, может применяться с эффектом "
+#~ "закругления.\n"
+#~ "<b>Важное замечание:</b> при данной активации не следует использовать "
+#~ "большое значение сигмы, так как это ухудшит производительность."
+
+#~ msgid "Rounded corner radius"
+#~ msgstr "Радиус закругленных углов"
+
+#~ msgid "The radius for the rounding effect. Only available with static blur."
+#~ msgstr ""
+#~ "Радиус для эффекта закругления. Доступно только при статичном размытии."
+
+#~ msgid "General"
+#~ msgstr "Общие"
+
+#~ msgid "Blur preferences"
+#~ msgstr "Параметры размытия"
+
+#~ msgid "Global blur preferences, used by all components by default."
+#~ msgstr ""
+#~ "Глобальные настройки размытия, используемые всеми компонентами по "
+#~ "умолчанию."
+
+#~ msgid "Color and noise effects"
+#~ msgstr "Цветовые и шумовые эффекты"
+
+#~ msgid ""
+#~ "Globally disables noise and color effects which may improve performance "
+#~ "on low-end systems."
+#~ msgstr ""
+#~ "Глобально отключает шумовые и цветовые эффекты, что может повысить "
+#~ "производительность на системах низкого класса."
+
+#~ msgid ""
+#~ "Changes the behaviour of the dynamic blur effect.\n"
+#~ "The default value is highly recommended unless you use application blur, "
+#~ "in which case “No artifact” is better.\n"
+#~ "This option will entirely disable clipped redraws in GNOME shell, and may "
+#~ "impact performance significantly but will completely fix the blur effect."
+#~ msgstr ""
+#~ "Изменяет поведение эффекта динамического размытия.\n"
+#~ "Настоятельно рекомендуется использовать значение по умолчанию, если вы не "
+#~ "используете размытие приложений, в противном случае лучше выбрать "
+#~ "значение \"Без артефактов\".\n"
+#~ "Эта опция полностью отключает обрезанные перерисовки в оболочке GNOME, "
+#~ "что может значительно повлиять на производительность, но полностью "
+#~ "исправляет эффект размытия."
+
+#~ msgid "High quality"
+#~ msgstr "Высокое качество"
+
+#~ msgid "Uses a static blurred image, more performant and stable."
+#~ msgstr ""
+#~ "Используется статичное размытие изображения, более производительное и "
+#~ "стабильное."
+
+#~ msgid "Uses a static blurred image, can be used with rounding effect."
+#~ msgstr ""
+#~ "Использует статичное размытое изображение, может применяться с эффектом "
+#~ "закругления."
+
+#~ msgid ""
+#~ "Add blur to the applications. This is still a beta functionnality.\n"
+#~ "To get the best results possible, make sure to choose option “No "
+#~ "artefact” in the “General → Hack level” preference.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Добавляет размытие к приложениям. Это все еще бета-функционал.\n"
+#~ "Чтобы получить наилучшие результаты, убедитесь, что выбрали опцию \"Без "
+#~ "артефактов\" в настройке \"Общие → Уровень взлома\".\n"
+#~ "        "
+
+#~ msgid ""
+#~ "Makes the background semi-transparent, disable this to use Dash to Dock "
+#~ "preferences instead."
+#~ msgstr ""
+#~ "Делает фон полупрозрачным, отключите его, чтобы вместо него использовать "
+#~ "настройки Dash to Dock."
+
+#~ msgid "Performances"
+#~ msgstr "Производительность"
+
+#~ msgid "Various options to tweak the performances."
+#~ msgstr "Различные опции для настройки производительности."
+
+#~ msgid ""
+#~ "Permits to disable globally the use of noise and color effects, this may "
+#~ "improve performances for low-end graphic."
+#~ msgstr ""
+#~ "Позволяют глобально отключить использование шумовых и цветовых эффектов, "
+#~ "это может улучшить производительность для графики низкого уровня."
+
+#~ msgid ""
+#~ "Changes the behaviour of dynamic blur effect.\n"
+#~ "Default value is very recommended, unless you use application blur in "
+#~ "which case “No artefact” is better.\n"
+#~ "This option will entirely disable clipped redraws from GNOME shell, and "
+#~ "may impact performances significantly but will entirely fix the blur "
+#~ "effect."
+#~ msgstr ""
+#~ "Изменяет поведение эффекта динамического размытия.\n"
+#~ "Значение по умолчанию очень рекомендуется, если только вы не используете "
+#~ "размытие приложений, в этом случае лучше выбрать \"Без артефактов\".\n"
+#~ "Эта опция полностью отключает обрезанные перерисовки из оболочки GNOME, "
+#~ "что может значительно повлиять на производительность, но полностью "
+#~ "исправляет эффект размытия."
+
+#~ msgid "No artefact"
+#~ msgstr "Без артефактов"
+
+#~ msgid ""
+#~ "The semi-transparent style for the dash, search entry/results, and "
+#~ "applications folders."
+#~ msgstr ""
+#~ "Делает панель приложений, поиск и значок папки приложений полупрозрачными."
+
+#~ msgid "Applications folder blur"
+#~ msgstr "Размытие папки приложений"
+
+#~ msgid "Makes the background of folder icons blurred."
+#~ msgstr "Делает фон значков папок размытым."
+
+#~ msgid "Dialog opacity"
+#~ msgstr "Непрозрачность диалогового окна"
+
+#~ msgid "The opacity of the applications folder popup."
+#~ msgstr "Непрозрачность всплывающего окна папки приложений."
+
+#~ msgid ""
+#~ "Override the background of the panel to use a transparent one.\n"
+#~ "Recommended unless you want to customize your GNOME theme."
+#~ msgstr ""
+#~ "Переопределяет фон верхней панели, чтобы использовать прозрачный фон.\n"
+#~ "Рекомендуется, если вы не хотите настраивать тему GNOME."
+
+#~ msgid ""
+#~ "Add blur to the applications. This is still a beta functionnality, is "
+#~ "quite buggy and is only applied to the apps that ask it, or to the ones "
+#~ "set in the whitelist below."
+#~ msgstr ""
+#~ "Добавляет размытие приложений. Это пока бета-функция, она довольно "
+#~ "глючная и применяется только к тем приложениям, которые просят об этом, "
+#~ "или к тем, которые заданы в белом списке ниже."
+
+#~ msgid ""
+#~ "Adds blur behind all windows by default. Not recommended because of "
+#~ "performance and stability issues."
+#~ msgstr ""
+#~ "По умолчанию добавляет размытие для всех окон. Не рекомендуется из-за "
+#~ "проблем с производительностью и стабильностью."
+
+#~ msgid ""
+#~ "Changes the behaviour of dynamic blur effect. Default value is very "
+#~ "recommended."
+#~ msgstr ""
+#~ "Изменяет поведение эффекта динамического размытия. Значение по умолчанию "
+#~ "является очень рекомендуемым."
+
+#~ msgid "Disables the blur from the panel when a window is near it."
+#~ msgstr ""
+#~ "Отключает размытие верхней панели, когда рядом с ней находится окно."
+
+#~ msgid ""
+#~ "A list of the applications to blur, one per line. To get an application "
+#~ "class name, under xorg you can use `xprop|grep WM_CLASS` and paste the "
+#~ "last name here."
+#~ msgstr ""
+#~ "Список приложений для размытия, по одному на строку. Чтобы получить имя "
+#~ "класса приложения, в xorg вы можете использовать `xprop|grep WM_CLASS` и "
+#~ "вставить последнее имя сюда."

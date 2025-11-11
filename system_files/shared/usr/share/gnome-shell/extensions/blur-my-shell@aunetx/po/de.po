@@ -1,0 +1,1053 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the blur-my-shell@aunetx package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: blur-my-shell@aunetx\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-18 21:20+0100\n"
+"PO-Revision-Date: 2025-04-06 17:36+0000\n"
+"Last-Translator: Joe Erd <weblate@joclever.mozmail.com>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/blur-my-shell/"
+"blur-my-shell/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.11-dev\n"
+
+#: src/effects/effects.js:20
+msgid "Blur effects"
+msgstr "Weichzeichner-Effekte"
+
+#: src/effects/effects.js:28
+msgid "Texture effects"
+msgstr "Textureffekte"
+
+#: src/effects/effects.js:41
+msgid "Shape effects"
+msgstr "Formeffekte"
+
+#: src/effects/effects.js:57
+msgid "Native gaussian blur"
+msgstr "Nativer Gaußscher Weichzeichner"
+
+#: src/effects/effects.js:58
+msgid ""
+"An optimized blur effect that smoothly blends pixels within a given radius."
+msgstr ""
+"Ein optimierter Weichzeichner-Effekt, der Pixel innerhalb eines bestimmten "
+"Radius sanft überblendet."
+
+#: src/effects/effects.js:62 src/effects/effects.js:91
+#: src/effects/effects.js:120 src/effects/effects.js:312
+#: src/effects/effects.js:317
+msgid "Radius"
+msgstr "Radius"
+
+#: src/effects/effects.js:63
+msgid "The intensity of the blur effect."
+msgstr "Die Intensität des Weichzeichnereffekts."
+
+#: src/effects/effects.js:72 src/effects/effects.js:101
+#: src/effects/effects.js:138 resources/ui/applications.ui:42
+#: resources/ui/dash.ui:92 resources/ui/other.ui:77 resources/ui/overview.ui:75
+#: resources/ui/panel.ui:92
+msgid "Brightness"
+msgstr "Helligkeit"
+
+#: src/effects/effects.js:73 src/effects/effects.js:102
+#: src/effects/effects.js:139 resources/ui/applications.ui:43
+#: resources/ui/dash.ui:93 resources/ui/other.ui:78 resources/ui/overview.ui:76
+#: resources/ui/panel.ui:93
+msgid ""
+"The brightness of the blur effect, a high value might make the text harder "
+"to read."
+msgstr ""
+"Die Helligkeit des Unschärfe-Effekts. Ein hoher Wert sorgt möglicherweise "
+"dafür, dass Text schwer zu lesen ist."
+
+#: src/effects/effects.js:86
+msgid "Gaussian blur (advanced effect)"
+msgstr "Gaußscher Weichzeichner (erweiterter Effekt)"
+
+#: src/effects/effects.js:87
+msgid ""
+"A blur effect that smoothly blends pixels within a given radius. This effect "
+"is more precise, but way less optimized."
+msgstr ""
+"Ein Weichzeichner-Effekt, der Pixel innerhalb eines bestimmten Radius sanft "
+"überblendet. Dieser Effekt ist präziser, aber weit weniger optimiert."
+
+#: src/effects/effects.js:92
+msgid ""
+"The intensity of the blur effect. The bigger it is, the slower it will be."
+msgstr ""
+"Die Intensität des Weichzeichnereffekts. Je größer er ist, desto langsamer "
+"wird er sein."
+
+#: src/effects/effects.js:115
+msgid "Monte Carlo blur"
+msgstr "Monte-Carlo-Weichzeichner"
+
+#: src/effects/effects.js:116
+msgid ""
+"A blur effect that mimics a random walk, by picking pixels further and "
+"further away from its origin and mixing them all together."
+msgstr ""
+"Ein Weichzeichner-Effekt, der eine zufällige Bewegung imitiert, indem er "
+"Pixel auswählt, die sich immer weiter von ihrem Ursprung entfernen, und "
+"diese miteinander vermischt."
+
+#: src/effects/effects.js:121
+msgid ""
+"The maximum travel distance for each step in the random walk. A higher value "
+"will make the blur more randomized."
+msgstr ""
+"Die maximale Entfernung für jeden Schritt im Zufallsgang. Ein höherer Wert "
+"macht die Weichzeichnung stärker zufällig."
+
+#: src/effects/effects.js:130
+msgid "Iterations"
+msgstr "Iterationen"
+
+#: src/effects/effects.js:131
+msgid "The number of iterations. The more there are, the smoother the blur is."
+msgstr ""
+"Die Anzahl der Iterationen. Je mehr es sind, desto weicher ist die "
+"Weichzeichnung."
+
+#: src/effects/effects.js:148
+msgid "Use base pixel"
+msgstr "Basispixel verwenden"
+
+#: src/effects/effects.js:149
+msgid ""
+"Whether or not the original pixel is counted for the blur. If it is, the "
+"image will be more legible."
+msgstr ""
+"Ob der ursprüngliche Pixel für das Weichzeichnen berücksichtigt wird oder "
+"nicht. Wenn dies der Fall ist, wird das Bild besser lesbar sein."
+
+#: src/effects/effects.js:157 src/effects/effects.js:163
+#: src/effects/effects.js:162 src/effects/effects.js:168
+msgid "Color"
+msgstr "Farbe"
+
+#: src/effects/effects.js:158 src/effects/effects.js:163
+msgid "An effect that blends a color into the pipeline."
+msgstr "Ein Effekt, der eine Farbe in die Pipeline einblendet."
+
+#: src/effects/effects.js:164 src/effects/effects.js:169
+msgid ""
+"The color to blend in. The blending amount is controled by the opacity of "
+"the color."
+msgstr ""
+"Die Farbe, die eingeblendet werden soll. Die Menge der Überblendung wird "
+"durch die Deckkraft der Farbe gesteuert."
+
+#: src/effects/effects.js:172 src/effects/effects.js:177
+msgid "Pixelize"
+msgstr "Verpixeln"
+
+#: src/effects/effects.js:173 src/effects/effects.js:178
+msgid "An effect that pixelizes the image."
+msgstr "Ein Effekt, der das Bild verpixelt."
+
+#: src/effects/effects.js:177 src/effects/effects.js:204
+#: src/effects/effects.js:231 src/effects/effects.js:182
+#: src/effects/effects.js:209 src/effects/effects.js:236
+msgid "Factor"
+msgstr "Faktor"
+
+#: src/effects/effects.js:178 src/effects/effects.js:205
+#: src/effects/effects.js:183 src/effects/effects.js:210
+msgid "How much to scale down the image."
+msgstr "Wie stark das Bild verkleinert werden soll."
+
+#: src/effects/effects.js:185 src/effects/effects.js:212
+#: src/effects/effects.js:190 src/effects/effects.js:217
+msgid "Downsampling mode"
+msgstr "Downsampling-Modus"
+
+#: src/effects/effects.js:186 src/effects/effects.js:213
+#: src/effects/effects.js:191 src/effects/effects.js:218
+msgid "The downsampling method that is used."
+msgstr "Die verwendete Downsampling-Methode."
+
+#: src/effects/effects.js:189 src/effects/effects.js:216
+#: src/effects/effects.js:194 src/effects/effects.js:221
+msgid "Boxcar"
+msgstr "Boxcar"
+
+#: src/effects/effects.js:190 src/effects/effects.js:217
+#: src/effects/effects.js:195 src/effects/effects.js:222
+msgid "Triangular"
+msgstr "Triangular"
+
+#: src/effects/effects.js:191 src/effects/effects.js:218
+#: src/effects/effects.js:196 src/effects/effects.js:223
+msgid "Dirac"
+msgstr "Dirac"
+
+#: src/effects/effects.js:199 src/effects/effects.js:204
+msgid "Downscale (advanced effect)"
+msgstr "Herunterskalieren (erweiterter Effekt)"
+
+#: src/effects/effects.js:200 src/effects/effects.js:205
+msgid "An effect that downscales the image and put it on the top-left corner."
+msgstr ""
+"Ein Effekt, der das Bild herunterskaliert und in die linke obere Ecke setzt."
+
+#: src/effects/effects.js:226 src/effects/effects.js:231
+msgid "Upscale (advanced effect)"
+msgstr "Hochskalieren (erweiterter Effekt)"
+
+#: src/effects/effects.js:227 src/effects/effects.js:232
+msgid "An effect that upscales the image from the top-left corner."
+msgstr "Ein Effekt, der das Bild von der linken oberen Ecke aus hochskaliert."
+
+#: src/effects/effects.js:232 src/effects/effects.js:237
+msgid "How much to scale up the image."
+msgstr "Wie stark das Bild hochskaliert werden soll."
+
+#: src/effects/effects.js:243 src/effects/effects.js:248
+msgid "Derivative"
+msgstr "Ableitung"
+
+#: src/effects/effects.js:244 src/effects/effects.js:249
+msgid "Apply a spatial derivative, or a laplacian."
+msgstr "Wende eine räumliche Ableitung oder einen Laplace-Operator an."
+
+#: src/effects/effects.js:248 src/effects/effects.js:253
+msgid "Operation"
+msgstr "Operation"
+
+#: src/effects/effects.js:249 src/effects/effects.js:254
+msgid "The mathematical operation to apply."
+msgstr "Die mathematische Operation, welche angewendet werden soll."
+
+#: src/effects/effects.js:252 src/effects/effects.js:257
+msgid "1-step derivative"
+msgstr "Erste Ableitung"
+
+#: src/effects/effects.js:253 src/effects/effects.js:258
+msgid "2-step derivative"
+msgstr "Zweite Ableitung"
+
+#: src/effects/effects.js:254 src/effects/effects.js:259
+msgid "Laplacian"
+msgstr "Laplace-Operator"
+
+#: src/effects/effects.js:262 src/effects/effects.js:267
+#: src/effects/effects.js:272
+msgid "Noise"
+msgstr "Rauschen"
+
+#: src/effects/effects.js:263 src/effects/effects.js:268
+msgid ""
+"An effect that adds a random noise. Prefer the Monte Carlo blur for a more "
+"organic effect if needed."
+msgstr ""
+"Ein Effekt, der ein zufälliges Rauschen hinzufügt. Bevorzugen Sie bei Bedarf "
+"den Monte-Carlo-Weichzeichner für einen organischeren Effekt."
+
+#: src/effects/effects.js:268 src/effects/effects.js:273
+msgid "The amount of noise to add."
+msgstr "Die Menge des hinzuzufügenden Rauschens."
+
+#: src/effects/effects.js:277 src/effects/effects.js:282
+msgid "Lightness"
+msgstr "Helligkeitsstufe"
+
+#: src/effects/effects.js:278 src/effects/effects.js:283
+msgid ""
+"The luminosity of the noise. A setting of '1.0' will make the effect "
+"transparent."
+msgstr ""
+"Die Leuchtkraft des Rauschens. Bei einer Einstellung von „1.0“ wird der "
+"Effekt transparent."
+
+#: src/effects/effects.js:291 src/effects/effects.js:296
+msgid "RGB to HSL (advanced effect)"
+msgstr "RGB zu HSL (fortgeschrittener Effekt)"
+
+#: src/effects/effects.js:292 src/effects/effects.js:297
+msgid "Converts the image from RGBA colorspace to HSLA."
+msgstr "Konvertiert das Bild von RGBA-Farbraum zu HSLA."
+
+#: src/effects/effects.js:299 src/effects/effects.js:304
+msgid "HSL to RGB (advanced effect)"
+msgstr "HSL zu RGB (fortgeschrittener Effekt)"
+
+#: src/effects/effects.js:300 src/effects/effects.js:305
+msgid "Converts the image from HSLA colorspace to RGBA."
+msgstr "Konvertiert das Bild von HSLA-Farbraum zu RGBA."
+
+#: src/effects/effects.js:307 src/effects/effects.js:312
+msgid "Corner"
+msgstr "Ecke"
+
+#: src/effects/effects.js:308 src/effects/effects.js:313
+msgid ""
+"An effect that draws corners. Add it last not to have the other effects "
+"perturb the corners."
+msgstr ""
+"Ein Effekt, der Ecken zeichnet. Fügen Sie ihn zuletzt hinzu, damit die "
+"anderen Effekte die Ecken nicht stören."
+
+#: src/effects/effects.js:313 src/effects/effects.js:318
+msgid "The radius of the corner. GNOME apps use a radius of 12 px by default."
+msgstr ""
+"Der Radius der Ecke. GNOME-Apps verwenden standardmäßig einen Radius von 12 "
+"px."
+
+#: src/effects/effects.js:320 src/effects/effects.js:325
+msgid "Top corners"
+msgstr "Obere Ecken"
+
+#: src/effects/effects.js:321 src/effects/effects.js:326
+msgid "Whether or not to round the top corners."
+msgstr "Ob die oberen Ecken abgerundet werden sollen oder nicht."
+
+#: src/effects/effects.js:325 src/effects/effects.js:330
+msgid "Bottom corners"
+msgstr "Untere Ecken"
+
+#: src/effects/effects.js:326 src/effects/effects.js:331
+msgid "Whether or not to round the bottom corners."
+msgstr "Ob die unteren Ecken abgerundet werden sollen oder nicht."
+
+#: resources/ui/application-row.ui:4
+msgid "Window Name"
+msgstr "Fenstername"
+
+#: resources/ui/application-row.ui:8
+msgid "Select window"
+msgstr "Fenster auswählen"
+
+#: resources/ui/application-row.ui:9
+msgid "Pick a window or select it by its classname."
+msgstr "Wähle ein Fenster aus oder wähle es über seinen Klassennamen."
+
+#: resources/ui/applications.ui:5
+msgid "Applications"
+msgstr "Anwendungen"
+
+#: resources/ui/applications.ui:10
+msgid "Applications blur"
+msgstr "Anwendungen weichzeichnen"
+
+#: resources/ui/applications.ui:11
+msgid ""
+"Adds blur to the applications.\n"
+"To get the best results possible, although with reduced performances, you "
+"can choose the option “No artifact” in the “Other → Hack level” tab."
+msgstr ""
+"Fügt den Anwendungen einen Weichzeichner hinzu.\n"
+"Um die bestmöglichen Ergebnisse zu erzielen, wenn auch mit verminderter "
+"Leistung, können Sie auf der Registerkarte „Andere → Hackstufe“ die Option "
+"„Keine Artefakte“ auswählen."
+
+#: resources/ui/applications.ui:21 resources/ui/dash.ui:71
+#: resources/ui/other.ui:56 resources/ui/overview.ui:54
+#: resources/ui/panel.ui:71
+msgid "Sigma"
+msgstr "Sigma"
+
+#: resources/ui/applications.ui:22 resources/ui/dash.ui:72
+#: resources/ui/other.ui:57 resources/ui/overview.ui:55
+#: resources/ui/panel.ui:72
+msgid "The intensity of the blur."
+msgstr "Die Intensität der Unschärfe."
+
+#: resources/ui/applications.ui:63
+msgid "Opacity"
+msgstr "Deckkraft"
+
+#: resources/ui/applications.ui:64
+msgid ""
+"The opacity of the window on top of the blur effect, a higher value will be "
+"more legible."
+msgstr ""
+"Die Deckkraft des Fensters über dem Unschärfeeffekt, ein höherer Wert wird "
+"besser lesbar sein."
+
+#: resources/ui/applications.ui:85
+msgid "Opaque focused window"
+msgstr "Undurchsichtiges fokussiertes Fenster"
+
+#: resources/ui/applications.ui:86
+msgid ""
+"Makes the focused window opaque and the other ones blurred, helping with "
+"legibility."
+msgstr ""
+"Macht das fokussierte Fenster undurchsichtig und die anderen unscharf, um "
+"die Lesbarkeit zu verbessern."
+
+#: resources/ui/applications.ui:100
+msgid "Blur on overview"
+msgstr "Unschärfe in der Übersicht"
+
+#: resources/ui/applications.ui:101
+msgid ""
+"Forces the blur to be properly shown on all workspaces on overview.\n"
+"This may cause some latency or performance issues."
+msgstr ""
+"Zwingt die Unschärfe in allen Arbeitsbereichen in der Übersicht richtig "
+"angezeigt zu werden.\n"
+"Das kann zu Latenz- oder Leistungsproblemen führen."
+
+#: resources/ui/applications.ui:116
+msgid "Enable all by default"
+msgstr "Standardmäßig alle aktivieren"
+
+#: resources/ui/applications.ui:117
+msgid "Adds blur behind all windows by default."
+msgstr "Fügt standardmäßig Unschärfe hinter allen Fenstern hinzu."
+
+#: resources/ui/applications.ui:133
+msgid "Whitelist"
+msgstr "Whitelist"
+
+#: resources/ui/applications.ui:134
+msgid "A list of windows to blur."
+msgstr "Eine Liste der mit dem Unschärfeeffekt zu versehenden Fenster."
+
+#: resources/ui/applications.ui:152 resources/ui/applications.ui:189
+msgid "Add Window"
+msgstr "Fenster hinzufügen"
+
+#: resources/ui/applications.ui:170
+msgid "Blacklist"
+msgstr "Blacklist"
+
+#: resources/ui/applications.ui:171
+msgid "A list of windows not to blur."
+msgstr "Eine Liste der nicht mit dem Unschärfeeffekt zu versehenden Fenster."
+
+#: resources/ui/dash.ui:5
+msgid "Dash"
+msgstr "Dash"
+
+#: resources/ui/dash.ui:10
+msgid "Dash to Dock blur"
+msgstr "Dash to Dock Unschärfe"
+
+#: resources/ui/dash.ui:11
+msgid "Blur the background of the Dash to Dock extension, if it is used."
+msgstr ""
+"Den Hintergrund der Dash to Dock-Erweiterung unscharf machen, sofern diese "
+"verwendet wird."
+
+#: resources/ui/dash.ui:20 resources/ui/panel.ui:20
+msgid "Blur type"
+msgstr "Weichzeichnungsart"
+
+#: resources/ui/dash.ui:21 resources/ui/panel.ui:21
+msgid ""
+"The dynamic blur is slower and only compatible with a gaussian blur effect."
+msgstr ""
+"Der dynamische Weichzeichner ist langsamer und nur mit einem Gaußschen "
+"Weichzeichner-Effekt kompatibel."
+
+#: resources/ui/dash.ui:41 resources/ui/panel.ui:41
+msgid "Static"
+msgstr "Statisch"
+
+#: resources/ui/dash.ui:53 resources/ui/panel.ui:53
+msgid "Dynamic"
+msgstr "Dynamisch"
+
+#: resources/ui/dash.ui:113 resources/ui/panel.ui:128
+msgid "Override background"
+msgstr "Hintergrund überschreiben"
+
+#: resources/ui/dash.ui:114
+msgid ""
+"Makes the background either transparent or semi-transparent, disable this to "
+"use Dash to Dock preferences instead."
+msgstr ""
+"Macht den Hintergrund transparent oder halbtransparent. Deaktivieren um "
+"stattdessen Dash to Dock Einstellungen zu verwenden."
+
+#: resources/ui/dash.ui:120 resources/ui/panel.ui:136
+msgid "Background style"
+msgstr "Hintergrundstil"
+
+#: resources/ui/dash.ui:121
+msgid "The transparent/semi-transparent style for the dock background."
+msgstr "Transparenz/Semitransparenz Stil für den Dock Hintergrund."
+
+#: resources/ui/dash.ui:137 resources/ui/panel.ui:167
+msgid "Disable in overview"
+msgstr "In der Übersicht deaktivieren"
+
+#: resources/ui/dash.ui:138
+msgid "Disables the blur from Dash to Dock when entering the overview."
+msgstr ""
+"Deaktiviert die Unschärfe von Dash to Dock beim Aufrufen der Übersicht."
+
+#: resources/ui/dash.ui:167 resources/ui/overview.ui:118
+#: resources/ui/overview.ui:138 resources/ui/panel.ui:222
+msgid "Transparent"
+msgstr "Transparent"
+
+#: resources/ui/dash.ui:168 resources/ui/overview.ui:116
+#: resources/ui/overview.ui:139 resources/ui/panel.ui:223
+msgid "Light"
+msgstr "Hell"
+
+#: resources/ui/dash.ui:169 resources/ui/overview.ui:117
+#: resources/ui/overview.ui:140 resources/ui/panel.ui:224
+msgid "Dark"
+msgstr "Dunkel"
+
+#: resources/ui/effects-dialog.ui:4
+msgid "Effects"
+msgstr "Effekte"
+
+#: resources/ui/effects-dialog.ui:39
+msgid "Add Effect"
+msgstr "Effekt hinzufügen"
+
+#: resources/ui/effects-dialog.ui:72
+msgid "Include advanced effects"
+msgstr "Beinhalte erweiterte Effekte"
+
+#: resources/ui/menu.ui:6
+msgid "Project page"
+msgstr "Projektseite"
+
+#: resources/ui/menu.ui:10
+msgid "Report a Bug"
+msgstr "Einen Fehler melden"
+
+#: resources/ui/menu.ui:14
+msgid "License"
+msgstr "Lizenz"
+
+#: resources/ui/menu.ui:18
+msgid "Donate"
+msgstr "Spenden"
+
+#: resources/ui/other.ui:5
+msgid "Other"
+msgstr "Andere"
+
+#: resources/ui/other.ui:10
+msgid "Lockscreen blur"
+msgstr "Sperrbildschirm Unschärfe"
+
+#: resources/ui/other.ui:11
+msgid "Change the blur of the lockscreen to use this extension's preferences."
+msgstr ""
+"Die Einstellungen dieser Extension für die Unschärfe des Sperrbildschirms "
+"verwenden."
+
+#: resources/ui/other.ui:28
+msgid "Screenshot blur"
+msgstr "Bildschirmfoto Unschärfe"
+
+#: resources/ui/other.ui:29
+msgid "Add blur to the background of the window selector in the screenshot UI."
+msgstr ""
+"Fügen Sie dem Hintergrund der Fensterauswahl in der Screenshot-"
+"Benutzeroberfläche einen Unschärfeeffekt hinzu."
+
+#: resources/ui/other.ui:46
+msgid "Window list extension blur"
+msgstr "Unschärfe der Window-List Eerweiterung"
+
+#: resources/ui/other.ui:47
+msgid "Make the window-list extension blurred, if it is used."
+msgstr ""
+"Unschärfeeffekt auf die Window-List Erweiterungen anwenden wenn diese "
+"verwendent wird."
+
+#: resources/ui/other.ui:100
+msgid "Coverflow Alt-Tab extension blur"
+msgstr "Coverflow Alt-Tab Erweiterung Unschärfe"
+
+#: resources/ui/other.ui:101
+msgid "Make the coverflow alt-tab extension blurred, if it is used."
+msgstr ""
+"Unschärfeeffekt auf die Coverflow Alt-Tab Erweiterungen anwenden wenn diese "
+"verwendet wird."
+
+#: resources/ui/other.ui:118
+msgid "Performance"
+msgstr "Leistung"
+
+#: resources/ui/other.ui:119
+msgid "Various options to tweak the performance."
+msgstr "Diverse Optionen, um die Leistung zu optimieren."
+
+#: resources/ui/other.ui:123
+msgid "Hack level"
+msgstr "Hack-Level"
+
+#: resources/ui/other.ui:124
+msgid ""
+"Changes the behaviour of the dynamic blur effect. The default value is "
+"highly recommended.\n"
+"The “No artifact” option will entirely disable clipped redraws in GNOME "
+"shell, and will impact your computer performances significantly."
+msgstr ""
+"Ändert das Verhalten des dynamischen Weichzeichner-Effekts. Der Standardwert "
+"ist sehr empfehlenswert.\n"
+"Mit der Option „Kein Artefakt“ wird das beschnittene Neuzeichnen in der "
+"GNOME Shell vollständig deaktiviert, was die Leistung Ihres Computers "
+"erheblich beeinträchtigt."
+
+#: resources/ui/other.ui:138
+msgid "Debug"
+msgstr "Debug"
+
+#: resources/ui/other.ui:139
+msgid ""
+"Makes the extension verbose in logs, activate when you need to report an "
+"issue."
+msgstr ""
+"Sorgt dafür, dass die Erweiterung detailliert protokolliert wird. Aktivieren "
+"Sie diese Option, wenn Sie ein Problem melden müssen."
+
+#: resources/ui/other.ui:154
+msgid "Reset preferences"
+msgstr "Einstellungen zurücksetzen"
+
+#: resources/ui/other.ui:155
+msgid "Resets preferences of Blur my Shell irreversibly."
+msgstr "Setzt die Einstellungen von Blur my Shell unwiederbringlich zurück."
+
+#: resources/ui/other.ui:174
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: resources/ui/other.ui:203
+msgid "High performances"
+msgstr "Hohe Leistung"
+
+#: resources/ui/other.ui:204
+msgid "Default"
+msgstr "Standard"
+
+#: resources/ui/other.ui:205
+msgid "No artifact"
+msgstr "Keine Artefakte"
+
+#: resources/ui/overview.ui:5
+msgid "Overview"
+msgstr "Übersicht"
+
+#: resources/ui/overview.ui:10
+msgid "Background blur"
+msgstr "Hintergrund Unschärfe"
+
+#: resources/ui/overview.ui:11
+msgid "Add blur to the overview background, using the wallpaper picture."
+msgstr "Den Unschärfeeffekt auf das Hintergrundbild in der Übersicht anwenden."
+
+#: resources/ui/overview.ui:26
+msgid "Overview components style"
+msgstr "Übersicht Komponenten Stil"
+
+#: resources/ui/overview.ui:27
+msgid ""
+"The semi-transparent style for the dash, search entry/results, and "
+"application folders."
+msgstr ""
+"Der halbtransparente Stil für das Dash, Suchfeld/-ergebnisse und die "
+"Anwendungsordner."
+
+#: resources/ui/overview.ui:44
+msgid "Application folder blur"
+msgstr "Unschärfe des Anwendungsordners"
+
+#: resources/ui/overview.ui:45
+msgid "Makes the background of application folder dialogs blurred."
+msgstr "Macht den Hintergrund des Anwendungsordnerdialoges unscharf."
+
+#: resources/ui/overview.ui:96
+msgid "Application folder dialogs style"
+msgstr "Stil der Anwendungsordnerdialoge"
+
+#: resources/ui/overview.ui:97
+msgid "The semi-transparent style for the application folder dialogs."
+msgstr "Der halbtransparente Stil des Anwendungsordnerdialogs."
+
+#: resources/ui/overview.ui:115 resources/ui/overview.ui:137
+msgid "Do not style"
+msgstr "Keinen Effekt anwenden"
+
+#: resources/ui/panel.ui:5
+msgid "Panel"
+msgstr "Panel"
+
+#: resources/ui/panel.ui:10
+msgid "Panel blur"
+msgstr "Panel Unschärfe"
+
+#: resources/ui/panel.ui:11
+msgid "Blur the top panel using the background image."
+msgstr "Das obere Panel mit Hilfe des Hintergrundbildes unscharf machen."
+
+#: resources/ui/panel.ui:113
+msgid "Force light text"
+msgstr "Hellen Text erzwingen"
+
+#: resources/ui/panel.ui:114
+msgid ""
+"Use a light text for the panel, useful when using gnome-shell's light theme."
+msgstr ""
+"Verwende einen hellen Text für das Panel, nützlich bei Verwendung des hellen "
+"Themas von Gnome-Shell."
+
+#: resources/ui/panel.ui:129
+msgid ""
+"Override the background of the panel to use a transparent or semi-"
+"transparent one.\n"
+"Recommended unless you want to customize your GNOME theme."
+msgstr ""
+"Überschreibt den Hintergrund des Panels um ihn (halb-)transparent zu "
+"machen.\n"
+"Empfohlen sofern du dein GNOME Thema bearbeiten möchtest."
+
+#: resources/ui/panel.ui:137
+msgid "The transparent/semi-transparent style for the panel background."
+msgstr "Der transparente/halbtransparente Stil für den Panel-Hintergrund."
+
+#: resources/ui/panel.ui:151
+msgid "Disable when a window is near"
+msgstr "Deaktiviert wenn ein Fenster in der Nähe ist"
+
+#: resources/ui/panel.ui:152
+msgid "Disables the transparency of the panel when a window is near it."
+msgstr ""
+"Deaktiviert die Transparenz des Panels, wenn sich ein Fenster in der Nähe "
+"befindet."
+
+#: resources/ui/panel.ui:168
+msgid "Disables the blur from the panel when entering the overview."
+msgstr "Deaktiviert die Unschärfe des Panels beim Aufrufen der Übersicht."
+
+#: resources/ui/panel.ui:184
+msgid "Compatibility"
+msgstr "Kompatibilität"
+
+#: resources/ui/panel.ui:185
+msgid "Various options to provide compatibility with other extensions."
+msgstr ""
+"Verschiedene Optionen zur Sicherstellung der Kompatibilität mit anderen "
+"Erweiterungen."
+
+#: resources/ui/panel.ui:190
+msgid "Hidetopbar extension"
+msgstr "Hidetopbar Erweiterung"
+
+#: resources/ui/panel.ui:191
+msgid "Does not disable the blur in overview, best used with static blur."
+msgstr ""
+"Deaktiviert die Unschärfe in der Übersicht nicht. Am besten mit statischer "
+"Unschärfe verwenden."
+
+#: resources/ui/panel.ui:205
+msgid "Blur original panel with Dash to Panel"
+msgstr "Original Panel mit Dash to Panel unscharf machen"
+
+#: resources/ui/panel.ui:206
+msgid ""
+"Enables the blurring of the original panel with Dash to Panel, if selected "
+"in the extension's options."
+msgstr ""
+"Ermöglicht das Unschärfen des original Panels mit Dash to Panel, falls in "
+"den Extension-Einstellungen ausgewählt."
+
+#: resources/ui/panel.ui:225
+msgid "Contrasted"
+msgstr "In Kontrast"
+
+#: resources/ui/pipeline-choose-row.ui:4
+msgid "Pipeline"
+msgstr "Pipeline"
+
+#: resources/ui/pipeline-choose-row.ui:5
+msgid "The pipeline to be used with this component."
+msgstr "Die Pipeline, die mit dieser Komponente verwendet werden soll."
+
+#: resources/ui/pipeline-group.ui:6
+msgid "Pipeline name"
+msgstr "Name der Pipeline"
+
+#: resources/ui/pipeline-group.ui:20
+msgid "Manage effects"
+msgstr "Effekte verwalten"
+
+#: resources/ui/pipelines.ui:5
+msgid "Pipelines"
+msgstr "Pipelines"
+
+#: resources/ui/pipelines.ui:10
+msgid ""
+"Each component uses a pipeline, which can be chosen in the corresponding "
+"tab. Here you can create, modify and delete the pipelines and their effects."
+msgstr ""
+"Jede Komponente verwendet eine Pipeline, die auf der entsprechenden "
+"Registerkarte ausgewählt werden kann. Hier können Sie die Pipelines und ihre "
+"Auswirkungen erstellen, ändern und löschen."
+
+#: resources/ui/pipelines.ui:29
+msgid "Add Pipeline"
+msgstr "Pipeline hinzufügen"
+
+#: src/effects/effects.js:153
+msgid "Prefer closer pixels"
+msgstr ""
+
+#: src/effects/effects.js:154
+msgid ""
+"Whether or not the pixels that are closer to the original pixel will have "
+"more weight."
+msgstr ""
+
+#~ msgid "Gaussian blur"
+#~ msgstr "Gaußscher Weichzeichner"
+
+#~ msgid "Divider"
+#~ msgstr "Teiler"
+
+#~ msgid "Applications blur (beta)"
+#~ msgstr "Unschärfe für Anwendungen (beta)"
+
+#~ msgid ""
+#~ "Adds blur to the applications. This is still beta functionality.\n"
+#~ "To get the best results possible, make sure to choose the option “No "
+#~ "artifact” in the “General → Hack level” preference.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Fügt Anwendungen einen Unschärfe-Effekt hinzu. Derzeit noch in der Beta-"
+#~ "Version.\n"
+#~ "Um die bestmöglichen Resultate zu erzielen, wählen Sie die Option \"Keine "
+#~ "Artefakte\" unter \"Allgemein → Hack Level\" aus.\n"
+#~ "        "
+
+#~ msgid ""
+#~ "Adds blur behind all windows by default.\n"
+#~ "Not recommended because of performance and stability issues."
+#~ msgstr ""
+#~ "Fügt standardmäßig Unschärfe hinter allen Fenstern hinzu.\n"
+#~ "Wegen Leistungs- und Stabilitätsproblemen nicht empfohlen."
+
+#~ msgid "Customize properties"
+#~ msgstr "Einstellungen anpassen"
+
+#~ msgid ""
+#~ "Uses customized blur properties, instead of the ones set in the General "
+#~ "page."
+#~ msgstr ""
+#~ "Benutzerdefinierte Unschärfe-Einstellungen, statt den Unschärfe-"
+#~ "Einstellungen des „Allgemein“ Reiters."
+
+#~ msgid ""
+#~ "Changes the color of the blur. The opacity of the color controls how much "
+#~ "it is blended into the blur effect."
+#~ msgstr ""
+#~ "Verändert die Fabre der Unschärfe. Die Deckkraft der Farbe steuert, wie "
+#~ "stark sie in den Unschärfeeffekt eingeblendet wird."
+
+#~ msgid "Noise amount"
+#~ msgstr "Stärke des Bildrauschens"
+
+#~ msgid ""
+#~ "The amount of noise to add to the blur effect, useful on low-contrast "
+#~ "screens or for aesthetic purpose."
+#~ msgstr ""
+#~ "Die Stärke des Bildrauschens, die dem Unschärfeeffekt hinzugefügt wird. "
+#~ "Dies ist nützlich bei kontrastarmen Bildschirmen oder für ästhetische "
+#~ "Zwecke."
+
+#~ msgid "Noise lightness"
+#~ msgstr "Helligkeit des Bildrauschens"
+
+#~ msgid "The lightness of the noise added to the blur effect."
+#~ msgstr ""
+#~ "Die Helligkeit des Bildrauschens, das dem Unschärfeeffekt hinzugefügt "
+#~ "wird."
+
+#~ msgid "Notice"
+#~ msgstr "Hinweis"
+
+#~ msgid ""
+#~ "Noise and color can't be activated on dynamically blurred components, "
+#~ "such as this one."
+#~ msgstr ""
+#~ "Bildrauschen und Farbe können bei dynamisch unscharf gemachten "
+#~ "Komponenten, wie dieser, nicht aktiviert werden."
+
+#~ msgid "Static blur"
+#~ msgstr "Statische Unschärfe"
+
+#~ msgid "General"
+#~ msgstr "Allgemein"
+
+#~ msgid "Blur preferences"
+#~ msgstr "Unschärfeeinstellungen"
+
+#~ msgid "Global blur preferences, used by all components by default."
+#~ msgstr ""
+#~ "Globale Unschärfeeinstellungen, die standardmäßig von allen Komponenten "
+#~ "verwendet werden."
+
+#~ msgid "Color and noise effects"
+#~ msgstr "Farb- und Rauscheffekte"
+
+#~ msgid ""
+#~ "Globally disables noise and color effects which may improve performance "
+#~ "on low-end systems."
+#~ msgstr ""
+#~ "Deaktiviert Rausch- und Farbeffekte global, um die Leistung auf "
+#~ "schwächeren Systemen zu verbessern."
+
+#~ msgid ""
+#~ "Changes the behaviour of the dynamic blur effect.\n"
+#~ "The default value is highly recommended unless you use application blur, "
+#~ "in which case “No artifact” is better.\n"
+#~ "This option will entirely disable clipped redraws in GNOME shell, and may "
+#~ "impact performance significantly but will completely fix the blur effect."
+#~ msgstr ""
+#~ "Ändert das Verhalten des dynamischen Weichzeichnungseffekts.\n"
+#~ "Der Standardwert wird dringend empfohlen, es sei denn, Sie verwenden "
+#~ "Anwendungsunschärfe, in diesem Fall ist „Kein Artefakt“ besser.\n"
+#~ "Diese Option deaktiviert das teilweise Neuzeichnen in der GNOME-Shell "
+#~ "komplett und kann die Leistung erheblich beeinträchtigen, optimiert "
+#~ "jedoch vollständig den Weichzeichnungseffekt."
+
+#~ msgid "High quality"
+#~ msgstr "Hohe Qualität"
+
+#~ msgid "Uses a static blurred image, more performant and stable."
+#~ msgstr ""
+#~ "Verwendet ein statisches unscharfes Bild. Leistungsfähiger und stabiler."
+
+#~ msgid ""
+#~ "Add blur to the applications. This is still a beta functionnality.\n"
+#~ "To get the best results possible, make sure to choose option “No "
+#~ "artefact” in the “General → Hack level” preference.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Füge Unschärfe zu den Anwendungen hinzu. Dies ist noch eine beta "
+#~ "Funktion.\n"
+#~ "Um das bestmögliche Ergebnis zu bekommen, stellen Sie sicher, dass Sie "
+#~ "die Option \"Keine Artefakte\" in der Einstellung \"Allgemein -> Hack-"
+#~ "Level\" ausgewählt haben.\n"
+#~ "        "
+
+#~ msgid ""
+#~ "Makes the background semi-transparent, disable this to use Dash to Dock "
+#~ "preferences instead."
+#~ msgstr ""
+#~ "Macht den Hintergrund halbtransparent, deaktivieren Sie dies, um "
+#~ "stattdessen die Dash to Dock-Einstellungen zu verwenden."
+
+#~ msgid "Performances"
+#~ msgstr "Leistung"
+
+#~ msgid "Various options to tweak the performances."
+#~ msgstr "Diverse Optionen zur Optimierung der Leistungen."
+
+#~ msgid ""
+#~ "Permits to disable globally the use of noise and color effects, this may "
+#~ "improve performances for low-end graphic."
+#~ msgstr ""
+#~ "Ermöglicht es, die Verwendung von Rausch- und Farbeffekten global zu "
+#~ "deaktivieren, um die Performance bei leistungsschwachen Grafikkarten zu "
+#~ "verbessern."
+
+#~ msgid ""
+#~ "Changes the behaviour of dynamic blur effect.\n"
+#~ "Default value is very recommended, unless you use application blur in "
+#~ "which case “No artefact” is better.\n"
+#~ "This option will entirely disable clipped redraws from GNOME shell, and "
+#~ "may impact performances significantly but will entirely fix the blur "
+#~ "effect."
+#~ msgstr ""
+#~ "Verändert das Verhalten des dynamischen Unschärfeeffekts.\n"
+#~ "Der Standardwert wird dringend empfohlen, außer es wird "
+#~ "Anwendungsunschärfe verwendet, in diesem Fall ist \"Keine Artefakte\" die "
+#~ "bessere Wahl.\n"
+#~ "Mit dieser Option wird die Funktion \"clipped redraws\" der GNOME Shell "
+#~ "deaktiviert und sie kann die Leistung erheblich beeinflussen, sie wird "
+#~ "aber den Unschärffeeffekt vollständig beheben."
+
+#~ msgid "No artefact"
+#~ msgstr "Keine Artefakte"
+
+#~ msgid ""
+#~ "The semi-transparent style for the dash, search entry/results, and "
+#~ "applications folders."
+#~ msgstr ""
+#~ "Der halbtransparente Stil für das Dash, die Sucheinträge/-ergebnisse und "
+#~ "die Anwendungsordner."
+
+#~ msgid "Applications folder blur"
+#~ msgstr "Anwendungsordner Unschärfe"
+
+#~ msgid "Makes the background of folder icons blurred."
+#~ msgstr "Macht den Hintergrund von Ordner Icons unscharf."
+
+#~ msgid "Dialog opacity"
+#~ msgstr "Dialog Deckkraft"
+
+#~ msgid "The opacity of the applications folder popup."
+#~ msgstr "Die Deckkraft des Anwendungsordner-Popups."
+
+#~ msgid ""
+#~ "Override the background of the panel to use a transparent one.\n"
+#~ "Recommended unless you want to customize your GNOME theme."
+#~ msgstr ""
+#~ "Überschreibe den Hintergrund des Panels, um einen durchsichtigen zu "
+#~ "nutzen.\n"
+#~ "Empfohlen außer Sie wollen Ihr GNOME-Theme anpassen."
+
+#~ msgid ""
+#~ "Add blur to the applications. This is still a beta functionnality, is "
+#~ "quite buggy and is only applied to the apps that ask it, or to the ones "
+#~ "set in the whitelist below."
+#~ msgstr ""
+#~ "Unschärfe zu Anwendungen hinzufügen. Diese Funktion ist noch in der Beta-"
+#~ "Phase und ist ziemlich fehlerhaft. Sie wird nur auf Anwendungen "
+#~ "angewendet, welche darum bitten oder in der Whitelist unten festgelegt "
+#~ "sind."
+
+#, fuzzy
+#~ msgid ""
+#~ "Adds blur behind all windows by default. Not recommended because of "
+#~ "performance and stability issues."
+#~ msgstr ""
+#~ "Fügt standardmäßig hinter allen Fenster Unschärfe hinzu. Aufgrund von "
+#~ "Leistungs- und Stabilitätsproblemen nicht zu empfehlen."
+
+#~ msgid ""
+#~ "Changes the behaviour of dynamic blur effect. Default value is very "
+#~ "recommended."
+#~ msgstr ""
+#~ "Ändert das Verhalten des dynamischen Unschärfeeffekts. Die "
+#~ "Standardeinstellung wird sehr empfohlen."
+
+#~ msgid "Disables the blur from the panel when a window is near it."
+#~ msgstr ""
+#~ "Deaktiviert die Unschärfe des Panels falls sich ein Fenster in der Nähe "
+#~ "befindet."
+
+#~ msgid ""
+#~ "A list of the applications to blur, one per line. To get an application "
+#~ "class name, under xorg you can use `xprop|grep WM_CLASS` and paste the "
+#~ "last name here."
+#~ msgstr ""
+#~ "Eine Liste von Anwendungen bei denen Unschärfe hinzugefügt werden soll "
+#~ "(Eine Anwendung pro Zeile). In Xorg kann man `xprop|grep WM_CLASS` "
+#~ "verwenden, um den Class Name zu erhalten, welcher hier eingefügt werden "
+#~ "muss."

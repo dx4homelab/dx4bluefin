@@ -1,0 +1,879 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the blur-my-shell@aunetx package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: blur-my-shell@aunetx\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-18 21:20+0100\n"
+"PO-Revision-Date: 2025-06-30 07:03+0000\n"
+"Last-Translator: blatoz <viragdaniel@outlook.com>\n"
+"Language-Team: Hungarian <https://hosted.weblate.org/projects/blur-my-shell/"
+"blur-my-shell/hu/>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.13-dev\n"
+
+#: src/effects/effects.js:20
+#, fuzzy
+msgid "Blur effects"
+msgstr "Blur effektusok"
+
+#: src/effects/effects.js:28
+msgid "Texture effects"
+msgstr "Textura effektusok"
+
+#: src/effects/effects.js:41
+msgid "Shape effects"
+msgstr "Alakzat effektusok"
+
+#: src/effects/effects.js:57
+msgid "Native gaussian blur"
+msgstr ""
+
+#: src/effects/effects.js:58
+msgid ""
+"An optimized blur effect that smoothly blends pixels within a given radius."
+msgstr ""
+
+#: src/effects/effects.js:62 src/effects/effects.js:91
+#: src/effects/effects.js:120 src/effects/effects.js:312
+#: src/effects/effects.js:317
+msgid "Radius"
+msgstr ""
+
+#: src/effects/effects.js:63
+msgid "The intensity of the blur effect."
+msgstr ""
+
+#: src/effects/effects.js:72 src/effects/effects.js:101
+#: src/effects/effects.js:138 resources/ui/applications.ui:42
+#: resources/ui/dash.ui:92 resources/ui/other.ui:77 resources/ui/overview.ui:75
+#: resources/ui/panel.ui:92
+msgid "Brightness"
+msgstr "Világosság"
+
+#: src/effects/effects.js:73 src/effects/effects.js:102
+#: src/effects/effects.js:139 resources/ui/applications.ui:43
+#: resources/ui/dash.ui:93 resources/ui/other.ui:78 resources/ui/overview.ui:76
+#: resources/ui/panel.ui:93
+msgid ""
+"The brightness of the blur effect, a high value might make the text harder "
+"to read."
+msgstr ""
+"A homályosítás világossága. A magasabb érték nehezebbé teheti a szövegek "
+"olvasását."
+
+#: src/effects/effects.js:86
+msgid "Gaussian blur (advanced effect)"
+msgstr ""
+
+#: src/effects/effects.js:87
+msgid ""
+"A blur effect that smoothly blends pixels within a given radius. This effect "
+"is more precise, but way less optimized."
+msgstr ""
+
+#: src/effects/effects.js:92
+msgid ""
+"The intensity of the blur effect. The bigger it is, the slower it will be."
+msgstr ""
+
+#: src/effects/effects.js:115
+msgid "Monte Carlo blur"
+msgstr ""
+
+#: src/effects/effects.js:116
+msgid ""
+"A blur effect that mimics a random walk, by picking pixels further and "
+"further away from its origin and mixing them all together."
+msgstr ""
+
+#: src/effects/effects.js:121
+msgid ""
+"The maximum travel distance for each step in the random walk. A higher value "
+"will make the blur more randomized."
+msgstr ""
+
+#: src/effects/effects.js:130
+msgid "Iterations"
+msgstr ""
+
+#: src/effects/effects.js:131
+msgid "The number of iterations. The more there are, the smoother the blur is."
+msgstr ""
+
+#: src/effects/effects.js:148
+msgid "Use base pixel"
+msgstr ""
+
+#: src/effects/effects.js:149
+msgid ""
+"Whether or not the original pixel is counted for the blur. If it is, the "
+"image will be more legible."
+msgstr ""
+
+#: src/effects/effects.js:157 src/effects/effects.js:163
+#: src/effects/effects.js:162 src/effects/effects.js:168
+msgid "Color"
+msgstr "Szín"
+
+#: src/effects/effects.js:158 src/effects/effects.js:163
+msgid "An effect that blends a color into the pipeline."
+msgstr ""
+
+#: src/effects/effects.js:164 src/effects/effects.js:169
+msgid ""
+"The color to blend in. The blending amount is controled by the opacity of "
+"the color."
+msgstr ""
+
+#: src/effects/effects.js:172 src/effects/effects.js:177
+msgid "Pixelize"
+msgstr ""
+
+#: src/effects/effects.js:173 src/effects/effects.js:178
+msgid "An effect that pixelizes the image."
+msgstr ""
+
+#: src/effects/effects.js:177 src/effects/effects.js:204
+#: src/effects/effects.js:231 src/effects/effects.js:182
+#: src/effects/effects.js:209 src/effects/effects.js:236
+msgid "Factor"
+msgstr ""
+
+#: src/effects/effects.js:178 src/effects/effects.js:205
+#: src/effects/effects.js:183 src/effects/effects.js:210
+msgid "How much to scale down the image."
+msgstr ""
+
+#: src/effects/effects.js:185 src/effects/effects.js:212
+#: src/effects/effects.js:190 src/effects/effects.js:217
+msgid "Downsampling mode"
+msgstr ""
+
+#: src/effects/effects.js:186 src/effects/effects.js:213
+#: src/effects/effects.js:191 src/effects/effects.js:218
+msgid "The downsampling method that is used."
+msgstr ""
+
+#: src/effects/effects.js:189 src/effects/effects.js:216
+#: src/effects/effects.js:194 src/effects/effects.js:221
+msgid "Boxcar"
+msgstr ""
+
+#: src/effects/effects.js:190 src/effects/effects.js:217
+#: src/effects/effects.js:195 src/effects/effects.js:222
+msgid "Triangular"
+msgstr ""
+
+#: src/effects/effects.js:191 src/effects/effects.js:218
+#: src/effects/effects.js:196 src/effects/effects.js:223
+msgid "Dirac"
+msgstr ""
+
+#: src/effects/effects.js:199 src/effects/effects.js:204
+msgid "Downscale (advanced effect)"
+msgstr ""
+
+#: src/effects/effects.js:200 src/effects/effects.js:205
+msgid "An effect that downscales the image and put it on the top-left corner."
+msgstr ""
+
+#: src/effects/effects.js:226 src/effects/effects.js:231
+msgid "Upscale (advanced effect)"
+msgstr ""
+
+#: src/effects/effects.js:227 src/effects/effects.js:232
+msgid "An effect that upscales the image from the top-left corner."
+msgstr ""
+
+#: src/effects/effects.js:232 src/effects/effects.js:237
+msgid "How much to scale up the image."
+msgstr ""
+
+#: src/effects/effects.js:243 src/effects/effects.js:248
+msgid "Derivative"
+msgstr ""
+
+#: src/effects/effects.js:244 src/effects/effects.js:249
+msgid "Apply a spatial derivative, or a laplacian."
+msgstr ""
+
+#: src/effects/effects.js:248 src/effects/effects.js:253
+msgid "Operation"
+msgstr ""
+
+#: src/effects/effects.js:249 src/effects/effects.js:254
+msgid "The mathematical operation to apply."
+msgstr ""
+
+#: src/effects/effects.js:252 src/effects/effects.js:257
+msgid "1-step derivative"
+msgstr ""
+
+#: src/effects/effects.js:253 src/effects/effects.js:258
+msgid "2-step derivative"
+msgstr ""
+
+#: src/effects/effects.js:254 src/effects/effects.js:259
+msgid "Laplacian"
+msgstr ""
+
+#: src/effects/effects.js:262 src/effects/effects.js:267
+#: src/effects/effects.js:272
+msgid "Noise"
+msgstr ""
+
+#: src/effects/effects.js:263 src/effects/effects.js:268
+msgid ""
+"An effect that adds a random noise. Prefer the Monte Carlo blur for a more "
+"organic effect if needed."
+msgstr ""
+
+#: src/effects/effects.js:268 src/effects/effects.js:273
+msgid "The amount of noise to add."
+msgstr ""
+
+#: src/effects/effects.js:277 src/effects/effects.js:282
+msgid "Lightness"
+msgstr ""
+
+#: src/effects/effects.js:278 src/effects/effects.js:283
+msgid ""
+"The luminosity of the noise. A setting of '1.0' will make the effect "
+"transparent."
+msgstr ""
+
+#: src/effects/effects.js:291 src/effects/effects.js:296
+msgid "RGB to HSL (advanced effect)"
+msgstr ""
+
+#: src/effects/effects.js:292 src/effects/effects.js:297
+msgid "Converts the image from RGBA colorspace to HSLA."
+msgstr ""
+
+#: src/effects/effects.js:299 src/effects/effects.js:304
+msgid "HSL to RGB (advanced effect)"
+msgstr ""
+
+#: src/effects/effects.js:300 src/effects/effects.js:305
+msgid "Converts the image from HSLA colorspace to RGBA."
+msgstr ""
+
+#: src/effects/effects.js:307 src/effects/effects.js:312
+msgid "Corner"
+msgstr ""
+
+#: src/effects/effects.js:308 src/effects/effects.js:313
+msgid ""
+"An effect that draws corners. Add it last not to have the other effects "
+"perturb the corners."
+msgstr ""
+
+#: src/effects/effects.js:313 src/effects/effects.js:318
+msgid "The radius of the corner. GNOME apps use a radius of 12 px by default."
+msgstr ""
+
+#: src/effects/effects.js:320 src/effects/effects.js:325
+msgid "Top corners"
+msgstr ""
+
+#: src/effects/effects.js:321 src/effects/effects.js:326
+msgid "Whether or not to round the top corners."
+msgstr ""
+
+#: src/effects/effects.js:325 src/effects/effects.js:330
+msgid "Bottom corners"
+msgstr ""
+
+#: src/effects/effects.js:326 src/effects/effects.js:331
+msgid "Whether or not to round the bottom corners."
+msgstr ""
+
+#: resources/ui/application-row.ui:4
+msgid "Window Name"
+msgstr "Ablak neve"
+
+#: resources/ui/application-row.ui:8
+msgid "Select window"
+msgstr "Válassz ablakot"
+
+#: resources/ui/application-row.ui:9
+msgid "Pick a window or select it by its classname."
+msgstr "Válaszd ki az ablakot, vagy találd meg az osztályneve alapján."
+
+#: resources/ui/applications.ui:5
+msgid "Applications"
+msgstr "Alkalmazások"
+
+#: resources/ui/applications.ui:10
+msgid "Applications blur"
+msgstr ""
+
+#: resources/ui/applications.ui:11
+msgid ""
+"Adds blur to the applications.\n"
+"To get the best results possible, although with reduced performances, you "
+"can choose the option “No artifact” in the “Other → Hack level” tab."
+msgstr ""
+
+#: resources/ui/applications.ui:21 resources/ui/dash.ui:71
+#: resources/ui/other.ui:56 resources/ui/overview.ui:54
+#: resources/ui/panel.ui:71
+msgid "Sigma"
+msgstr "Mérték"
+
+#: resources/ui/applications.ui:22 resources/ui/dash.ui:72
+#: resources/ui/other.ui:57 resources/ui/overview.ui:55
+#: resources/ui/panel.ui:72
+msgid "The intensity of the blur."
+msgstr "A homályosítás intenzitása, mértéke."
+
+#: resources/ui/applications.ui:63
+msgid "Opacity"
+msgstr "Áttetszőség"
+
+#: resources/ui/applications.ui:64
+msgid ""
+"The opacity of the window on top of the blur effect, a higher value will be "
+"more legible."
+msgstr ""
+"Az ablak áttetszősége a homályosításon felül. A magasabb érték jobb "
+"olvashatóságot eredményez."
+
+#: resources/ui/applications.ui:85
+msgid "Opaque focused window"
+msgstr ""
+
+#: resources/ui/applications.ui:86
+msgid ""
+"Makes the focused window opaque and the other ones blurred, helping with "
+"legibility."
+msgstr ""
+
+#: resources/ui/applications.ui:100
+msgid "Blur on overview"
+msgstr "Homályosítás áttekintés nézetben"
+
+#: resources/ui/applications.ui:101
+msgid ""
+"Forces the blur to be properly shown on all workspaces on overview.\n"
+"This may cause some latency or performance issues."
+msgstr ""
+"Kényszeríti a homályosítás megjelenítését a munkaterületeken az áttekintés "
+"nézetben.\n"
+"Teljesítménybeli problémát, vagy késleltetéseket okozhat."
+
+#: resources/ui/applications.ui:116
+msgid "Enable all by default"
+msgstr "Elhomályosítás az összes ablaknál"
+
+#: resources/ui/applications.ui:117
+msgid "Adds blur behind all windows by default."
+msgstr ""
+
+#: resources/ui/applications.ui:133
+msgid "Whitelist"
+msgstr "Fehérlista"
+
+#: resources/ui/applications.ui:134
+msgid "A list of windows to blur."
+msgstr "Elhomályosítandó ablakok listája."
+
+#: resources/ui/applications.ui:152 resources/ui/applications.ui:189
+msgid "Add Window"
+msgstr "Ablak hozzáadása"
+
+#: resources/ui/applications.ui:170
+msgid "Blacklist"
+msgstr "Feketelista"
+
+#: resources/ui/applications.ui:171
+msgid "A list of windows not to blur."
+msgstr "Nem elhomályosítandó ablakok listája."
+
+#: resources/ui/dash.ui:5
+msgid "Dash"
+msgstr "Dokk"
+
+#: resources/ui/dash.ui:10
+msgid "Dash to Dock blur"
+msgstr "A Dash to Dock kiegészítő homályosítása"
+
+#: resources/ui/dash.ui:11
+msgid "Blur the background of the Dash to Dock extension, if it is used."
+msgstr ""
+"A Dash to Dock kiegészítő hátterének elhomályosítása, ha az használatban van."
+
+#: resources/ui/dash.ui:20 resources/ui/panel.ui:20
+msgid "Blur type"
+msgstr ""
+
+#: resources/ui/dash.ui:21 resources/ui/panel.ui:21
+msgid ""
+"The dynamic blur is slower and only compatible with a gaussian blur effect."
+msgstr ""
+
+#: resources/ui/dash.ui:41 resources/ui/panel.ui:41
+msgid "Static"
+msgstr ""
+
+#: resources/ui/dash.ui:53 resources/ui/panel.ui:53
+msgid "Dynamic"
+msgstr ""
+
+#: resources/ui/dash.ui:113 resources/ui/panel.ui:128
+msgid "Override background"
+msgstr "Háttér felülírása"
+
+#: resources/ui/dash.ui:114
+msgid ""
+"Makes the background either transparent or semi-transparent, disable this to "
+"use Dash to Dock preferences instead."
+msgstr ""
+"A hátteret áttetszővé, vagy részben áttetszővé teszi. Kapcsold ki a Dash to "
+"Dock beállítások használatához."
+
+#: resources/ui/dash.ui:120 resources/ui/panel.ui:136
+msgid "Background style"
+msgstr "Háttér stílus"
+
+#: resources/ui/dash.ui:121
+msgid "The transparent/semi-transparent style for the dock background."
+msgstr "A dokk hátterének áttetsző / részben áttetsző stílusa."
+
+#: resources/ui/dash.ui:137 resources/ui/panel.ui:167
+msgid "Disable in overview"
+msgstr "Kikapcsolás áttekintés nézetben"
+
+#: resources/ui/dash.ui:138
+msgid "Disables the blur from Dash to Dock when entering the overview."
+msgstr "Áttekintés nézetben kikapcsolja a Dash to Dock homályosítását."
+
+#: resources/ui/dash.ui:167 resources/ui/overview.ui:118
+#: resources/ui/overview.ui:138 resources/ui/panel.ui:222
+msgid "Transparent"
+msgstr "Áttetsző"
+
+#: resources/ui/dash.ui:168 resources/ui/overview.ui:116
+#: resources/ui/overview.ui:139 resources/ui/panel.ui:223
+msgid "Light"
+msgstr "Világos"
+
+#: resources/ui/dash.ui:169 resources/ui/overview.ui:117
+#: resources/ui/overview.ui:140 resources/ui/panel.ui:224
+msgid "Dark"
+msgstr "Sötét"
+
+#: resources/ui/effects-dialog.ui:4
+msgid "Effects"
+msgstr ""
+
+#: resources/ui/effects-dialog.ui:39
+msgid "Add Effect"
+msgstr ""
+
+#: resources/ui/effects-dialog.ui:72
+msgid "Include advanced effects"
+msgstr ""
+
+#: resources/ui/menu.ui:6
+msgid "Project page"
+msgstr "Projekt oldal"
+
+#: resources/ui/menu.ui:10
+msgid "Report a Bug"
+msgstr "Hiba bejelentése"
+
+#: resources/ui/menu.ui:14
+msgid "License"
+msgstr "Licenc"
+
+#: resources/ui/menu.ui:18
+msgid "Donate"
+msgstr "Támogatás"
+
+#: resources/ui/other.ui:5
+msgid "Other"
+msgstr "Egyéb"
+
+#: resources/ui/other.ui:10
+msgid "Lockscreen blur"
+msgstr "Záróképernyő homályosítása"
+
+#: resources/ui/other.ui:11
+msgid "Change the blur of the lockscreen to use this extension's preferences."
+msgstr "A záróképernyő beállításait a Blur my Shell-ben megadottakra állítja."
+
+#: resources/ui/other.ui:28
+msgid "Screenshot blur"
+msgstr "Képernyőkép ablakválasztójának homályosítása"
+
+#: resources/ui/other.ui:29
+msgid "Add blur to the background of the window selector in the screenshot UI."
+msgstr "Homályosítja az ablakválasztó hátterét."
+
+#: resources/ui/other.ui:46
+msgid "Window list extension blur"
+msgstr "Window list kiegészítő homályosítása"
+
+#: resources/ui/other.ui:47
+msgid "Make the window-list extension blurred, if it is used."
+msgstr "A Window-list kiegészítőt homályosítja, ha használatban van."
+
+#: resources/ui/other.ui:100
+msgid "Coverflow Alt-Tab extension blur"
+msgstr ""
+
+#: resources/ui/other.ui:101
+msgid "Make the coverflow alt-tab extension blurred, if it is used."
+msgstr ""
+
+#: resources/ui/other.ui:118
+msgid "Performance"
+msgstr "Teljesítmény"
+
+#: resources/ui/other.ui:119
+msgid "Various options to tweak the performance."
+msgstr "Különböző beállítások a teljesítmény javításához."
+
+#: resources/ui/other.ui:123
+msgid "Hack level"
+msgstr "Átalakítás szintje"
+
+#: resources/ui/other.ui:124
+msgid ""
+"Changes the behaviour of the dynamic blur effect. The default value is "
+"highly recommended.\n"
+"The “No artifact” option will entirely disable clipped redraws in GNOME "
+"shell, and will impact your computer performances significantly."
+msgstr ""
+
+#: resources/ui/other.ui:138
+msgid "Debug"
+msgstr "Hibakeresés"
+
+#: resources/ui/other.ui:139
+msgid ""
+"Makes the extension verbose in logs, activate when you need to report an "
+"issue."
+msgstr ""
+"A kiegészítés logjait részletessé teszi. Aktiváld, ha problémát szeretnél "
+"bejelenteni."
+
+#: resources/ui/other.ui:154
+msgid "Reset preferences"
+msgstr "Alaphelyzetbe állítás"
+
+#: resources/ui/other.ui:155
+msgid "Resets preferences of Blur my Shell irreversibly."
+msgstr "Véglegesen visszaállítja a Blur my Shell-t alap beállításaira."
+
+#: resources/ui/other.ui:174
+msgid "Reset"
+msgstr "Visszaállítás"
+
+#: resources/ui/other.ui:203
+msgid "High performances"
+msgstr "Nagy teljesítmény"
+
+#: resources/ui/other.ui:204
+msgid "Default"
+msgstr "Alapértelmezett"
+
+#: resources/ui/other.ui:205
+msgid "No artifact"
+msgstr "Nincs artifact"
+
+#: resources/ui/overview.ui:5
+msgid "Overview"
+msgstr "Áttekintés"
+
+#: resources/ui/overview.ui:10
+msgid "Background blur"
+msgstr "Háttér homályosítása"
+
+#: resources/ui/overview.ui:11
+msgid "Add blur to the overview background, using the wallpaper picture."
+msgstr "Elhomályosítja az áttekintés nézet hátterét a háttérkép használatával."
+
+#: resources/ui/overview.ui:26
+msgid "Overview components style"
+msgstr "Áttekintés nézet komponensek stílusa"
+
+#: resources/ui/overview.ui:27
+msgid ""
+"The semi-transparent style for the dash, search entry/results, and "
+"application folders."
+msgstr ""
+"Részben áttetsző stílus a dokkhoz, kereséshez és annak eredményeihez, ezen "
+"kívül az alkalmazás mappákhoz."
+
+#: resources/ui/overview.ui:44
+msgid "Application folder blur"
+msgstr "Alkalmazásmappa homályosítása"
+
+#: resources/ui/overview.ui:45
+msgid "Makes the background of application folder dialogs blurred."
+msgstr "Elhomályosítja az alkalmazásmappa párbeszédablakának hátterét."
+
+#: resources/ui/overview.ui:96
+msgid "Application folder dialogs style"
+msgstr "Alkalmazásmappa párbeszédablak stílusa"
+
+#: resources/ui/overview.ui:97
+msgid "The semi-transparent style for the application folder dialogs."
+msgstr "Részben áttetsző stílus az alkalmazásmappa párbeszédablakához."
+
+#: resources/ui/overview.ui:115 resources/ui/overview.ui:137
+msgid "Do not style"
+msgstr "Ne módosuljon"
+
+#: resources/ui/panel.ui:5
+msgid "Panel"
+msgstr "Panel"
+
+#: resources/ui/panel.ui:10
+msgid "Panel blur"
+msgstr "Panel homályosítása"
+
+#: resources/ui/panel.ui:11
+msgid "Blur the top panel using the background image."
+msgstr "A felső panel homályosítása a háttérkép használatával."
+
+#: resources/ui/panel.ui:113
+msgid "Force light text"
+msgstr "Kényszerített világos szöveg"
+
+#: resources/ui/panel.ui:114
+msgid ""
+"Use a light text for the panel, useful when using gnome-shell's light theme."
+msgstr ""
+"Világos szöveg használata a panelhez, hasznos, gnome-shell világos téma "
+"használatakor."
+
+#: resources/ui/panel.ui:129
+msgid ""
+"Override the background of the panel to use a transparent or semi-"
+"transparent one.\n"
+"Recommended unless you want to customize your GNOME theme."
+msgstr ""
+"Felülírja a felső panel hátterét, hogy áttetszőt, vagy részben áttetszőt "
+"használjon.\n"
+"Ajánlott, kivéve, ha személyre akarod szabni a GNOME témád."
+
+#: resources/ui/panel.ui:137
+msgid "The transparent/semi-transparent style for the panel background."
+msgstr "A felső panel hátterének áttetsző / részben áttetsző stílusa."
+
+#: resources/ui/panel.ui:151
+msgid "Disable when a window is near"
+msgstr "Kikapcsolás, ha ablak van a közelben"
+
+#: resources/ui/panel.ui:152
+msgid "Disables the transparency of the panel when a window is near it."
+msgstr "Kikapcsolja a panel áttetszőségét, ha ablak van a közelében."
+
+#: resources/ui/panel.ui:168
+msgid "Disables the blur from the panel when entering the overview."
+msgstr ""
+"Kikapcsolja a felső panel homályosítását az áttekintés nézetbe lépéskor."
+
+#: resources/ui/panel.ui:184
+msgid "Compatibility"
+msgstr "Kompatibilitás"
+
+#: resources/ui/panel.ui:185
+msgid "Various options to provide compatibility with other extensions."
+msgstr ""
+"Különböző beállítások más kiegészítők kompatibilitásának biztosításához."
+
+#: resources/ui/panel.ui:190
+msgid "Hidetopbar extension"
+msgstr "Hidetopbar kiegészítő"
+
+#: resources/ui/panel.ui:191
+msgid "Does not disable the blur in overview, best used with static blur."
+msgstr ""
+"Nem kapcsolja ki a homályosítást áttekintés nézetben. Ez statikus "
+"homályosítással a legjobb."
+
+#: resources/ui/panel.ui:205
+msgid "Blur original panel with Dash to Panel"
+msgstr "Az eredeti panel elmosása a Dash to Panel segítségével"
+
+#: resources/ui/panel.ui:206
+msgid ""
+"Enables the blurring of the original panel with Dash to Panel, if selected "
+"in the extension's options."
+msgstr ""
+"Engedélyezi az eredeti panel elmosását a Dash to Panel segítségével, ha a "
+"bővítmény beállításaiban be van jelölve."
+
+#: resources/ui/panel.ui:225
+msgid "Contrasted"
+msgstr "Kontrasztos"
+
+#: resources/ui/pipeline-choose-row.ui:4
+msgid "Pipeline"
+msgstr ""
+
+#: resources/ui/pipeline-choose-row.ui:5
+msgid "The pipeline to be used with this component."
+msgstr ""
+
+#: resources/ui/pipeline-group.ui:6
+msgid "Pipeline name"
+msgstr ""
+
+#: resources/ui/pipeline-group.ui:20
+msgid "Manage effects"
+msgstr ""
+
+#: resources/ui/pipelines.ui:5
+msgid "Pipelines"
+msgstr ""
+
+#: resources/ui/pipelines.ui:10
+msgid ""
+"Each component uses a pipeline, which can be chosen in the corresponding "
+"tab. Here you can create, modify and delete the pipelines and their effects."
+msgstr ""
+
+#: resources/ui/pipelines.ui:29
+msgid "Add Pipeline"
+msgstr ""
+
+#: src/effects/effects.js:153
+msgid "Prefer closer pixels"
+msgstr ""
+
+#: src/effects/effects.js:154
+msgid ""
+"Whether or not the pixels that are closer to the original pixel will have "
+"more weight."
+msgstr ""
+
+#~ msgid "Applications blur (beta)"
+#~ msgstr "Alkalmazások homályosítása (béta)"
+
+#~ msgid ""
+#~ "Adds blur to the applications. This is still beta functionality.\n"
+#~ "To get the best results possible, make sure to choose the option “No "
+#~ "artifact” in the “General → Hack level” preference.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Elhomályosítja az alkalmazásokat. Ez egyelőre béta funkció.\n"
+#~ "A legjobb eredmény elérése érdekében válaszd a \"Nincs artifact\"-ot az "
+#~ "\"Általános → Átalakítás szintje\" beállításnál.\n"
+#~ "        "
+
+#~ msgid ""
+#~ "Adds blur behind all windows by default.\n"
+#~ "Not recommended because of performance and stability issues."
+#~ msgstr ""
+#~ "Minden ablak homályosítása alapértelmezésként.\n"
+#~ "Teljesítménybeli és stabilitási problémák miatt nem javasolt."
+
+#~ msgid "Customize properties"
+#~ msgstr "Beállítások testreszabása"
+
+#~ msgid ""
+#~ "Uses customized blur properties, instead of the ones set in the General "
+#~ "page."
+#~ msgstr ""
+#~ "Testreszabott homályosítási beállításokat használ az általános "
+#~ "beállítások helyett."
+
+#~ msgid ""
+#~ "Changes the color of the blur. The opacity of the color controls how much "
+#~ "it is blended into the blur effect."
+#~ msgstr ""
+#~ "A homályosítás színét módosítja. A szín áttetszősége szabályozza, hogy "
+#~ "mennyire olvad bele a homályosításba."
+
+#~ msgid "Noise amount"
+#~ msgstr "Zajszint"
+
+#~ msgid ""
+#~ "The amount of noise to add to the blur effect, useful on low-contrast "
+#~ "screens or for aesthetic purpose."
+#~ msgstr ""
+#~ "A homályosítás zajszintje. Alacsony kontrasztú képernyőknél és esztétikai "
+#~ "célokra hasznos."
+
+#~ msgid "Noise lightness"
+#~ msgstr "Zajszint világossága"
+
+#~ msgid "The lightness of the noise added to the blur effect."
+#~ msgstr "Az elhomályosításra kerülő zajszint világossága."
+
+#~ msgid "Notice"
+#~ msgstr "Megjegyzés"
+
+#~ msgid ""
+#~ "Noise and color can't be activated on dynamically blurred components, "
+#~ "such as this one."
+#~ msgstr ""
+#~ "A zaj és a szín nem aktiválható a dinamikusan homályosított "
+#~ "komponenseken, többek közt ezen sem."
+
+#~ msgid "Static blur"
+#~ msgstr "Statikus homályosítás"
+
+#~ msgid "General"
+#~ msgstr "Általános"
+
+#~ msgid "Blur preferences"
+#~ msgstr "Homályosítás beállításai"
+
+#~ msgid "Global blur preferences, used by all components by default."
+#~ msgstr ""
+#~ "Alapértelmezett homályosítási beállítások. Minden komponens "
+#~ "alapértelmezettként fogja használni."
+
+#~ msgid "Color and noise effects"
+#~ msgstr "Szín és zaj hatás"
+
+#~ msgid ""
+#~ "Globally disables noise and color effects which may improve performance "
+#~ "on low-end systems."
+#~ msgstr ""
+#~ "A zaj és szín hatásokat mindenhol kikapcsolja, ami javíthatja a "
+#~ "teljesítményt a gyengébb rendszereken."
+
+#~ msgid ""
+#~ "Changes the behaviour of the dynamic blur effect.\n"
+#~ "The default value is highly recommended unless you use application blur, "
+#~ "in which case “No artifact” is better.\n"
+#~ "This option will entirely disable clipped redraws in GNOME shell, and may "
+#~ "impact performance significantly but will completely fix the blur effect."
+#~ msgstr ""
+#~ "Megváltoztatja a dinamikus homályosítás effektusát.\n"
+#~ "Az alapértelmezett beállítás ajánlott, kivéve ha az alkalmazások "
+#~ "homályosítása engedélyezve van: ebben az esetben a \"Nincs artifact\" "
+#~ "jobb.\n"
+#~ "Ez a beállítás teljesen kikapcsolja a \"clipped redraw\"-kat a GNOME "
+#~ "shell-ben, jelentősen befolyásolhatja a teljesítményt, de cserébe "
+#~ "teljesen kijavítja a homályosítás hibáit."
+
+#~ msgid "High quality"
+#~ msgstr "Magas minőség"
+
+#~ msgid "Uses a static blurred image, more performant and stable."
+#~ msgstr "Statikus homályosított képet használjon. Gyorsabb és stabilabb."
+
+#~ msgid ""
+#~ "Add blur to the applications. This is still a beta functionnality, is "
+#~ "quite buggy and is only applied to the apps that ask it, or to the ones "
+#~ "set in the whitelist below."
+#~ msgstr ""
+#~ "Alkalmazások elhomályosítása. Ez még béta funkció, úgyhogy problémák "
+#~ "merülhetnek fel, és csak azokra az alkalmazásokra van használva, amelyek "
+#~ "kérik, vagy a lenti fehérlistán szerepelnek."

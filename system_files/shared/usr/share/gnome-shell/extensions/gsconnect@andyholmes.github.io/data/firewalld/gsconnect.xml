@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+SPDX-FileCopyrightText: GSConnect Developers https://github.com/GSConnect
+
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+
+<service>
+  <short>GSConnect</short>
+  <description>KDE Connect implementation for GNOME</description>
+  <port port="1716" protocol="tcp"/>
+  <port port="1716" protocol="udp"/>
+  <port port="1739-1764" protocol="tcp"/>
+  <port port="1739-1764" protocol="udp"/>
+</service>
+
