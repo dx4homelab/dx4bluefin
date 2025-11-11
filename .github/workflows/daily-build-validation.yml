@@ -17,7 +17,14 @@ jobs:
       stable_status: ${{ steps.check-status.outputs.stable_status }}
       latest_status: ${{ steps.check-status.outputs.latest_status }}
       gts_status: ${{ steps.check-status.outputs.gts_status }}
+
     steps:
+      - name: Checkout dx4homelab/bluefin main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+
       - name: Check Build Statuses
         id: check-status
         env:
