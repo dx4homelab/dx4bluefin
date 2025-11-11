@@ -80,10 +80,7 @@ jobs:
           cp mods/cosign.pub cosign.pub
           cp mods/README.md README.md
           mkdir -p build_files/mods
-          cp -vf mods/update-build-scripts.sh build_files/mods/
-          cp -vf mods/build_scripts_update_functions.sh build_files/mods/
-          cp -vf mods/add_packages.txt build_files/mods/
-          cp -vf mods/remove_packages_from_excluded_list.txt build_files/mods/
+          cp -vf mods/customize-build.py build_files/mods/
           git add .
           echo "=== confirming main branch status after mods ==="
           git status
