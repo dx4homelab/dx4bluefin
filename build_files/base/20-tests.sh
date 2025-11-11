@@ -37,7 +37,6 @@ done
 # these packages are supposed to be removed
 # and are considered footguns
 UNWANTED_PACKAGES=(
-    firefox
     gnome-software
     gnome-software-rpm-ostree
     podman-docker

@@ -64,6 +64,24 @@ FEDORA_PACKAGES=(
     virt-v2v
     virt-viewer
     ydotool
+    firefox
+    firefox-langpacks
+    fedora-chromium-config
+    gnome-terminal
+    gdk-pixbuf2-modules-extra
+    chromium
+    gstreamer1-plugin-openh264
+    mozilla-openh264
+    nmstate
+    openh264
+    remmina
+    snapd
+    solaar
+    subversion
+    subversion-gnome
+    subversion-javahl
+    unclutter
+    xdotool
 )
 
 echo "Installing ${#FEDORA_PACKAGES[@]} DX packages from Fedora repos..."

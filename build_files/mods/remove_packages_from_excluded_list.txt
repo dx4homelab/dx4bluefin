@@ -1,5 +1,0 @@
-fedora-bookmarks
-fedora-chromium-config
-fedora-chromium-config-gnome
-firefox
-firefox-langpacks

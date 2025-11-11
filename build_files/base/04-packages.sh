@@ -86,8 +86,25 @@ FEDORA_PACKAGES=(
     xprop
     zenity
     zsh
+    firefox
+    firefox-langpacks
+    fedora-chromium-config
+    gnome-terminal
+    gdk-pixbuf2-modules-extra
+    chromium
+    gstreamer1-plugin-openh264
+    mozilla-openh264
+    nmstate
+    openh264
+    remmina
+    snapd
+    solaar
+    subversion
+    subversion-gnome
+    subversion-javahl
+    unclutter
+    xdotool
 )
-source "/ctx/build_files/mods/build_scripts_update_functions.sh"; add_packages_to_fedora_packages_array
 
 # Version-specific Fedora package additions
 case "$FEDORA_MAJOR_VERSION" in
@@ -144,11 +161,6 @@ copr_install_isolated "ublue-os/packages" \
 
 # Packages to exclude - common to all versions
 EXCLUDED_PACKAGES=(
-    fedora-bookmarks
-    fedora-chromium-config
-    fedora-chromium-config-gnome
-    firefox
-    firefox-langpacks
     gnome-extensions-app
     gnome-shell-extension-background-logo
     gnome-software-rpm-ostree
@@ -168,7 +180,6 @@ case "$FEDORA_MAJOR_VERSION" in
 esac
 
 # Remove excluded packages if they are installed
-source "/ctx/build_files/mods/build_scripts_update_functions.sh"; remove_packages_from_excluded_list
 if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     readarray -t INSTALLED_EXCLUDED < <(rpm -qa --queryformat='%{NAME}\n' "${EXCLUDED_PACKAGES[@]}" 2>/dev/null || true)
     if [[ "${#INSTALLED_EXCLUDED[@]}" -gt 0 ]]; then
