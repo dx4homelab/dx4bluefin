@@ -92,18 +92,24 @@ jobs:
         run: |
           echo "=== Update build scripts ==="
           #
-          bash build_files/mods/update-build-scripts.sh
+          echo skipping original mods to build file to update packages
+          echo bash build_files/mods/update-build-scripts.sh
+          echo instead running python customization scripts
+          python3 build_files/mods/customize-build.py --apply-defaults --write 
           #
       - name: Update reusable-build.yml
         run: |
-          # updating reusable-build.yml
+          #
+          echo "=== updating reusable-build.yml ==="
           yq eval -v -i --from-file mods/yq-mods4reusable-build-yaml.yq .github/workflows/reusable-build.yml
           #
       - name: Commit modifications to reusable-build.yml
         run: |
+          #
           echo "=== Commit modifications to reusable-build.yml ==="
           git add .
           git status
+          #
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
