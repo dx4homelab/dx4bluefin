@@ -75,7 +75,7 @@ jobs:
         run: |
           echo "=== Update build scripts ==="
           #
-          bash build_files/mods/update-build-scripts.sh
+          echo skipping bash build_files/mods/update-build-scripts.sh
           #
       - name: Update reusable-build.yml
         run: |
