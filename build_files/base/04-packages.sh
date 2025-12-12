@@ -119,6 +119,7 @@ case "$FEDORA_MAJOR_VERSION" in
     43)
         FEDORA_PACKAGES+=(
             evolution-ews-core
+            gnupg2-scdaemon
         )
         ;;
 esac
@@ -138,9 +139,7 @@ copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 copr_install_isolated "ublue-os/packages" \
     "bluefin-backgrounds" \
     "bluefin-cli-logos" \
-    "bluefin-faces" \
     "bluefin-schemas" \
-    "bluefin-fastfetch" \
     "ublue-bling" \
     "ublue-brew" \
     "ublue-fastfetch" \
