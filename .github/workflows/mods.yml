@@ -128,11 +128,12 @@ jobs:
           echo "=== Checking GITHUB EVENT NAME $GITHUB_EVENT_NAME to trigger rebuilds conditionally ==="
           if [ "$GITHUB_EVENT_NAME" == "schedule" ]; then
             echo "=== Triggering all workflow by schedule ==="
-            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
             gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
             gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
           else
             echo "=== Triggering build-dx4homelab-bluefin-dx-latest.yml workflow by other triggers ==="
+            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
             gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
           fi
         #
