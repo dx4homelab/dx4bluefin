@@ -138,11 +138,9 @@ copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 
 # From ublue-os/packages
 copr_install_isolated "ublue-os/packages" \
-    "bluefin-cli-logos" \
     "bluefin-schemas" \
     "ublue-bling" \
     "ublue-fastfetch" \
-    "ublue-motd" \
     "ublue-polkit-rules" \
     "ublue-setup-services" \
     "uupd"
@@ -205,14 +203,6 @@ if [[ "$(rpm -E %fedora)" -ge "42" ]]; then
   dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-session-helper flatpak-session-helper
   dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flatpak-debuginfo flatpak-libs-debuginfo flatpak-session-helper-debuginfo
 fi
-
-# Swap/install bluefin branding packages from ublue-os/packages COPR using isolated enablement
-dnf -y swap \
-    --repo=copr:copr.fedorainfracloud.org:ublue-os:packages \
-    fedora-logos bluefin-logos
-dnf -y install \
-    --repo=copr:copr.fedorainfracloud.org:ublue-os:packages \
-    bluefin-plymouth
 
 ## Pins and Overrides
 ## Use this section to pin packages in order to avoid regressions
