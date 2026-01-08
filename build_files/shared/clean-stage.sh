@@ -12,5 +12,7 @@ rm -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service
 rm -rf /.gitkeep
 find /var/* -maxdepth 0 -type d \! -name cache -exec rm -fr {} \;
 find /var/cache/* -maxdepth 0 -type d \! -name libdnf5 \! -name rpm-ostree -exec rm -fr {} \;
+rm -rf /tmp && mkdir -p /tmp
+rm -rf /boot && mkdir -p /boot
 
 echo "::endgroup::"
