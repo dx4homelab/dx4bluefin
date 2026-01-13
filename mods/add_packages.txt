@@ -13,3 +13,4 @@ subversion-gnome
 subversion-javahl
 unclutter
 xdotool
+openssl-pkcs11
