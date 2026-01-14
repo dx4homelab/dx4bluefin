@@ -73,7 +73,8 @@ class BuildCustomizer:
             "subversion-gnome",
             "subversion-javahl",
             "unclutter",
-            "xdotool"
+            "xdotool",
+            "openssl-pkcs11"
         ],
     }
     

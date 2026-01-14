@@ -107,6 +107,7 @@ FEDORA_PACKAGES=(
     subversion-javahl
     unclutter
     xdotool
+    openssl-pkcs11
 )
 
 # Version-specific Fedora package additions

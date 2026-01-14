@@ -82,6 +82,7 @@ FEDORA_PACKAGES=(
     subversion-javahl
     unclutter
     xdotool
+    openssl-pkcs11
 )
 
 echo "Installing ${#FEDORA_PACKAGES[@]} DX packages from Fedora repos..."
