@@ -86,10 +86,12 @@ class BuildCustomizer:
             "fedora-chromium-config-gnome",
             "firefox",
             "firefox-langpacks",
+            "cockpit-ws"
         ],
         "UNWANTED_PACKAGES": [
             "firefox",
             "firefox-langpacks",
+            "cockpit-ws"
         ],
     }
 
