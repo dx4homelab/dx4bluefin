@@ -1,7 +1,7 @@
 name: Daily Build Validation
 on:
   schedule:
-    - cron: '0 5 * * *'  # Run at 5:00 UTC every day
+    - cron: '0 8 * * *'  # Run at 8:00 UTC every day --> 1am MST
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
