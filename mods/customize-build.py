@@ -74,7 +74,8 @@ class BuildCustomizer:
             "subversion-javahl",
             "unclutter",
             "xdotool",
-            "openssl-pkcs11"
+            "openssl-pkcs11",
+            "cockpit-ws"
         ],
     }
     
