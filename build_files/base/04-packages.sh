@@ -108,6 +108,7 @@ FEDORA_PACKAGES=(
     unclutter
     xdotool
     openssl-pkcs11
+    cockpit-ws
 )
 
 # Version-specific Fedora package additions
