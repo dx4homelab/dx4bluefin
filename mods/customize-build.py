@@ -4,6 +4,7 @@ Provides a small class that can:
 - declare inline static lists to be used later (class attributes)
 - search the workspace for script files containing bash array definitions
 - add or remove entries from those array definitions while preserving style
+- modify DNF install commands to add --exclude flags for unwanted packages
 
 Usage examples:
  from mods.customize_build import BuildCustomizer
@@ -11,6 +12,7 @@ Usage examples:
  files = bc.find_files_with_array('FEDORA_PACKAGES')
  bc.add_entries_to_array(files[0], 'FEDORA_PACKAGES', ['firefox', 'chromium'])
  bc.remove_entries_from_array(files[0], 'FEDORA_PACKAGES', ['firefox'])
+ bc.add_exclusions_to_dnf_install('script.sh', ['unwanted1', 'unwanted2'])
 
 This is safe for CI usage: files are updated via an atomic replace and a backup is kept.
 """
@@ -91,8 +93,10 @@ class BuildCustomizer:
         "UNWANTED_PACKAGES": [
             "firefox",
             "firefox-langpacks",
-            "cockpit-ws"
         ],
+        "WEAK_PACKAGES_TO_EXCLUDE": [
+            "fedora-logos"
+        ]
     }
 
     # Default array names to look for when scanning files (derived from the
@@ -402,6 +406,165 @@ class BuildCustomizer:
         LOG.info("apply_defaults completed (dry_run=%s). Processed %d files.", dry_run, len(results))
         return results
 
+    def apply_dnf_exclusions(self, patterns: Optional[List[str]] = None, dry_run: bool = True) -> dict:
+        """Apply DNF install exclusions to all script files with FEDORA_PACKAGES context.
+
+        Scans repository for files containing 'dnf install' commands with FEDORA_PACKAGES
+        and adds --exclude flags for WEAK_PACKAGES_TO_EXCLUDE to each occurrence.
+
+        Args:
+            patterns: Glob patterns to search (defaults to DEFAULT_SEARCH_PATTERNS)
+            dry_run: If True, report what would be changed without writing
+
+        Returns:
+            A mapping: { file_path: (modified_count, message), ... }
+        """
+        patterns = patterns or self.DEFAULT_SEARCH_PATTERNS
+        results: dict = {}
+        exclude_packages = self.get_weak_packages()
+        
+        if not exclude_packages:
+            LOG.warning("No weak packages defined in REMOVAL_LIST")
+            return results
+        
+        # Find all files with DNF install commands
+        files_with_dnf = set()
+        for pattern in patterns:
+            for file_path in self.repo_root.glob(pattern):
+                if not file_path.is_file():
+                    continue
+                matches = self.find_dnf_install_commands(file_path)
+                if matches:
+                    files_with_dnf.add(file_path)
+        
+        LOG.info("Found %d files with DNF install commands to modify", len(files_with_dnf))
+        
+        # Apply exclusions to each file using WEAK_PACKAGES_TO_EXCLUDE
+        for file_path in files_with_dnf:
+            modified_count, message = self.add_exclusions_to_dnf_install(
+                file_path,
+                exclude_packages=exclude_packages,
+                write=not dry_run
+            )
+            results[str(file_path)] = (modified_count, message)
+            LOG.info("%s: %s", file_path, message)
+        
+        return results
+
+    def find_dnf_install_commands(self, file_path: Path, patterns: Optional[List[str]] = None) -> List[Tuple[int, str]]:
+        """Find all lines containing DNF install commands with FEDORA_PACKAGES context.
+
+        Returns a list of tuples: (line_index, line_content)
+        """
+        file_path = Path(file_path)
+        try:
+            text = file_path.read_text(encoding="utf-8")
+        except Exception as e:
+            LOG.error("Failed to read file %s: %s", file_path, e)
+            return []
+
+        lines = text.splitlines()
+        matches: List[Tuple[int, str]] = []
+        
+        # Pattern to match: dnf install with FEDORA_PACKAGES context
+        # Matches: dnf -y install ... FEDORA_PACKAGES ... or variations
+        dnf_pattern = re.compile(r'dnf\s+(?:-y\s+)?install.*FEDORA_PACKAGES')
+        
+        for idx, line in enumerate(lines):
+            if dnf_pattern.search(line):
+                matches.append((idx, line))
+        
+        LOG.info("Found %d DNF install commands with FEDORA_PACKAGES in %s", len(matches), file_path)
+        return matches
+
+    def get_unwanted_packages(self) -> List[str]:
+        """Get the list of unwanted packages from REMOVAL_LIST.
+        
+        Returns:
+            List of package names to be excluded from DNF install
+        """
+        return list(self.REMOVAL_LIST.get("UNWANTED_PACKAGES", []))
+
+    def get_weak_packages(self) -> List[str]:
+        """Get the list of weak packages from REMOVAL_LIST.
+        
+        Returns:
+            List of weak package names to be excluded from DNF install
+        """
+        return list(self.REMOVAL_LIST.get("WEAK_PACKAGES_TO_EXCLUDE", []))
+
+    def add_exclusions_to_dnf_install(self, file_path: Path, exclude_packages: Optional[List[str]] = None, write: bool = True) -> Tuple[int, str]:
+        """Modify DNF install commands in a file to add --exclude flags.
+
+        For each line containing 'dnf -y install ${FEDORA_PACKAGES[@]}' or similar patterns,
+        insert --exclude flags for the provided packages or UNWANTED_PACKAGES if not specified.
+
+        Args:
+            file_path: Path to the bash script to modify
+            exclude_packages: List of package names to exclude. If None, uses UNWANTED_PACKAGES
+            write: If True, write changes to file; else perform dry-run
+
+        Returns:
+            Tuple of (modified_count: int, result_message: str)
+        """
+        file_path = Path(file_path)
+        
+        # Use provided packages or fall back to UNWANTED_PACKAGES
+        if exclude_packages is None:
+            exclude_packages = self.get_unwanted_packages()
+        
+        if not exclude_packages:
+            LOG.warning("No packages to exclude provided")
+            return 0, "No packages to exclude"
+        
+        try:
+            text = file_path.read_text(encoding="utf-8")
+        except Exception as e:
+            return 0, f"Failed to read file: {e}"
+        
+        lines = text.splitlines()
+        modified_count = 0
+        
+        # Pattern to match dnf install commands with FEDORA_PACKAGES context
+        # Matches: dnf -y install ... FEDORA_PACKAGES ...
+        dnf_pattern = re.compile(r'^(\s*)(dnf\s+(?:-y\s+)?install.*FEDORA_PACKAGES.*)$')
+        
+        for idx, line in enumerate(lines):
+            match = dnf_pattern.match(line)
+            if match:
+                indent = match.group(1)
+                dnf_full_cmd = match.group(2)
+                
+                # Build exclude flags
+                exclude_flags = " ".join([f"--exclude={pkg}" for pkg in exclude_packages])
+                
+                # Insert exclusions after 'install' keyword
+                # Replace 'install' with 'install --exclude=pkg1 --exclude=pkg2'
+                new_full_cmd = dnf_full_cmd.replace('install', f'install {exclude_flags}', 1)
+                new_line = f"{indent}{new_full_cmd}"
+                
+                LOG.info("Modified line %d: %s", idx + 1, line)
+                LOG.info("          to: %s", new_line)
+                
+                lines[idx] = new_line
+                modified_count += 1
+        
+        if modified_count == 0:
+            return 0, "No DNF install commands found to modify"
+        
+        # Rebuild content
+        new_text = "\n".join(lines)
+        if not new_text.endswith("\n"):
+            new_text += "\n"
+        
+        if write:
+            self._write_atomic(file_path, new_text)
+            LOG.info("Modified %d DNF install commands in %s", modified_count, file_path)
+            return modified_count, f"Successfully modified {modified_count} DNF install command(s)"
+        else:
+            LOG.info("Dry-run: would modify %d DNF install commands in %s", modified_count, file_path)
+            return modified_count, f"Dry-run: would modify {modified_count} DNF install command(s)"
+
 
 def _cli():
     p = argparse.ArgumentParser(description="Script array editing helper")
@@ -431,10 +594,33 @@ def _cli():
         help="Optional directory where timestamped backups will be written before changes are applied",
         default=None,
     )
+    p.add_argument(
+        "--skip-dnf-exclusions",
+        action="store_true",
+        help="Skip DNF install exclusion modifications (enabled by default)",
+    )
 
     args = p.parse_args()
 
     bc = BuildCustomizer(repo_root=args.repo_root, backup_dir=args.backup_dir)
+
+    # Apply DNF exclusions by default (unless skipped)
+    if not args.skip_dnf_exclusions:
+        patterns = None
+        if args.patterns:
+            patterns = [x.strip() for x in args.patterns.split(',') if x.strip()]
+        results = bc.apply_dnf_exclusions(patterns=patterns, dry_run=not args.write)
+        
+        if results:
+            print(f"Applied DNF exclusions to {len(results)} file(s):")
+            for file_path, (modified_count, message) in results.items():
+                print(f"  {file_path}: {message}")
+            if args.write:
+                print("\nDNF exclusion changes written to files.")
+            else:
+                print("\nDry-run mode: no DNF exclusion changes written (use --write to apply).")
+        else:
+            LOG.info("No files found with DNF install commands to modify.")
 
     # If requested, apply the configured defaults (removals then additions).
     if args.apply_defaults:
