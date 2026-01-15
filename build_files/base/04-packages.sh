@@ -129,7 +129,7 @@ esac
 
 # Install all Fedora packages (bulk - safe from COPR injection)
 echo "Installing ${#FEDORA_PACKAGES[@]} packages from Fedora repos..."
-dnf -y install "${FEDORA_PACKAGES[@]}"
+dnf -y install --exclude=fedora-logos "${FEDORA_PACKAGES[@]}"
 
 dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 dnf config-manager setopt tailscale-stable.enabled=0
