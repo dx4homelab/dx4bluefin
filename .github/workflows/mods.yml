@@ -73,10 +73,12 @@ jobs:
       - name: Update custom actions, cosign.pub, README.md
         run: |
           echo "=== copy cosign.pub file from dx4homelab-mods ==="
-          rm -f .github/workflows/build-*.yml
-          cp mods/build-dx4homelab-bluefin-dx-gts.yml .github/workflows
-          cp mods/build-dx4homelab-bluefin-dx-latest.yml .github/workflows
-          cp mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
+          rm -fv .github/workflows/build-*.yml
+          cp -v mods/build-dx4homelab-bluefin-dx-gts.yml .github/workflows
+          cp -v mods/build-dx4homelab-bluefin-dx-latest.yml .github/workflows
+          cp -v mods/build-dx4homelab-bluefin-dx-stable.yml .github/workflows
+          cp -v mods/build-disk.yml .github/workflows
+          cp -rv mods/disk_config .
           cp mods/cosign.pub cosign.pub
           cp mods/README.md README.md
           mkdir -p build_files/mods
@@ -133,7 +135,7 @@ jobs:
             gh workflow run build-dx4homelab-bluefin-dx-gts.yml --ref main
           else
             echo "=== Triggering build-dx4homelab-bluefin-dx-latest.yml workflow by other triggers ==="
-            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+            echo skiping gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+            echo skiping gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
           fi
         #
