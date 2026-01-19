@@ -41,7 +41,8 @@ jobs:
       fail-fast: false
       matrix:
         disk-type: ["anaconda-iso"]
-        image-flavor: ["bluefin-dx-nvidia-open:stable"]
+        image-flavor: ["bluefin-dx:stable"]
+        # image-flavor: ["bluefin-dx-nvidia-open:stable","bluefin-dx:stable"]
     permissions:
       contents: read
       packages: read
@@ -119,9 +120,9 @@ jobs:
       # - name: Configure AWS Credentials
       #   uses: aws-actions/configure-aws-credentials@v4
       #   with:
-      #     role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_IAM_ROLE_NAME # The ARN of the role created in Step 3
-      #     aws-region: us-east-1 # Replace with your bucket's region
+      #     role-to-assume: arn:aws:iam::199715917706:role/github-s3-iso-upload-role # The ARN of the role created in Step 3
+      #     aws-region: us-east-2 # Replace with your bucket's region
 
       # - name: Upload ISO images to S3
       #   run: |
-      #     aws s3 cp ./path/to/your/iso/images/ s3://YOUR_BUCKET_NAME/iso-folder/ --recursive 
+      #     aws s3 cp ${{ steps.build.outputs.output-directory }} s3://YOUR_BUCKET_NAME/iso/ --recursive
