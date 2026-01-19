@@ -76,8 +76,7 @@ class BuildCustomizer:
             "subversion-javahl",
             "unclutter",
             "xdotool",
-            "openssl-pkcs11",
-            "cockpit-ws"
+            "openssl-pkcs11"
         ],
     }
     
@@ -87,8 +86,7 @@ class BuildCustomizer:
             "fedora-chromium-config",
             "fedora-chromium-config-gnome",
             "firefox",
-            "firefox-langpacks",
-            "cockpit-ws"
+            "firefox-langpacks"
         ],
         "UNWANTED_PACKAGES": [
             "firefox",
