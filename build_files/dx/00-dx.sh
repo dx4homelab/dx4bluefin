@@ -83,7 +83,6 @@ FEDORA_PACKAGES=(
     unclutter
     xdotool
     openssl-pkcs11
-    cockpit-ws
 )
 
 echo "Installing ${#FEDORA_PACKAGES[@]} DX packages from Fedora repos..."
