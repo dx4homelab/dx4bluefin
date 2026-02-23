@@ -30,5 +30,6 @@ jobs:
     with:
       brand_name: bluefin
       stream_name: gts
+      kernel_pin: 6.17.12-200.fc42.x86_64 ## Pin to 6.17 for ZFS compatibility
       image_flavors: '["main", "nvidia-open"]'
 

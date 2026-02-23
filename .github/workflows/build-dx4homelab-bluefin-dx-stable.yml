@@ -29,4 +29,5 @@ jobs:
     with:
       brand_name: bluefin
       stream_name: stable
+      kernel_pin: 6.17.12-300.fc43.x86_64 ## Pin to 6.17 for ZFS compatibility
       image_flavors: '["main", "nvidia-open"]'
