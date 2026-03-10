@@ -97,24 +97,6 @@ class BuildCustomizer:
         ]
     }
 
-    # Line-level modifications: add or delete specific lines in files.
-    # Keys are file paths relative to repo root.
-    #   "add_after": { "anchor line": ["line to insert", ...], ... }
-    #       Inserts lines immediately after the first line matching the anchor.
-    #   "delete": ["line to remove", ...]
-    #       Removes lines whose stripped content matches exactly.
-    LINE_MODS = {
-        "build_files/dx/00-dx.sh": {
-            "add_after": {
-                "systemctl enable bluefin-dx-groups.service": [
-                    "systemctl enable snapd.socket",
-                    "ln -s /var/lib/snapd/snap /snap",
-                ],
-            },
-            "delete": [],
-        },
-    }
-
     # Default array names to look for when scanning files (derived from the
     # per-array ADDITION_LIST and REMOVAL_LIST mappings). This keeps any
     # per-array defaults in one place and avoids duplication.
@@ -467,70 +449,6 @@ class BuildCustomizer:
         
         return results
 
-    def apply_line_mods(self, dry_run: bool = True) -> dict:
-        """Apply LINE_MODS to target files: insert and delete lines.
-
-        Returns a mapping: { file_path: { "added": int, "deleted": int }, ... }
-        """
-        results: dict = {}
-
-        for rel_path, mods in self.LINE_MODS.items():
-            file_path = self.repo_root / rel_path
-            if not file_path.is_file():
-                LOG.warning("LINE_MODS target not found: %s", file_path)
-                continue
-
-            text = file_path.read_text(encoding="utf-8")
-            lines = text.splitlines()
-            added = 0
-            deleted = 0
-
-            # --- deletions first ---
-            delete_set = set(mods.get("delete", []))
-            if delete_set:
-                new_lines: List[str] = []
-                for line in lines:
-                    if line.strip() in delete_set:
-                        deleted += 1
-                        LOG.info("DELETE %s: %s", rel_path, line.strip())
-                    else:
-                        new_lines.append(line)
-                lines = new_lines
-
-            # --- additions (insert after anchor) ---
-            for anchor, new_entries in mods.get("add_after", {}).items():
-                idx = None
-                for i, line in enumerate(lines):
-                    if line.strip() == anchor:
-                        idx = i
-                        break
-                if idx is None:
-                    LOG.warning("Anchor not found in %s: %s", rel_path, anchor)
-                    continue
-                # filter out lines already present
-                existing = {l.strip() for l in lines}
-                to_insert = [e for e in new_entries if e.strip() not in existing]
-                if to_insert:
-                    # match indentation of anchor line
-                    indent = re.match(r"^(\s*)", lines[idx]).group(1)
-                    insert_lines = [f"{indent}{e}" for e in to_insert]
-                    lines[idx + 1:idx + 1] = insert_lines
-                    added += len(to_insert)
-                    for e in to_insert:
-                        LOG.info("ADD %s after '%s': %s", rel_path, anchor, e)
-
-            if added or deleted:
-                new_text = "\n".join(lines) + "\n"
-                if not dry_run:
-                    self._write_atomic(file_path, new_text)
-                    LOG.info("Wrote line mods to %s (added=%d, deleted=%d)", rel_path, added, deleted)
-                else:
-                    LOG.info("Dry-run: would apply line mods to %s (added=%d, deleted=%d)", rel_path, added, deleted)
-
-            results[str(file_path)] = {"added": added, "deleted": deleted}
-
-        return results
-
     def find_dnf_install_commands(self, file_path: Path, patterns: Optional[List[str]] = None) -> List[Tuple[int, str]]:
         """Find all lines containing DNF install commands with FEDORA_PACKAGES context.
 
@@ -679,11 +597,6 @@ def _cli():
         action="store_true",
         help="Skip DNF install exclusion modifications (enabled by default)",
     )
-    p.add_argument(
-        "--skip-line-mods",
-        action="store_true",
-        help="Skip line-level modifications defined in LINE_MODS",
-    )
 
     args = p.parse_args()
 
@@ -706,16 +619,6 @@ def _cli():
                 print("\nDry-run mode: no DNF exclusion changes written (use --write to apply).")
         else:
             LOG.info("No files found with DNF install commands to modify.")
-
-    # Apply line-level mods (unless skipped)
-    if not args.skip_line_mods:
-        line_results = bc.apply_line_mods(dry_run=not args.write)
-        if line_results:
-            print(f"\nLine modifications across {len(line_results)} file(s):")
-            for file_path, counts in line_results.items():
-                print(f"  {file_path}: added={counts['added']}, deleted={counts['deleted']}")
-            if not args.write:
-                print("Dry-run mode: no line changes written (use --write to apply).")
 
     # If requested, apply the configured defaults (removals then additions).
     if args.apply_defaults:
