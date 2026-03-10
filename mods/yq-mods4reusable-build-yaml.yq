@@ -8,7 +8,7 @@
 |
 (.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string ) = "${{ env.TARGET_IMAGE_REGISTRY }}"
 |
-(.jobs.build_container.steps[] | select(.name == "Add SBOM Attestation") | .env.IMAGE ) = "${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+.jobs.build_container.steps |= map(select(.name != "Setup Syft" and .name != "Generate SBOM" and .name != "Add SBOM Attestation"))
 |
 .on.workflow_call.inputs.stream_name.description = "The Fedora Version: stable, or latest"
 |
