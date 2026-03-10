@@ -12,7 +12,7 @@ on:
         default: bluefin
         type: string
       stream_name:
-        description: "The Fedora Version: gts, stable, or latest"
+        description: "The Fedora Version: stable, or latest"
         required: true
         type: string
       kernel_pin:
@@ -186,7 +186,7 @@ jobs:
       - name: Sign container image
         if: github.event_name != 'pull_request'
         run: |
-          cosign sign -y --key env://COSIGN_PRIVATE_KEY ${{ steps.registry_case.outputs.lowercase }}/${{ env.IMAGE_NAME }}@${TAGS}
+          cosign sign -y --yes --key env://COSIGN_PRIVATE_KEY ${{ steps.registry_case.outputs.lowercase }}/${{ env.IMAGE_NAME }}@${TAGS}
         env:
           TAGS: ${{ steps.push.outputs.outputs && fromJSON(steps.push.outputs.outputs).digest }}
           COSIGN_EXPERIMENTAL: false
