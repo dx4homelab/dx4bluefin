@@ -8,8 +8,6 @@
 |
 (.jobs.build_container.steps[] | select(.id == "registry_case") | .with.string ) = "${{ env.TARGET_IMAGE_REGISTRY }}"
 |
-.jobs.build_container.steps |= map(select(.name != "Setup Syft" and .name != "Generate SBOM" and .name != "Add SBOM Attestation"))
-|
 .on.workflow_call.inputs.stream_name.description = "The Fedora Version: stable, or latest"
 |
 (.jobs.build_container.steps[] | select(.name == "Sign container image") | .run ) |= sub("cosign sign -y --key", "cosign sign -y --yes --key")
