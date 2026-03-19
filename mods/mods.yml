@@ -135,7 +135,7 @@ jobs:
             gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
           else
             echo "=== Triggering build-dx4homelab-bluefin-dx-latest.yml workflow by other triggers ==="
-            skiping gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-            skiping gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
           fi
         #
