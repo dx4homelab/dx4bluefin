@@ -189,6 +189,17 @@ jobs:
         shell: bash
         run: sleep 10s
 
+      - name: Check for changes in mods subfolder
+        run: |
+          echo "=== checking for file changes in mods/ ==="
+          if git diff --name-only HEAD~1 HEAD -- mods/ 2>/dev/null | grep -q .; then
+            echo "Files changed in mods/ — forcing build trigger"
+            echo "MODS_CHANGED=true" >> "$GITHUB_ENV"
+          else
+            echo "No changes detected in mods/"
+            echo "MODS_CHANGED=false" >> "$GITHUB_ENV"
+          fi
+
       - name: Check if upstream bluefin has been updated
         run: |
           echo "=== fetching HEAD hash from ublue-os/bluefin ==="
@@ -214,7 +225,7 @@ jobs:
           fi
 
       - name: Start build-latest-bluefin workflow
-        if: ${{ env.BLUEFIN_UPDATED == 'true' }}
+        if: ${{ env.BLUEFIN_UPDATED == 'true' || env.MODS_CHANGED == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
