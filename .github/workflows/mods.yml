@@ -96,6 +96,20 @@ jobs:
           echo "=== .gitignore after reconciliation ==="
           cat .gitignore
 
+      - name: Reconcile Justfile with custom recipes
+        run: |
+          echo "=== reconciling Justfile with mods/justfile-addons.just ==="
+          MARKER="# === dx4homelab custom recipes ==="
+          if ! grep -qF "${MARKER}" Justfile 2>/dev/null; then
+            echo "" >> Justfile
+            cat mods/justfile-addons.just >> Justfile
+            echo "Custom recipes appended to Justfile"
+          else
+            echo "Justfile already contains custom recipes"
+          fi
+          echo "=== tail of Justfile ==="
+          tail -30 Justfile
+
       - name: Update build scripts
         run: |
           echo "=== Update build scripts ==="
