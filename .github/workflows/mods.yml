@@ -18,6 +18,7 @@ jobs:
       contents: write
     outputs:
       self_updated: ${{ steps.check.outputs.self_updated }}
+      mods_changed: ${{ steps.mods_check.outputs.mods_changed }}
     steps:
       - name: Checkout dx4homelab/bluefin main
         uses: actions/checkout@v4
@@ -50,6 +51,18 @@ jobs:
           else
             echo "mods/mods.yml and .github/workflows/mods.yml are in sync"
             echo "self_updated=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for changes in mods subfolder
+        id: mods_check
+        run: |
+          echo "=== checking for file changes in mods/ ==="
+          if git diff --name-only HEAD~1 HEAD -- mods/ 2>/dev/null | grep -q .; then
+            echo "Files changed in mods/ — forcing build trigger"
+            echo "mods_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes detected in mods/"
+            echo "mods_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
   update-and-trigger-build:
@@ -189,16 +202,10 @@ jobs:
         shell: bash
         run: sleep 10s
 
-      - name: Check for changes in mods subfolder
+      - name: Set MODS_CHANGED from self-update job
         run: |
-          echo "=== checking for file changes in mods/ ==="
-          if git diff --name-only HEAD~1 HEAD -- mods/ 2>/dev/null | grep -q .; then
-            echo "Files changed in mods/ — forcing build trigger"
-            echo "MODS_CHANGED=true" >> "$GITHUB_ENV"
-          else
-            echo "No changes detected in mods/"
-            echo "MODS_CHANGED=false" >> "$GITHUB_ENV"
-          fi
+          echo "MODS_CHANGED=${{ needs.self-update.outputs.mods_changed }}" >> "$GITHUB_ENV"
+          echo "MODS_CHANGED=${{ needs.self-update.outputs.mods_changed }}"
 
       - name: Check if upstream bluefin has been updated
         run: |
