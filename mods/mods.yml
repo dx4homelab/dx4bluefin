@@ -86,6 +86,16 @@ jobs:
           echo "=== confirming main branch status after mods ==="
           git status
 
+      - name: Reconcile .gitignore with custom entries
+        run: |
+          echo "=== reconciling .gitignore with mods/gitignore-addons.txt ==="
+          while IFS= read -r line || [ -n "${line}" ]; do
+            [ -z "${line}" ] || [[ "${line}" =~ ^[[:space:]]*# ]] && continue
+            grep -qxF "${line}" .gitignore 2>/dev/null || echo "${line}" >> .gitignore
+          done < mods/gitignore-addons.txt
+          echo "=== .gitignore after reconciliation ==="
+          cat .gitignore
+
       - name: Update build scripts
         run: |
           echo "=== Update build scripts ==="
