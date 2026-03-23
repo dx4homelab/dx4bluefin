@@ -41,7 +41,7 @@ jobs:
             echo "MODS workflow file has changed — self-updating"
             cp -v mods/mods.yml .github/workflows/mods.yml
             git add .github/workflows/mods.yml
-            git commit -m "chore: self-update mods workflow from mods/mods.yml"
+            git commit -m "chore: self-update if .github/workflows/mods.yml workflow triggered by changes in mods/mods.yml"
             git push
             echo "=== triggering new mods workflow run ==="
             sleep 5
