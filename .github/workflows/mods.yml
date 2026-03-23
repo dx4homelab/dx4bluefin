@@ -10,9 +10,51 @@ on:
 
 env:
   token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
-  
+
 jobs:
+  self-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      self_updated: ${{ steps.check.outputs.self_updated }}
+    steps:
+      - name: Checkout dx4homelab/bluefin main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+
+      - name: Configuring git user.name & user.email
+        run: |
+          echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Check if mods workflow needs self-update
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+        run: |
+          echo "=== comparing mods/mods.yml with .github/workflows/mods.yml ==="
+          if ! diff -q mods/mods.yml .github/workflows/mods.yml > /dev/null 2>&1; then
+            echo "MODS workflow file has changed — self-updating"
+            cp -v mods/mods.yml .github/workflows/mods.yml
+            git add .github/workflows/mods.yml
+            git commit -m "chore: self-update mods workflow from mods/mods.yml"
+            git push
+            echo "=== triggering new mods workflow run ==="
+            sleep 5
+            gh workflow run mods.yml --ref main
+            echo "self_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mods/mods.yml and .github/workflows/mods.yml are in sync"
+            echo "self_updated=false" >> "$GITHUB_OUTPUT"
+          fi
+
   update-and-trigger-build:
+    needs: self-update
+    if: needs.self-update.outputs.self_updated != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,7 +77,7 @@ jobs:
         run: |
           echo "set dafault BLUEFIN_UPDATED=true"
           echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
-  
+
       - name: refresh ublue-os/bluefin
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         run: |
@@ -48,7 +90,7 @@ jobs:
           ls -lt mods
           echo "=== listing mods/upstream contents ==="
           find mods/upstream
-          
+
           echo "=== initializing and updating submodules in mods/upstream ==="
           cd mods/upstream
           git submodule sync --recursive
@@ -57,7 +99,7 @@ jobs:
 
           echo "=== listing mods/upstream contents after submodule update ==="
           find mods/upstream
-          
+
           echo "=== replacing all bluefin files from fresh copy in mods/upstream ==="
           rsync -av --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
@@ -117,7 +159,7 @@ jobs:
           echo skipping original mods to build file to update packages
           echo bash build_files/mods/update-build-scripts.sh
           echo instead running python customization scripts
-          python3 build_files/mods/customize-build.py --apply-defaults --write 
+          python3 build_files/mods/customize-build.py --apply-defaults --write
           #
       - name: Update reusable-build.yml
         run: |
@@ -142,15 +184,39 @@ jobs:
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
           add: .
-      
+
       - name: Sleep for 10 seconds while above commit is effective
         shell: bash
         run: sleep 10s
-    
+
+      - name: Check if upstream bluefin has been updated
+        run: |
+          echo "=== fetching HEAD hash from ublue-os/bluefin ==="
+          UPSTREAM_HASH=$(git ls-remote https://github.com/ublue-os/bluefin.git HEAD | awk '{print $1}')
+          echo "Upstream HEAD hash: ${UPSTREAM_HASH}"
+          SAVED_HASH=""
+          if [ -f bluefin-head-hash.txt ]; then
+            SAVED_HASH=$(cat bluefin-head-hash.txt | tr -d '[:space:]')
+            echo "Saved HEAD hash:    ${SAVED_HASH}"
+          else
+            echo "No saved hash found (bluefin-head-hash.txt missing)"
+          fi
+          if [ "${UPSTREAM_HASH}" == "${SAVED_HASH}" ]; then
+            echo "Upstream bluefin has NOT changed — skipping build"
+            echo "BLUEFIN_UPDATED=false" >> "$GITHUB_ENV"
+          else
+            echo "Upstream bluefin has been updated — proceeding with build"
+            echo "${UPSTREAM_HASH}" > bluefin-head-hash.txt
+            git add bluefin-head-hash.txt
+            git commit -m "chore: update bluefin-head-hash.txt to ${UPSTREAM_HASH}" || true
+            git push || true
+            echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
+          fi
+
       - name: Start build-latest-bluefin workflow
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}        
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
           echo "=== Checking GITHUB EVENT NAME $GITHUB_EVENT_NAME to trigger rebuilds conditionally ==="
           if [ "$GITHUB_EVENT_NAME" == "schedule" ]; then

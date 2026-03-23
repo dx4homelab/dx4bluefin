@@ -189,6 +189,30 @@ jobs:
         shell: bash
         run: sleep 10s
 
+      - name: Check if upstream bluefin has been updated
+        run: |
+          echo "=== fetching HEAD hash from ublue-os/bluefin ==="
+          UPSTREAM_HASH=$(git ls-remote https://github.com/ublue-os/bluefin.git HEAD | awk '{print $1}')
+          echo "Upstream HEAD hash: ${UPSTREAM_HASH}"
+          SAVED_HASH=""
+          if [ -f bluefin-head-hash.txt ]; then
+            SAVED_HASH=$(cat bluefin-head-hash.txt | tr -d '[:space:]')
+            echo "Saved HEAD hash:    ${SAVED_HASH}"
+          else
+            echo "No saved hash found (bluefin-head-hash.txt missing)"
+          fi
+          if [ "${UPSTREAM_HASH}" == "${SAVED_HASH}" ]; then
+            echo "Upstream bluefin has NOT changed — skipping build"
+            echo "BLUEFIN_UPDATED=false" >> "$GITHUB_ENV"
+          else
+            echo "Upstream bluefin has been updated — proceeding with build"
+            echo "${UPSTREAM_HASH}" > bluefin-head-hash.txt
+            git add bluefin-head-hash.txt
+            git commit -m "chore: update bluefin-head-hash.txt to ${UPSTREAM_HASH}" || true
+            git push || true
+            echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
+          fi
+
       - name: Start build-latest-bluefin workflow
         if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         env:
