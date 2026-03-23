@@ -10,9 +10,51 @@ on:
 
 env:
   token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
-  
+
 jobs:
+  self-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      self_updated: ${{ steps.check.outputs.self_updated }}
+    steps:
+      - name: Checkout dx4homelab/bluefin main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+
+      - name: Configuring git user.name & user.email
+        run: |
+          echo "=== git config ${GITHUB_ACTOR}@users.noreply.github.com ===="
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Check if mods workflow needs self-update
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+        run: |
+          echo "=== comparing mods/mods.yml with .github/workflows/mods.yml ==="
+          if ! diff -q mods/mods.yml .github/workflows/mods.yml > /dev/null 2>&1; then
+            echo "MODS workflow file has changed — self-updating"
+            cp -v mods/mods.yml .github/workflows/mods.yml
+            git add .github/workflows/mods.yml
+            git commit -m "chore: self-update mods workflow from mods/mods.yml"
+            git push
+            echo "=== triggering new mods workflow run ==="
+            sleep 5
+            gh workflow run mods.yml --ref main
+            echo "self_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mods/mods.yml and .github/workflows/mods.yml are in sync"
+            echo "self_updated=false" >> "$GITHUB_OUTPUT"
+          fi
+
   update-and-trigger-build:
+    needs: self-update
+    if: needs.self-update.outputs.self_updated != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -31,40 +73,13 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-      - name: Check if mods workflow needs self-update
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
-        run: |
-          echo "=== comparing mods/mods.yml with .github/workflows/mods.yml ==="
-          if ! diff -q mods/mods.yml .github/workflows/mods.yml > /dev/null 2>&1; then
-            echo "MODS workflow file has changed — self-updating"
-            cp -v mods/mods.yml .github/workflows/mods.yml
-            git add .github/workflows/mods.yml
-            git commit -m "chore: self-update mods workflow from mods/mods.yml"
-            git push
-            echo "=== triggering new mods workflow run ==="
-            sleep 5
-            gh workflow run mods.yml --ref main
-            echo "MODS_SELF_UPDATED=true" >> "$GITHUB_ENV"
-          else
-            echo "mods/mods.yml and .github/workflows/mods.yml are in sync"
-            echo "MODS_SELF_UPDATED=false" >> "$GITHUB_ENV"
-          fi
-
-      - name: Stop processing if self-updated
-        if: ${{ env.MODS_SELF_UPDATED == 'true' }}
-        run: |
-          echo "Workflow file was updated and a new run triggered. Stopping this run."
-          exit 0
-
       - name: Set default BLUEFIN_UPDATED to true
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           echo "set dafault BLUEFIN_UPDATED=true"
           echo "BLUEFIN_UPDATED=true" >> "$GITHUB_ENV"
 
       - name: refresh ublue-os/bluefin
-        if: ${{ env.MODS_SELF_UPDATED != 'true' && env.BLUEFIN_UPDATED == 'true' }}
+        if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         run: |
           echo "=== upstream bluefin cleanup: folders ==="
           find . -maxdepth 1 -type d -not -path '.' | grep -vE '^\.$|^\./mods|^\./\.git$|^\./\.github$' | xargs -n1 rm -rf
@@ -75,7 +90,7 @@ jobs:
           ls -lt mods
           echo "=== listing mods/upstream contents ==="
           find mods/upstream
-          
+
           echo "=== initializing and updating submodules in mods/upstream ==="
           cd mods/upstream
           git submodule sync --recursive
@@ -84,7 +99,7 @@ jobs:
 
           echo "=== listing mods/upstream contents after submodule update ==="
           find mods/upstream
-          
+
           echo "=== replacing all bluefin files from fresh copy in mods/upstream ==="
           rsync -av --progress mods/upstream/ ./ --exclude .git
           rm -rf mods/upstream
@@ -98,7 +113,6 @@ jobs:
 
 
       - name: Update custom actions, cosign.pub, README.md
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           echo "=== copy cosign.pub file from dx4homelab-mods ==="
           rm -fv .github/workflows/build-*.yml
@@ -115,7 +129,6 @@ jobs:
           git status
 
       - name: Reconcile .gitignore with custom entries
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           echo "=== reconciling .gitignore with mods/gitignore-addons.txt ==="
           while IFS= read -r line || [ -n "${line}" ]; do
@@ -126,7 +139,6 @@ jobs:
           cat .gitignore
 
       - name: Reconcile Justfile with custom recipes
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           echo "=== reconciling Justfile with mods/justfile-addons.just ==="
           MARKER="# === dx4homelab custom recipes ==="
@@ -141,17 +153,15 @@ jobs:
           tail -30 Justfile
 
       - name: Update build scripts
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           echo "=== Update build scripts ==="
           #
           echo skipping original mods to build file to update packages
           echo bash build_files/mods/update-build-scripts.sh
           echo instead running python customization scripts
-          python3 build_files/mods/customize-build.py --apply-defaults --write 
+          python3 build_files/mods/customize-build.py --apply-defaults --write
           #
       - name: Update reusable-build.yml
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           #
           echo "=== updating reusable-build.yml ==="
@@ -160,7 +170,6 @@ jobs:
           # sed -i 's/cosign sign -y --key env:\/\/COSIGN_PRIVATE_KEY/cosign sign -y --yes --key env:\/\/COSIGN_PRIVATE_KEY/' .github/workflows/reusable-build.yml
           #
       - name: Commit modifications to reusable-build.yml
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         run: |
           #
           echo "=== Commit modifications to reusable-build.yml ==="
@@ -169,23 +178,21 @@ jobs:
           #
 
       - name: Commit changes
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         uses: EndBug/add-and-commit@v9
         with:
           message: 'chore: automated customization of upstream bluefin/dx build workflow files'
           committer_name: "${GITHUB_ACTOR}"
           committer_email: "${GITHUB_ACTOR}@users.noreply.github.com"
           add: .
-      
+
       - name: Sleep for 10 seconds while above commit is effective
-        if: ${{ env.MODS_SELF_UPDATED != 'true' }}
         shell: bash
         run: sleep 10s
-    
+
       - name: Start build-latest-bluefin workflow
-        if: ${{ env.MODS_SELF_UPDATED != 'true' && env.BLUEFIN_UPDATED == 'true' }}
+        if: ${{ env.BLUEFIN_UPDATED == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}        
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
         run: |
           echo "=== Checking GITHUB EVENT NAME $GITHUB_EVENT_NAME to trigger rebuilds conditionally ==="
           if [ "$GITHUB_EVENT_NAME" == "schedule" ]; then
