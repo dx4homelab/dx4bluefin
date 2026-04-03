@@ -20,6 +20,7 @@ FEDORA_PACKAGES=(
     adcli
     adw-gtk3-theme
     adwaita-fonts-all
+    autofs
     bash-color-prompt
     bcache-tools
     bootc
@@ -52,7 +53,6 @@ FEDORA_PACKAGES=(
     libgda-sqlite
     libimobiledevice
     libratbag-ratbagd
-    libsss_autofs
     libxcrypt-compat
     lm_sensors
     make
@@ -76,8 +76,6 @@ FEDORA_PACKAGES=(
     samba-winbind-clients
     samba-winbind-modules
     setools-console
-    sssd-ad
-    sssd-krb5
     sssd-nfs-idmap
     switcheroo-control
     tmux

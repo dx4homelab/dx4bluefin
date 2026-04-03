@@ -24,10 +24,17 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.brand_name}}-${{ inputs.stream_name }}
   cancel-in-progress: true
+permissions: {}
 jobs:
   build_container:
     name: image
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -65,6 +72,31 @@ jobs:
                        "1")"
           echo "Default Tag: ${DEFAULT_TAG}"
           echo "DEFAULT_TAG=${DEFAULT_TAG}" >> $GITHUB_ENV
+      - name: DNF Package Cache Setup
+        shell: bash
+        id: setup-cache
+        env:
+          MATRIX_BASE_NAME: ${{ matrix.base_name }}
+          MATRIX_STREAM_NAME: ${{ matrix.stream_name }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          CACHE="$(just setup-cache "${MATRIX_BASE_NAME}" \
+                            "${MATRIX_STREAM_NAME}" \
+                            "1" \
+                            "${GITHUB_EVENT_NAME}")"
+
+          CACHE_NAME="$(echo "${CACHE}" | cut -d' ' -f 1)"
+          ALLOW_CACHE_WRITE="$(echo "${CACHE}" | cut -d' ' -f 2)"
+
+          echo "cache_name=${CACHE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "allow_cache_write=${ALLOW_CACHE_WRITE}" >> "$GITHUB_OUTPUT"
+      - name: Restore DNF package cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        env:
+          CACHE_NAME: ${{ steps.setup-cache.outputs.cache_name }}
+        with:
+          path: /var/tmp/buildah-cache-*
+          key: ${{ runner.os }}-${{ runner.arch }}-buildah-${{ env.CACHE_NAME }}
       - name: Build Image
         id: build-image
         shell: bash
@@ -76,10 +108,24 @@ jobs:
                                "${{ matrix.stream_name }}" \
                                "${{ matrix.image_flavor }}" \
                                "${{ inputs.kernel_pin }}"
+      # https://github.com/actions/cache/issues/1533
+      - name: Hack around permission issue caching
+        shell: bash
+        id: cache-perms
+        run: |
+          sudo chmod 777 --recursive /var/tmp/buildah-cache-0
+      - name: Write new DNF package cache
+        if: steps.setup-cache.outputs.allow_cache_write == 'true'
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        env:
+          CACHE_NAME: ${{ steps.setup-cache.outputs.cache_name }}
+        with:
+          path: /var/tmp/buildah-cache-*
+          key: ${{ runner.os }}-${{ runner.arch }}-buildah-${{ env.CACHE_NAME }}
       - name: Setup Syft
         id: setup-syft
         if: github.event_name != 'pull_request'
-        uses: anchore/sbom-action/download-syft@57aae528053a48a3f6235f2d9461b05fbcb7366d # v0
+        uses: anchore/sbom-action/download-syft@e22c389904149dbc22b58101806040fa8d37a610 # v0
         with:
           syft-version: v1.39.0
       - name: Generate SBOM
@@ -235,6 +281,13 @@ jobs:
           SBOM_DIGEST: ${{ steps.upload-sbom.outputs.sbom_digest }}
         run: |
           cosign sign -y --key env://COSIGN_PRIVATE_KEY ${LOWERCASE}/${IMAGE_NAME}@${SBOM_DIGEST}
+      - name: Attestation
+        if: github.event_name != 'pull_request'
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 #v4.1.0
+        with:
+          subject-name: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.outputs && fromJSON(steps.push.outputs.outputs).digest }}
+          push-to-registry: true
   check:
     name: Check all ${{ matrix.stream_name }} builds successful
     if: always()
