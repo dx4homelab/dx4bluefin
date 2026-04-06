@@ -30,14 +30,18 @@ export default class BazaarIntegration extends Extension {
     enable() {
         this._originalUpdateDetailsVisibility = AppMenu.AppMenu.prototype._updateDetailsVisibility;
         this._originalSetApp = AppMenu.AppMenu.prototype.setApp;
-        this._originalAddAction = AppMenu.AppMenu.prototype.addAction;
         const extension = this;
 
         AppMenu.AppMenu.prototype._updateDetailsVisibility = function() {
             const hasBazaar = this._appSystem.lookup_app('io.github.kolunmi.Bazaar.desktop') !== null;
+            const hasGnomeSoftware = this._appSystem.lookup_app('org.gnome.Software.desktop') !== null;
             const isFlatpak = this._app ? extension._isFlatpakApp(this._app) : false;
 
-            this._detailsItem.visible = hasBazaar && isFlatpak;
+            if (isFlatpak) {
+                this._detailsItem.visible = hasBazaar;
+            } else {
+                this._detailsItem.visible = hasGnomeSoftware;
+            }
 
             if (this._removeItem) {
                 this._removeItem.visible = hasBazaar && isFlatpak;
@@ -46,6 +50,30 @@ export default class BazaarIntegration extends Extension {
 
         AppMenu.AppMenu.prototype.setApp = function(app) {
             extension._originalSetApp.call(this, app);
+
+            if (!this._bazaarHandlerPatched) {
+                const items = this._getMenuItems();
+                const detailsIndex = items.indexOf(this._detailsItem);
+
+                this._detailsItem.destroy();
+                this._detailsItem = new PopupMenu.PopupMenuItem(_('App Details'));
+                this._detailsItem.connect('activate', () => {
+                    const isFlatpak = extension._isFlatpakApp(this._app);
+                    if (isFlatpak) {
+                        extension._openInBazaar(this._app);
+                    } else {
+                        extension._openInGnomeSoftware(this._app);
+                    }
+                });
+
+                if (detailsIndex !== -1) {
+                    this.addMenuItem(this._detailsItem, detailsIndex);
+                } else {
+                    this.addMenuItem(this._detailsItem);
+                }
+
+                this._bazaarHandlerPatched = true;
+            }
 
             if (!this._removeItem) {
                 this._removeItem = new PopupMenu.PopupMenuItem('Uninstall');
@@ -64,19 +92,6 @@ export default class BazaarIntegration extends Extension {
 
             this._updateDetailsVisibility();
         };
-
-        AppMenu.AppMenu.prototype.addAction = function(label, callback) {
-            const item = extension._originalAddAction.call(this, label, callback);
-
-            if (label === 'App Details' || label === _('App Details')) {
-                item.disconnect(item._activateId);
-                item._activateId = item.connect('activate', async () => {
-                    extension._openInBazaar(this._app);
-                });
-            }
-
-            return item;
-        };
     }
 
     disable() {
@@ -88,11 +103,6 @@ export default class BazaarIntegration extends Extension {
         if (this._originalSetApp) {
             AppMenu.AppMenu.prototype.setApp = this._originalSetApp;
             this._originalSetApp = null;
-        }
-
-        if (this._originalAddAction) {
-            AppMenu.AppMenu.prototype.addAction = this._originalAddAction;
-            this._originalAddAction = null;
         }
     }
 
@@ -128,6 +138,24 @@ export default class BazaarIntegration extends Extension {
 
         const appInfo = bazaarApp.get_app_info();
         appInfo.launch_uris([appstreamUri], null);
+
+        Main.overview.hide();
+    }
+
+    async _openInGnomeSoftware(app) {
+        if (!app) return;
+
+        const id = app.get_id();
+        if (!id) return;
+
+        const args = GLib.Variant.new('(ss)', [id, '']);
+        const bus = await Gio.DBus.get(Gio.BusType.SESSION, null);
+        bus.call(
+            'org.gnome.Software',
+            '/org/gnome/Software',
+            'org.gtk.Actions', 'Activate',
+            new GLib.Variant('(sava{sv})', ['details', [args], null]),
+            null, 0, -1, null);
 
         Main.overview.hide();
     }

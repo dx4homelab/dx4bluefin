@@ -37,10 +37,19 @@ A GNOME Shell extension that adds a blur look to different parts of the GNOME Sh
   - [Window List](https://extensions.gnome.org/extension/602/window-list/) extension
     - uses dynamic blur only
   - applications
-    - uses dynamic blur only for the moment
-    - you can select the opacity of the window that is above the blur: a lower opacity means it will be less legible
-    - but you can select to make the focused window totally opaque, so that you can enjoy your blur while always having a legible window you work on!
-    - you can activate an option to better blur the windows while in overview, although it won't make the blur really good anyway in overview
+    - you can choose between static blur and dynamic blur
+    - static blur:
+      - similar to the Windows "Mica" effect
+      - you select a pipeline, just like static blur for any other component
+      - **if you use multiple monitors, be aware that blur may not be handled properly**
+      - **for Mosaic WM users, this may cause unexpected behavior**
+    - dynamic blur:
+      - similar to the Windows "Acrylic" effect
+      - shows other windows behind the application
+      - more comprehensively tested — less likely to cause problems
+    - you can select the opacity of the window that is above the blur: a lower opacity means it will be less legible; and a totally opaque setting can be used in pair with a transparent GTK theme to make the background of the windows blurred without touching at its content
+    - but you can choose to make the focused window totally opaque so that you can enjoy your blur while always having a legible window you work on!
+    - you can activate an option to better blur the windows while in overview, although it won't make the blur perfect
     - and there are two modes for blurring applications:
       - whitelisting (by default), where only windows that are selected are blurred
       - blacklisting, where every window is blurred, excepted for the selected ones
@@ -132,7 +141,7 @@ You can use either [GitHub Sponsors](https://github.com/sponsors/aunetx) or [Ko-
 
 The current extension supports these GNOME Shell versions:
 
-- 46 — `master` branch
+- 46 to 50 — `master` branch
 
 Blur my Shell supports older GNOME Shell versions, with different version tags:
 
