@@ -20,6 +20,10 @@ on:
 
 permissions:
   packages: write
+  artifact-metadata: write
+  attestations: write
+  contents: read
+  id-token: write
 
 jobs:
   build:
