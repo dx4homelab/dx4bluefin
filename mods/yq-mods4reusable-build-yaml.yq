@@ -12,6 +12,8 @@
 |
 (.jobs.build_container.steps[] | select(.name == "Upload SBOM") | .env.IMAGE ) = "${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
 |
+(.jobs.build_container.steps[] | select(.name == "Attestation") | .env.subject-name ) = "${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+|
 .jobs.build_container.permissions.id-token = "write"
 |
 .jobs.build_container.permissions.attestations = "write"
