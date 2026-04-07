@@ -291,6 +291,8 @@ jobs:
           subject-name: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+        env:
+          subject-name: ${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
   check:
     name: Check all ${{ matrix.stream_name }} builds successful
     if: always()
