@@ -288,11 +288,9 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 #v4.1.0
         with:
-          subject-name: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-name: ${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
-        env:
-          subject-name: ${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
   check:
     name: Check all ${{ matrix.stream_name }} builds successful
     if: always()
