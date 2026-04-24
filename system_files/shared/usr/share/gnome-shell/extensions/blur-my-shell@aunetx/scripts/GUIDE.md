@@ -7,7 +7,7 @@ Due to various technical difficulties, an additional external library is require
 The library can be installed by running the following command
 
 ```
-$ curl https://raw.githubusercontent.com/aunetx/blur-my-shell/refs/heads/master/scripts/rounded_blur_build.sh | bash -s -- -i
+curl https://raw.githubusercontent.com/aunetx/blur-my-shell/refs/heads/master/scripts/rounded_blur_build.sh | bash -s -- -i
 ```
 
 **Note:** You will need to rerun this script everytime GNOME Shell / mutter is updated because the library need to be built against the version that you have running on your computer.
@@ -17,7 +17,7 @@ $ curl https://raw.githubusercontent.com/aunetx/blur-my-shell/refs/heads/master/
 The library can be uninstalled by running the following command
 
 ```
-$ curl https://raw.githubusercontent.com/aunetx/blur-my-shell/refs/heads/master/scripts/rounded_blur_build.sh | bash -s -- -u
+curl https://raw.githubusercontent.com/aunetx/blur-my-shell/refs/heads/master/scripts/rounded_blur_build.sh | bash -s -- -u
 ```
 
   

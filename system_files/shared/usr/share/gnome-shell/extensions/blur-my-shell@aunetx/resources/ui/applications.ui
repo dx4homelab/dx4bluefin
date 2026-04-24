@@ -118,7 +118,7 @@ To get the best results possible, although with reduced performances, you can ch
 
             <child type="suffix">
               <object class="GtkButton" id="open_gnome_rounded_blur">
-                <property name="icon-name">external-link-symbolic</property>
+                <property name="icon-name">adw-external-link-symbolic</property>
                 <property name="valign">center</property>
                 <property name="action-name">link.open-gnome-rounded-blur</property>
               </object>
