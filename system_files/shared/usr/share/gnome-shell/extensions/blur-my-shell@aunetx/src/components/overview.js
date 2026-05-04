@@ -108,7 +108,13 @@ export const OverviewBlur = class OverviewBlur {
                     for (let i = 0; i < w_m.get_n_workspaces(); i++) {
                         if (i != w_m.get_active_workspace_index())
                             w_m.get_workspace_by_index(i)?.list_windows().forEach(
-                                window => window.get_compositor_private().hide()
+                                window => {
+                                    // skip windows on all workspaces (e.g. secondary
+                                    // monitor windows under `workspaces-only-on-primary`);
+                                    // hiding them on any inactive workspace hides them globally
+                                    if (window.is_on_all_workspaces()) return;
+                                    window.get_compositor_private().hide();
+                                }
                             );
                     }
 
