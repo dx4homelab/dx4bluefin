@@ -28,11 +28,11 @@ You can get this library by getting it on [the AUR](https://aur.archlinux.org/pa
 
 - For `paru` users
 ```
-$ paru -S gnome-rounded-blur
+paru -S gnome-rounded-blur
 ```
 - For `yay` users
 ```
-$ yay -S gnome-rounded-blur
+yay -S gnome-rounded-blur
 ```
 
 ### Build it yourself
