@@ -4,7 +4,8 @@
     "46",
     "47",
     "48",
-    "49"
+    "49",
+    "50"
 ],
 "uuid": "dash-to-dock@micxgx.gmail.com",
 "name": "Dash to Dock",
@@ -12,5 +13,5 @@
 "original-author": "micxgx@gmail.com",
 "url": "https://micheleg.github.io/dash-to-dock/",
 "gettext-domain": "dashtodock",
-"version": 102
+"version": 105
 }

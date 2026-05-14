@@ -11,11 +11,11 @@ Enable / disable auto suspend with quick setting toggle.
 
 ## Version
 
-This extension supports GNOME Shell `3.4` -> `49`
+This extension supports GNOME Shell `3.4` -> `50`
 
 |Branch                   |Version|Compatible GNOME version|
 |-------------------------|:-----:|------------------------|
-| master                  |    58 | GNOME 45 -> 49         |
+| master                  |    59 | GNOME 45 -> 50         |
 | gnome-shell-43-44       |    51 | GNOME 43 -> 44         |
 | gnome-shell-40-42       |    42 | GNOME 40 -> 42         |
 | gnome-shell-3.36-3.38   |    37 | GNOME 3.36 -> 3.38     |
@@ -23,7 +23,7 @@ This extension supports GNOME Shell `3.4` -> `49`
 | gnome-shell-3.10-3.30   |     - | GNOME 3.10 -> 3.30     |
 | gnome-shell-before-3.10 |     - | GNOME 3.4 -> 3.8       |
 
-## Installation From source
+## Installation from source
 
 ```bash
 make build
@@ -35,7 +35,7 @@ make install
 
 ## Screenshots & features
 
-### Scroll Indicator Icon
+### Scroll indicator icon
 
 ![Screenshot](screenshots/screenshot-scroll-up.png)![Screenshot](screenshots/screenshot-scroll-down.png)
 
@@ -60,3 +60,11 @@ This option enable Caffeine for a given amount of time (similar to Caffeine in L
 ### Preferences
 
 ![Preferences](screenshots/screenshot-prefs.png)
+
+### Command line support
+
+Query the state:
+- `gsettings --schemadir ~/.local/share/gnome-shell/extensions/caffeine@patapon.info/schemas/ get org.gnome.shell.extensions.caffeine cli-toggle`
+
+Enable / disable Caffeine:
+- `gsettings --schemadir ~/.local/share/gnome-shell/extensions/caffeine@patapon.info/schemas/ set org.gnome.shell.extensions.caffeine cli-toggle true`
