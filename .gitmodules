@@ -4,7 +4,7 @@
 	branch = v64
 [submodule "system_files/shared/usr/share/gnome-shell/extensions/tmp/bazaar-integration@kolunmi.github.io"]
 	path = system_files/shared/usr/share/gnome-shell/extensions/tmp/bazaar-integration@kolunmi.github.io
-	url = https://github.com/AlexanderVanhee/bazaar-companion.git
+	url = https://github.com/bazaar-org/bazaar-companion.git
 	branch = main
 [submodule "system_files/shared/usr/share/gnome-shell/extensions/blur-my-shell@aunetx"]
 	path = system_files/shared/usr/share/gnome-shell/extensions/blur-my-shell@aunetx
@@ -18,6 +18,10 @@
 	path = system_files/shared/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com
 	url = https://github.com/micheleg/dash-to-dock.git
 	branch = extensions.gnome.org-v105
+[submodule "system_files/shared/usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io"]
+	path = system_files/shared/usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io
+	url = https://github.com/AlexanderVanhee/gradia-capture.git
+	branch = master
 [submodule "system_files/shared/usr/share/gnome-shell/extensions/gsconnect@andyholmes.github.io"]
 	path = system_files/shared/usr/share/gnome-shell/extensions/gsconnect@andyholmes.github.io
 	url = https://github.com/GSConnect/gnome-shell-extension-gsconnect.git

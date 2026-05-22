@@ -90,7 +90,8 @@ if [[ ! "${IMAGE_NAME}" =~ nvidia ]]; then
   dnf install -y \
     rocm-hip \
     rocm-opencl \
-    rocm-smi
+    rocm-smi \
+    rocminfo
 fi
 
 dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo

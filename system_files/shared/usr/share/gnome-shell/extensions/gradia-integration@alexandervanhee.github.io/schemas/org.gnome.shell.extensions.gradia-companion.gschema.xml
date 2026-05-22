@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.gradia-companion" path="/org/gnome/shell/extensions/gradia-companion/">
+    <key name="tool-settings" type="a{s(sd)}">
+      <default>{'freehand': ('#000000', 3.0), 'rectangle': ('#000000', 3.0), 'solid-rectangle': ('#000000', 3.0), 'highlighter': ('#ffdd00', 4.0), 'arrow': ('#000000', 3.0), 'stamp': ('#000000', 3.0)}</default>
+      <summary>Per-tool color and line width</summary>
+    </key>
+    <key name="screenshot-format" type="s">
+      <default>'png'</default>
+      <summary>File format for saved screenshots</summary>
+    </key>
+    <key name="play-sound" type="b">
+      <default>true</default>
+      <summary>Play sound when a screenshot is taken</summary>
+    </key>
+    <key name="clear-selection" type="b">
+      <default>false</default>
+      <summary>Clear the pre-selected area when the screenshot UI opens</summary>
+    </key>
+    <key name="composite-window-capture" type="b">
+      <default>true</default>
+      <summary>Composite transient windows when capturing a window screenshot</summary>
+    </key>
+  </schema>
+</schemalist>
