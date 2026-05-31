@@ -129,7 +129,25 @@ class BuildCustomizer:
             },
             "delete": [],
         },
+        # Wire our custom dx4homelab build script into the (cloned) build-dx.sh so it
+        # runs immediately after 00-dx.sh. The script itself is copied in via
+        # EXTRA_FILE_COPIES below (the upstream clone doesn't ship it).
+        "build_files/shared/build-dx.sh": {
+            "add_after": {
+                "/ctx/build_files/dx/00-dx.sh": [
+                    "/ctx/build_files/dx/01-custom-dx4homelab.sh",
+                ],
+            },
+            "delete": [],
+        },
     }
+
+    # Files copied verbatim into the (cloned) build tree, made executable.
+    # (src, dest) are relative to repo_root. Used to add build scripts that upstream
+    # does not ship; build-dx.sh is patched (LINE_MODS above) to invoke them.
+    EXTRA_FILE_COPIES = [
+        ("mods/01-custom-dx4homelab.sh", "build_files/dx/01-custom-dx4homelab.sh"),
+    ]
 
     # Default array names to look for when scanning files (derived from the
     # per-array ADDITION_LIST and REMOVAL_LIST mappings). This keeps any
@@ -547,6 +565,33 @@ class BuildCustomizer:
 
         return results
 
+    def apply_file_copies(self, dry_run: bool = True) -> dict:
+        """Copy EXTRA_FILE_COPIES into the build tree (executable), atomically.
+
+        Returns a mapping: { dest_path: "copied" | "missing-source" | "dry-run" }.
+        """
+        results: dict = {}
+        for rel_src, rel_dest in self.EXTRA_FILE_COPIES:
+            src = self.repo_root / rel_src
+            dest = self.repo_root / rel_dest
+            if not src.is_file():
+                LOG.warning("EXTRA_FILE_COPIES source not found: %s", src)
+                results[str(dest)] = "missing-source"
+                continue
+            if dry_run:
+                LOG.info("Dry-run: would copy %s -> %s (+x)", src, dest)
+                results[str(dest)] = "dry-run"
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            content = src.read_bytes()
+            tmp = Path(tempfile.mktemp(dir=str(dest.parent)))
+            tmp.write_bytes(content)
+            os.chmod(tmp, 0o755)
+            os.replace(str(tmp), str(dest))
+            LOG.info("Copied %s -> %s (+x)", src, dest)
+            results[str(dest)] = "copied"
+        return results
+
     def find_dnf_install_commands(self, file_path: Path, patterns: Optional[List[str]] = None) -> List[Tuple[int, str]]:
         """Find all lines containing DNF install commands with FEDORA_PACKAGES context.
 
@@ -732,6 +777,14 @@ def _cli():
                 print(f"  {file_path}: added={counts['added']}, deleted={counts['deleted']}")
             if not args.write:
                 print("Dry-run mode: no line changes written (use --write to apply).")
+
+    # Copy extra build scripts into the tree (unless line-mods are skipped).
+    if not args.skip_line_mods:
+        copy_results = bc.apply_file_copies(dry_run=not args.write)
+        if copy_results:
+            print(f"\nExtra file copies ({len(copy_results)}):")
+            for dest, status in copy_results.items():
+                print(f"  {dest}: {status}")
 
     # If requested, apply the configured defaults (removals then additions).
     if args.apply_defaults:
