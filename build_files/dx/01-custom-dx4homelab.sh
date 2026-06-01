@@ -51,12 +51,14 @@ snap_dl awswickrgov "$WORK/wickr.snap"
 rm -rf "$APPROOT"
 unsquashfs -q -n -d "$APPROOT" "$WORK/wickr.snap"
 
-# --- 2. libapparmor.so.1: Fedora ships none; take it from the core24 base ---
+# --- 2. libapparmor.so.1: Fedora ships none; take it from the core24 base.
+# Selective extraction following the symlink to its versioned target. A FULL core24
+# extraction would try to mknod /dev/* nodes, which the unprivileged image-build
+# container cannot do (it fails the build); -follow-symlinks also avoids hardcoding
+# the lib version (it differs per core24 revision, e.g. .1.17.1 vs .1.17.2).
 snap_dl core24 "$WORK/core24.snap"
-unsquashfs -q -n -d "$WORK/core24" "$WORK/core24.snap"
+unsquashfs -q -n -follow-symlinks -d "$WORK/core24" "$WORK/core24.snap" "/usr/lib/$ARCH/libapparmor.so.1"
 cp -a "$WORK/core24/usr/lib/$ARCH/"libapparmor.so.1* "$APPROOT/usr/lib/$ARCH/"
-aa_real="$(basename "$(ls -1 "$APPROOT/usr/lib/$ARCH/"libapparmor.so.1.* | head -1)")"
-ln -sf "$aa_real" "$APPROOT/usr/lib/$ARCH/libapparmor.so.1"
 
 # --- 3. libbz2.so.1.0 (Debian soname) -> Fedora's libbz2.so.1 ---
 host_bz2="$(ldconfig -p | awk '/libbz2.so.1 /{print $NF; exit}')"
