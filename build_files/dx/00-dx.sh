@@ -72,7 +72,6 @@ FEDORA_PACKAGES=(
     nmstate
     openh264
     remmina
-    snapd
     solaar
     subversion
     subversion-gnome
@@ -144,8 +143,6 @@ systemctl enable docker.socket
 systemctl enable podman.socket
 systemctl enable libvirt-workaround.service
 systemctl enable bluefin-dx-groups.service
-systemctl enable snapd.socket
-ln -s /var/lib/snapd/snap /snap
 
 sed -i 's@enabled=1@enabled=0@g' /etc/yum.repos.d/fedora-cisco-openh264.repo
 

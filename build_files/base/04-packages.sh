@@ -102,7 +102,6 @@ FEDORA_PACKAGES=(
     nmstate
     openh264
     remmina
-    snapd
     solaar
     subversion
     subversion-gnome
@@ -179,9 +178,8 @@ fi
 # Fix for ID in fwupd
 dnf -y copr enable ublue-os/staging
 dnf -y copr disable ublue-os/staging
-dnf -y swap \
-    --repo=copr:copr.fedorainfracloud.org:ublue-os:staging \
-    fwupd fwupd
+dnf -y swap --repo=copr:copr.fedorainfracloud.org:ublue-os:staging fwupd fwupd || echo "WARNING: fwupd swap from ublue-os/staging failed to resolve; keeping stock Fedora fwupd"
+rpm -q fwupd >/dev/null || { echo "ERROR: fwupd missing after staging swap attempt" >&2; exit 1; }
 
 ## Pins and Overrides
 ## Use this section to pin packages in order to avoid regressions

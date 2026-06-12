@@ -69,7 +69,6 @@ class BuildCustomizer:
             "nmstate",
             "openh264",
             "remmina",
-            "snapd",
             "solaar",
             "subversion",
             "subversion-gnome",
@@ -104,12 +103,27 @@ class BuildCustomizer:
     #   "delete": ["line to remove", ...]
     #       Removes lines whose stripped content matches exactly.
     LINE_MODS = {
+        # The upstream "Fix for ID in fwupd" swaps in a patched fwupd from the
+        # ublue-os/staging COPR. That COPR can lag Fedora: on F44 the stock fwupd
+        # moved to 2.1.5/libjcat2 while the COPR build (2.0.19) still needs
+        # libjcat.so.1, making the swap unresolvable and failing the whole build.
+        # Replace the hard-failing multi-line swap with a best-effort one-liner:
+        # use the COPR fwupd when it resolves, otherwise keep stock Fedora fwupd.
+        "build_files/base/04-packages.sh": {
+            "add_after": {
+                "dnf -y copr disable ublue-os/staging": [
+                    'dnf -y swap --repo=copr:copr.fedorainfracloud.org:ublue-os:staging fwupd fwupd || echo "WARNING: fwupd swap from ublue-os/staging failed to resolve; keeping stock Fedora fwupd"',
+                    'rpm -q fwupd >/dev/null || { echo "ERROR: fwupd missing after staging swap attempt" >&2; exit 1; }',
+                ],
+            },
+            "delete": [
+                "dnf -y swap \\",
+                "--repo=copr:copr.fedorainfracloud.org:ublue-os:staging \\",
+                "fwupd fwupd",
+            ],
+        },
         "build_files/dx/00-dx.sh": {
             "add_after": {
-                "systemctl enable bluefin-dx-groups.service": [
-                    "systemctl enable snapd.socket",
-                    "ln -s /var/lib/snapd/snap /snap",
-                ],
                 # Inserted right after the `code` package install. Disables VS Code's
                 # Wayland startup screen-capture pre-warm: main.js calls
                 # desktopCapturer.getSources({types:["screen"]}) on launch (and on every
@@ -520,15 +534,28 @@ class BuildCustomizer:
             deleted = 0
 
             # --- deletions first ---
-            delete_set = set(mods.get("delete", []))
-            if delete_set:
+            delete_list = mods.get("delete", [])
+            if delete_list:
+                counts = {entry: 0 for entry in delete_list}
                 new_lines: List[str] = []
                 for line in lines:
-                    if line.strip() in delete_set:
+                    stripped = line.strip()
+                    if stripped in counts:
+                        counts[stripped] += 1
                         deleted += 1
-                        LOG.info("DELETE %s: %s", rel_path, line.strip())
+                        LOG.info("DELETE %s: %s", rel_path, stripped)
                     else:
                         new_lines.append(line)
+                # All-or-nothing guard: deleting only part of a block (upstream
+                # drift) or more lines than expected (a second matching block)
+                # would silently emit a corrupted script. Each delete line must
+                # match exactly once, or none at all (idempotent re-run).
+                if any(counts.values()) and not all(c == 1 for c in counts.values()):
+                    raise RuntimeError(
+                        f"LINE_MODS delete mismatch in {rel_path}: expected each "
+                        f"line exactly once or none at all, got {counts} — "
+                        f"upstream likely changed; update LINE_MODS in mods/customize-build.py"
+                    )
                 lines = new_lines
 
             # --- additions (insert after anchor) ---
@@ -538,12 +565,19 @@ class BuildCustomizer:
                     if line.strip() == anchor:
                         idx = i
                         break
-                if idx is None:
-                    LOG.warning("Anchor not found in %s: %s", rel_path, anchor)
-                    continue
                 # filter out lines already present
                 existing = {l.strip() for l in lines}
                 to_insert = [e for e in new_entries if e.strip() not in existing]
+                if idx is None:
+                    # Missing anchor with nothing left to insert is fine (already
+                    # applied); missing anchor with pending lines means upstream
+                    # drifted and the customization would be silently lost.
+                    if to_insert:
+                        raise RuntimeError(
+                            f"LINE_MODS anchor not found in {rel_path}: '{anchor}' — "
+                            f"upstream likely changed; update LINE_MODS in mods/customize-build.py"
+                        )
+                    continue
                 if to_insert:
                     # match indentation of anchor line
                     indent = re.match(r"^(\s*)", lines[idx]).group(1)
