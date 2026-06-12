@@ -28,11 +28,13 @@ SNAP_CACHE="${SNAP_CACHE:-/var/tmp/dx4homelab-snapcache}"
 CURL_RETRY=(--retry 5 --retry-delay 3 --retry-all-errors --connect-timeout 30)
 snap_dl() {
   local name="$1" out="$2" url cache
+  # first() inside jq, not `| head -1`: an early-exiting pipe reader SIGPIPEs the
+  # writer, which pipefail turns into a build-killing 141.
   url="$(curl -sSL "${CURL_RETRY[@]}" -H 'Snap-Device-Series: 16' \
         "https://api.snapcraft.io/v2/snaps/info/${name}?fields=download" \
-      | jq -r '.["channel-map"][]
+      | jq -r 'first(.["channel-map"][]
                | select(.channel.name=="stable" and .channel.architecture=="amd64")
-               | .download.url' | head -1)"
+               | .download.url)')"
   test -n "$url"
   mkdir -p "$SNAP_CACHE"
   cache="$SNAP_CACHE/$(basename "$url")"
@@ -61,7 +63,10 @@ unsquashfs -q -n -follow-symlinks -d "$WORK/core24" "$WORK/core24.snap" "/usr/li
 cp -a "$WORK/core24/usr/lib/$ARCH/"libapparmor.so.1* "$APPROOT/usr/lib/$ARCH/"
 
 # --- 3. libbz2.so.1.0 (Debian soname) -> Fedora's libbz2.so.1 ---
-host_bz2="$(ldconfig -p | awk '/libbz2.so.1 /{print $NF; exit}')"
+# awk must consume ALL of ldconfig's output: an early `exit` SIGPIPEs ldconfig
+# (~100s of KB > the 64K pipe buffer) and pipefail kills the build with 141 —
+# racy, so it only bites on some runs.
+host_bz2="$(ldconfig -p | awk '!v && /libbz2.so.1 /{v=$NF} END{print v}')"
 ln -sf "${host_bz2:-/lib64/libbz2.so.1}" "$APPROOT/usr/lib/$ARCH/libbz2.so.1.0"
 
 # --- 4. Remove the bundled Mesa/GL stack so host GL (software) is used ---
