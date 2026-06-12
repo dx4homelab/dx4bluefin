@@ -122,27 +122,11 @@ class BuildCustomizer:
                 "fwupd fwupd",
             ],
         },
-        "build_files/dx/00-dx.sh": {
-            "add_after": {
-                # Inserted right after the `code` package install. Disables VS Code's
-                # Wayland startup screen-capture pre-warm: main.js calls
-                # desktopCapturer.getSources({types:["screen"]}) on launch (and on every
-                # display-metrics-changed, e.g. a TV sleeping/waking), which on Wayland
-                # routes through xdg-desktop-portal and pops the "Share Screen" picker.
-                # We change ONLY that pre-warm (uniquely identified by its trailing
-                # ".then(") to request types:[] so it enumerates nothing and never hits
-                # the portal. The two awaited getSources() calls inside the on-demand
-                # setDisplayMediaRequestHandler are left intact, so real screen sharing
-                # still works. The `! grep ... || exit 1` line fails the build loudly if
-                # a future VS Code release changes the minified string.
-                "code": [
-                    "# Disable VS Code Wayland screen-capture pre-warm (Share-Screen popup on every launch)",
-                    r"""sed -i 's/getSources({types:\["screen"\],thumbnailSize:{width:0,height:0}}).then(/getSources({types:[],thumbnailSize:{width:0,height:0}}).then(/' /usr/share/code/resources/app/out/main.js""",
-                    r"""! grep -qF 'getSources({types:["screen"],thumbnailSize:{width:0,height:0}}).then(' /usr/share/code/resources/app/out/main.js || { echo "ERROR: VS Code Wayland screen-capture pre-warm patch did not apply (upstream string changed)" >&2; exit 1; }""",
-                ],
-            },
-            "delete": [],
-        },
+        # NOTE: the former VS Code Wayland screen-capture pre-warm patch (sed on
+        # main.js after the `code` install) was retired 2026-06-12: VS Code 1.123
+        # removed the eager warmUpScreenSources() launch call upstream; sources are
+        # now enumerated lazily inside the on-demand screen-share handler, so the
+        # Share-Screen popup no longer occurs and the sed had become a no-op.
         # Wire our custom dx4homelab build script into the (cloned) build-dx.sh so it
         # runs immediately after 00-dx.sh. The script itself is copied in via
         # EXTRA_FILE_COPIES below (the upstream clone doesn't ship it).

@@ -114,9 +114,6 @@ EOF
 sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/vscode.repo
 dnf -y install --enablerepo=code \
     code
-    # Disable VS Code Wayland screen-capture pre-warm (Share-Screen popup on every launch)
-    sed -i 's/getSources({types:\["screen"\],thumbnailSize:{width:0,height:0}}).then(/getSources({types:[],thumbnailSize:{width:0,height:0}}).then(/' /usr/share/code/resources/app/out/main.js
-    ! grep -qF 'getSources({types:["screen"],thumbnailSize:{width:0,height:0}}).then(' /usr/share/code/resources/app/out/main.js || { echo "ERROR: VS Code Wayland screen-capture pre-warm patch did not apply (upstream string changed)" >&2; exit 1; }
 
 
 # DX packages to exclude - common to all versions
