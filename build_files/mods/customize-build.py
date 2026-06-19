@@ -135,6 +135,12 @@ class BuildCustomizer:
     # does not ship; build-dx.sh is patched (LINE_MODS above) to invoke them.
     EXTRA_FILE_COPIES = [
         ("mods/01-custom-dx4homelab.sh", "build_files/dx/01-custom-dx4homelab.sh"),
+        # Custom ujust recipe + Brewfile baked into the dx image so a freshly
+        # installed instance can reproduce the workstation's manually-installed
+        # Homebrew tools with `ujust install-dx4homelab-brews`. 60-custom.just is
+        # auto-imported by the base image's /usr/share/ublue-os/just/00-entry.just.
+        ("mods/just/60-dx4homelab.just", "system_files/dx/usr/share/ublue-os/just/60-custom.just"),
+        ("mods/homebrew/dx4homelab.Brewfile", "system_files/dx/usr/share/ublue-os/homebrew/dx4homelab.Brewfile"),
     ]
 
     # Default array names to look for when scanning files (derived from the
