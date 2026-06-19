@@ -3,10 +3,8 @@ on:
   schedule:
     - cron: "15 0 * * 0" # 0015 UTC on Sundays
   workflow_dispatch:
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-
 jobs:
   delete-older-than-90:
     runs-on: ubuntu-latest
