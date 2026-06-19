@@ -1,1 +1,3 @@
 links/reusable-build.yml
+# Local scratch area for throwaway scripts/experiments (never built or shipped)
+scratchpad/
