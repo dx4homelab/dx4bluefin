@@ -103,25 +103,15 @@ class BuildCustomizer:
     #   "delete": ["line to remove", ...]
     #       Removes lines whose stripped content matches exactly.
     LINE_MODS = {
-        # The upstream "Fix for ID in fwupd" swaps in a patched fwupd from the
-        # ublue-os/staging COPR. That COPR can lag Fedora: on F44 the stock fwupd
-        # moved to 2.1.5/libjcat2 while the COPR build (2.0.19) still needs
-        # libjcat.so.1, making the swap unresolvable and failing the whole build.
-        # Replace the hard-failing multi-line swap with a best-effort one-liner:
-        # use the COPR fwupd when it resolves, otherwise keep stock Fedora fwupd.
-        "build_files/base/04-packages.sh": {
-            "add_after": {
-                "dnf -y copr disable ublue-os/staging": [
-                    'dnf -y swap --repo=copr:copr.fedorainfracloud.org:ublue-os:staging fwupd fwupd || echo "WARNING: fwupd swap from ublue-os/staging failed to resolve; keeping stock Fedora fwupd"',
-                    'rpm -q fwupd >/dev/null || { echo "ERROR: fwupd missing after staging swap attempt" >&2; exit 1; }',
-                ],
-            },
-            "delete": [
-                "dnf -y swap \\",
-                "--repo=copr:copr.fedorainfracloud.org:ublue-os:staging \\",
-                "fwupd fwupd",
-            ],
-        },
+        # NOTE: the former "Fix for ID in fwupd" patch on 04-packages.sh was retired
+        # 2026-06-19. It rewrote upstream's hard-failing ublue-os/staging fwupd swap
+        # into a best-effort one-liner, anchored on "dnf -y copr disable
+        # ublue-os/staging". Upstream has since removed that whole section (the
+        # `dnf -y copr enable/disable ublue-os/staging` lines and the `dnf -y swap
+        # ... fwupd fwupd`) and now ships stock Fedora fwupd by default. With the
+        # anchor gone the LINE_MODS could only fail ("anchor not found"), and its
+        # goal — keep stock Fedora fwupd when the COPR swap can't resolve — is now
+        # the upstream default, so no mod is needed.
         # NOTE: the former VS Code Wayland screen-capture pre-warm patch (sed on
         # main.js after the `code` install) was retired 2026-06-12: VS Code 1.123
         # removed the eager warmUpScreenSources() launch call upstream; sources are
