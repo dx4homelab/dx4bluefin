@@ -125,6 +125,13 @@ class BuildCustomizer:
                 "/ctx/build_files/dx/00-dx.sh": [
                     "/ctx/build_files/dx/01-custom-dx4homelab.sh",
                 ],
+                # Chain 02 on 01 (not on 00) so the run order stays 00 -> 01 -> 02
+                # even when build-dx.sh already contains 01 (partial re-apply against a
+                # non-pristine tree); anchoring both on 00 would insert 02 right after
+                # 00 and reverse the order.
+                "/ctx/build_files/dx/01-custom-dx4homelab.sh": [
+                    "/ctx/build_files/dx/02-dod-ca-trust.sh",
+                ],
             },
             "delete": [],
         },
@@ -141,6 +148,11 @@ class BuildCustomizer:
         # auto-imported by the base image's /usr/share/ublue-os/just/00-entry.just.
         ("mods/just/60-dx4homelab.just", "system_files/dx/usr/share/ublue-os/just/60-custom.just"),
         ("mods/homebrew/dx4homelab.Brewfile", "system_files/dx/usr/share/ublue-os/homebrew/dx4homelab.Brewfile"),
+        # DoD PKI: build script downloads the latest DISA bundle and bakes it into
+        # the system trust store; the committed zip is its offline fallback. Invoked
+        # from build-dx.sh after 01-custom (LINE_MODS above).
+        ("mods/02-dod-ca-trust.sh", "build_files/dx/02-dod-ca-trust.sh"),
+        ("mods/dod-pki/unclass-certificates_pkcs7_DoD.zip", "build_files/dx/dod-pki-fallback.zip"),
     ]
 
     # Default array names to look for when scanning files (derived from the
