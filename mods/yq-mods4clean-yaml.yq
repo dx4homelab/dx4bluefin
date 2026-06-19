@@ -1,0 +1,9 @@
+# Override upstream's Cleanup-Old-Images package list with only the images this
+# fork actually publishes to ghcr.io/dx4homelab. Upstream lists all 24 bluefin
+# variants (hwe/asus/surface + every nvidia combo); we build only the base and
+# -dx images in the "main" and "nvidia-open" flavors (plus the legacy closed
+# -nvidia images that still exist in the registry). Leaving the full upstream
+# list in place makes ghcr-cleanup-action 404 on the first nonexistent package
+# (bluefin-hwe) and fail the whole job. Job-name-agnostic: targets whichever
+# step carries a .with.packages value.
+(.jobs[].steps[] | select(.with.packages) | .with.packages) = "bluefin,bluefin-nvidia,bluefin-nvidia-open,bluefin-dx,bluefin-dx-nvidia,bluefin-dx-nvidia-open"

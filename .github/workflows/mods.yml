@@ -203,6 +203,12 @@ jobs:
           # sed -i 's/description: "The Fedora Version: gts, stable, or latest"/description: "The Fedora Version: stable, or latest"/' .github/workflows/reusable-build.yml
           # sed -i 's/cosign sign -y --key env:\/\/COSIGN_PRIVATE_KEY/cosign sign -y --yes --key env:\/\/COSIGN_PRIVATE_KEY/' .github/workflows/reusable-build.yml
           #
+      - name: Update clean.yml
+        run: |
+          #
+          echo "=== updating clean.yml (prune cleanup package list to images this fork publishes) ==="
+          yq eval -i --from-file mods/yq-mods4clean-yaml.yq .github/workflows/clean.yml
+          #
       - name: Commit modifications to reusable-build.yml
         run: |
           #
