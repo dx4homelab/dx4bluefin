@@ -28,6 +28,7 @@ EOF
 # Install Packages and set up DX
 /ctx/build_files/dx/00-dx.sh
 /ctx/build_files/dx/01-custom-dx4homelab.sh
+/ctx/build_files/dx/02-dod-ca-trust.sh
 
 # Validate all repos are disabled before committing
 /ctx/build_files/shared/validate-repos.sh

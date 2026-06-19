@@ -16,6 +16,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 links/reusable-build.yml
-
-# Local scratch area for throwaway scripts/experiments
 scratchpad/
