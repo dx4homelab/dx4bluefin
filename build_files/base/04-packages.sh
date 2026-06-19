@@ -110,7 +110,6 @@ FEDORA_PACKAGES=(
     xdotool
     openssl-pkcs11
 )
-
 # Version-specific Fedora package additions
 case "$FEDORA_MAJOR_VERSION" in
     42)
@@ -122,6 +121,11 @@ case "$FEDORA_MAJOR_VERSION" in
     43)
         FEDORA_PACKAGES+=(
             evolution-ews-core
+            gnupg2-scdaemon
+        )
+        ;;
+    44)
+        FEDORA_PACKAGES+=(
             gnupg2-scdaemon
         )
         ;;
@@ -174,12 +178,6 @@ if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
         echo "No excluded packages found to remove."
     fi
 fi
-
-# Fix for ID in fwupd
-dnf -y copr enable ublue-os/staging
-dnf -y copr disable ublue-os/staging
-dnf -y swap --repo=copr:copr.fedorainfracloud.org:ublue-os:staging fwupd fwupd || echo "WARNING: fwupd swap from ublue-os/staging failed to resolve; keeping stock Fedora fwupd"
-rpm -q fwupd >/dev/null || { echo "ERROR: fwupd missing after staging swap attempt" >&2; exit 1; }
 
 ## Pins and Overrides
 ## Use this section to pin packages in order to avoid regressions
