@@ -65,3 +65,60 @@ install-extra-ca-trust dir="~/.config/dx4homelab/ca-anchors":
     sudo update-ca-trust
     echo "✓ Installed ${installed} CA cert(s) into the system trust."
     echo "  Verify: trust list --filter=ca-anchors | grep -i '<your CA CN>'"
+
+# Remove a stale, locally-installed (priority 400) snap SELinux override — e.g. a
+# `snapd_local` module produced by audit2allow. After a base `selinux-policy` bump, such
+# a local module can reference types/attributes the new base no longer defines (e.g.
+# `snappy_t`); then `ostree-finalize-staged` fails to rebuild the SELinux policy and the
+# next image update can't finalize or boot. snapd itself ships in the upstream bluefin
+# image (not added here) and is NOT touched — only the local priority-400 override is
+# removed; snapd's packaged `snappy` policy (priority 200) stays. Any allows you actually
+# need can be regenerated with audit2allow against the *new* policy after updating.
+# Idempotent: a clean no-op when nothing matches. Because snapd ships upstream, pass
+# `force` to confirm removal while the snapd package is installed.
+# Usage:  ujust purge-stale-snap-selinux [force]
+[group('dx4homelab')]
+purge-stale-snap-selinux force="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v semodule >/dev/null 2>&1; then
+        echo "semodule not found — SELinux tooling unavailable; nothing to do."
+        exit 0
+    fi
+    # Priority 400 = locally installed (semodule -i) modules; image modules live at 100.
+    # Match snapd*/snappy* only — NOT 'snapper' (the unrelated btrfs snapshot tool).
+    mapfile -t stale < <(sudo semodule -lfull | awk '$1==400 && tolower($2) ~ /^snap(d|py)/ {print $2}')
+    if [[ ${#stale[@]} -eq 0 ]]; then
+        echo "✓ No stale priority-400 snap SELinux modules found — nothing to do."
+        exit 0
+    fi
+    echo "Found local (priority 400) snap SELinux module(s):"
+    printf '    %s\n' "${stale[@]}"
+    if rpm -q snapd >/dev/null 2>&1 && [[ "{{force}}" != "force" ]]; then
+        echo "" >&2
+        echo "! The 'snapd' package IS installed — these modules may still be in use." >&2
+        echo "  Refusing to remove them without an explicit override. If you really want" >&2
+        echo "  to drop snapd's SELinux modules anyway, re-run:" >&2
+        echo "      ujust purge-stale-snap-selinux force" >&2
+        exit 1
+    fi
+    removed=0
+    for m in "${stale[@]}"; do
+        # Try a normal removal (also reloads the live policy). If the live reload
+        # fails, fall back to --noreload (-N): the store is still cleaned, and the
+        # next ostree finalize rebuilds the policy without the module.
+        if sudo semodule -X 400 -r "$m" 2>/dev/null; then
+            echo "  + removed: $m"
+            removed=$((removed + 1))
+        elif sudo semodule -N -X 400 -r "$m"; then
+            echo "  + removed (store only; policy rebuilds on next boot): $m"
+            removed=$((removed + 1))
+        else
+            echo "  ! failed to remove: $m" >&2
+        fi
+    done
+    [[ $removed -gt 0 ]] || { echo "No modules removed." >&2; exit 1; }
+    echo "✓ Removed ${removed} stale snap SELinux module(s)."
+    echo "  Re-stage and boot the pending update so its SELinux policy finalizes cleanly:"
+    echo "      sudo rpm-ostree update && sudo systemctl reboot"
+    echo "  After reboot, confirm with: rpm-ostree status"
