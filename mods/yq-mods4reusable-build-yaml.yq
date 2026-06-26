@@ -21,3 +21,25 @@
 .jobs.build_container.permissions.artifact-metadata = "write"
 |
 .jobs.build_container.permissions.contents = "read"
+|
+( .jobs.build_container.steps[] | select(.id == "build-image") | key ) as $kpin_at
+| .jobs.build_container.steps = (
+    .jobs.build_container.steps[0:$kpin_at]
+    + [ {
+        "name": "Resolve safe kernel pin",
+        "id": "kpin",
+        "shell": "bash",
+        "env": {
+          "MATRIX_BASE_NAME": "${{ matrix.base_name }}",
+          "MATRIX_STREAM_NAME": "${{ matrix.stream_name }}",
+          "MATRIX_IMAGE_FLAVOR": "${{ matrix.image_flavor }}",
+          "USER_KERNEL_PIN": "${{ inputs.kernel_pin }}"
+        },
+        "run": "set -uo pipefail\nif [[ -n \"${USER_KERNEL_PIN}\" ]]; then\n  PIN=\"${USER_KERNEL_PIN}\"\nelse\n  PIN=\"$(just safe-kernel \"${MATRIX_BASE_NAME}\" \"${MATRIX_STREAM_NAME}\" \"${MATRIX_IMAGE_FLAVOR}\" || echo '')\"\nfi\necho \"kernel_pin=${PIN}\" >> \"$GITHUB_OUTPUT\"\necho \"Resolved kernel_pin='${PIN}' for ${MATRIX_IMAGE_FLAVOR}/${MATRIX_STREAM_NAME}\"\n"
+      } ]
+    + .jobs.build_container.steps[$kpin_at:]
+  )
+|
+( .jobs.build_container.steps[] | select(.id == "build-image") | .run ) |= sub("inputs.kernel_pin"; "steps.kpin.outputs.kernel_pin")
+|
+( .jobs.build_container.steps[] | select(.id == "generate-tags") | .run ) |= sub("inputs.kernel_pin"; "steps.kpin.outputs.kernel_pin")

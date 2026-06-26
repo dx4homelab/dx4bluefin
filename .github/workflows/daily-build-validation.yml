@@ -35,15 +35,23 @@ jobs:
             
             echo "Checking $workflow_name build status..."
             
-            workflow_status=$(gh api \
+            run_status=$(gh api \
+              /repos/${{ github.repository }}/actions/workflows/${workflow_file}/runs \
+              --jq '.workflow_runs[0].status')
+            run_conclusion=$(gh api \
               /repos/${{ github.repository }}/actions/workflows/${workflow_file}/runs \
               --jq '.workflow_runs[0].conclusion')
             
-            echo "Last $workflow_name build status: $workflow_status"
+            echo "Last $workflow_name run: status=${run_status:-none} conclusion=${run_conclusion:-none}"
             
-            if [[ "$workflow_status" != "success" ]]; then
+            if [[ "$run_status" != "completed" ]]; then
+              # A run is queued or in progress (conclusion still null) — do NOT
+              # spawn a duplicate; let it finish and re-evaluate next run.
+              echo "${workflow_name,,}_needs_rebuild=false" >> $GITHUB_OUTPUT
+              echo "$workflow_name build is in progress (status=${run_status:-none}); skipping retrigger"
+            elif [[ "$run_conclusion" != "success" ]]; then
               echo "${workflow_name,,}_needs_rebuild=true" >> $GITHUB_OUTPUT
-              echo "$workflow_name build needs rebuild"
+              echo "$workflow_name build needs rebuild (conclusion=${run_conclusion:-none})"
             else
               echo "${workflow_name,,}_needs_rebuild=false" >> $GITHUB_OUTPUT
               echo "$workflow_name build is successful"
