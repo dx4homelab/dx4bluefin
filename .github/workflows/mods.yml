@@ -200,6 +200,16 @@ jobs:
           #
           echo "=== updating reusable-build.yml ==="
           yq eval -v -i --from-file mods/yq-mods4reusable-build-yaml.yq .github/workflows/reusable-build.yml
+          echo "=== asserting safe-kernel pin mod applied (tripwire for upstream step renames) ==="
+          rb=".github/workflows/reusable-build.yml"
+          grep -q 'id: kpin' "$rb" \
+            || { echo "::error::safe-kernel mod failed: 'kpin' step missing from ${rb} (did upstream rename the 'build-image' step?)"; exit 1; }
+          refs="$(grep -c 'steps.kpin.outputs.kernel_pin' "$rb" || true)"
+          if [[ "${refs}" -lt 2 ]]; then
+            echo "::error::safe-kernel mod failed: expected >=2 references to steps.kpin.outputs.kernel_pin (build-image + generate-tags), found ${refs} (upstream step rename?)"
+            exit 1
+          fi
+          echo "safe-kernel pin mod OK (${refs} consumer refs rewired)"
           # sed -i 's/description: "The Fedora Version: gts, stable, or latest"/description: "The Fedora Version: stable, or latest"/' .github/workflows/reusable-build.yml
           # sed -i 's/cosign sign -y --key env:\/\/COSIGN_PRIVATE_KEY/cosign sign -y --yes --key env:\/\/COSIGN_PRIVATE_KEY/' .github/workflows/reusable-build.yml
           #
