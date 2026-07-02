@@ -1,0 +1,17 @@
+[Unit]
+Description=AWS WickrGov notification tracker (Wickr-only dock-badge cleanup)
+Documentation=https://github.com/dx4homelab/dx4bluefin
+# Needs the GNOME session bus + org.gnome.Shell; must start after the session is up.
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/awsgov-wickr/awsgov-wickr-notify-daemon
+Restart=on-failure
+RestartSec=3
+
+[Install]
+# default.target is the runtime-verified target; After=graphical-session.target above
+# still orders startup correctly, and PartOf ties the lifecycle to the GUI session.
+WantedBy=default.target

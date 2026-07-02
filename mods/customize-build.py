@@ -132,6 +132,11 @@ class BuildCustomizer:
                 "/ctx/build_files/dx/01-custom-dx4homelab.sh": [
                     "/ctx/build_files/dx/02-dod-ca-trust.sh",
                 ],
+                # Chain 03 (awsgov-wickr dock-badge fix) on 02 so the run order stays
+                # 02 -> 03 even on a partial re-apply (same rationale as 01 -> 02).
+                "/ctx/build_files/dx/02-dod-ca-trust.sh": [
+                    "/ctx/build_files/dx/03-awsgov-wickr-badge.sh",
+                ],
             },
             "delete": [],
         },
@@ -153,6 +158,17 @@ class BuildCustomizer:
         # from build-dx.sh after 01-custom (LINE_MODS above).
         ("mods/02-dod-ca-trust.sh", "build_files/dx/02-dod-ca-trust.sh"),
         ("mods/dod-pki/unclass-certificates_pkcs7_DoD.zip", "build_files/dx/dod-pki-fallback.zip"),
+        # awsgov-wickr AWS WickrGov dock-badge fix: the dx build step (chained after 02 via
+        # LINE_MODS) plus its payload — daemon, two closers, keybinder, the systemd --user
+        # unit, and the per-user first-login hook. 03 installs these into the image with the
+        # correct modes and enables the user service image-wide.
+        ("mods/03-awsgov-wickr-badge.sh", "build_files/dx/03-awsgov-wickr-badge.sh"),
+        ("mods/awsgov-wickr/wickr-notify-daemon.py", "build_files/dx/awsgov-wickr/wickr-notify-daemon.py"),
+        ("mods/awsgov-wickr/clear-wickr.sh", "build_files/dx/awsgov-wickr/clear-wickr.sh"),
+        ("mods/awsgov-wickr/clear-notifications.py", "build_files/dx/awsgov-wickr/clear-notifications.py"),
+        ("mods/awsgov-wickr/bind-hotkey.py", "build_files/dx/awsgov-wickr/bind-hotkey.py"),
+        ("mods/awsgov-wickr/awsgov-wickr-notify.service", "build_files/dx/awsgov-wickr/awsgov-wickr-notify.service"),
+        ("mods/awsgov-wickr/30-awsgov-wickr.sh", "build_files/dx/awsgov-wickr/30-awsgov-wickr.sh"),
     ]
 
     # Default array names to look for when scanning files (derived from the
