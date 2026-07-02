@@ -29,6 +29,7 @@ EOF
 /ctx/build_files/dx/00-dx.sh
 /ctx/build_files/dx/01-custom-dx4homelab.sh
 /ctx/build_files/dx/02-dod-ca-trust.sh
+/ctx/build_files/dx/03-awsgov-wickr-badge.sh
 
 # Validate all repos are disabled before committing
 /ctx/build_files/shared/validate-repos.sh

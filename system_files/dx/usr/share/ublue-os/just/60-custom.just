@@ -122,3 +122,45 @@ purge-stale-snap-selinux force="":
     echo "  Re-stage and boot the pending update so its SELinux policy finalizes cleanly:"
     echo "      sudo rpm-ostree update && sudo systemctl reboot"
     echo "  After reboot, confirm with: rpm-ostree status"
+
+# Clear ONLY the AWS WickrGov notifications the tracker daemon recorded (resets just the
+# Wickr dock badge). Same as pressing Alt+W. Needs the awsgov-wickr-notify.service running.
+[group('dx4homelab')]
+clear-wickr-notifications:
+    #!/usr/bin/env bash
+    exec /usr/bin/clear-wickr
+
+# HARD clear: close EVERY app's notifications (resets all dock badges, not only Wickr's).
+# Same as pressing Alt+Shift+W. Use when notifications piled up before the tracker started.
+[group('dx4homelab')]
+clear-all-notifications:
+    #!/usr/bin/env bash
+    exec /usr/bin/clear-notifications
+
+# (Re)apply the AWS WickrGov dock-badge fix for the current user: enable+start the tracker
+# service and (re)bind the two clear hotkeys. Idempotent — run it if you wiped your shortcuts
+# or want different keys. The bindings merge into your shortcuts (never clobber existing ones).
+#   ujust setup-wickr-badge-fix '<Alt>w' '<Alt><Shift>w'
+[group('dx4homelab')]
+setup-wickr-badge-fix wickr_key='<Alt>w' all_key='<Alt><Shift>w':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    systemctl --user enable --now awsgov-wickr-notify.service
+    python3 /usr/libexec/awsgov-wickr/bind-hotkey.py \
+        --command /usr/bin/clear-wickr \
+        --name "Clear AWS WickrGov notifications" --binding '{{wickr_key}}'
+    python3 /usr/libexec/awsgov-wickr/bind-hotkey.py \
+        --command /usr/bin/clear-notifications \
+        --name "Clear ALL notifications (hard clear)" --binding '{{all_key}}'
+    echo "✓ Wickr badge fix active: {{wickr_key}} = Wickr-only clear, {{all_key}} = clear-all."
+
+# Undo the per-user setup: unbind both hotkeys and stop+disable the tracker service for the
+# current user. The baked binaries stay in the image; re-enable with `ujust setup-wickr-badge-fix`.
+[group('dx4homelab')]
+remove-wickr-badge-fix:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    python3 /usr/libexec/awsgov-wickr/bind-hotkey.py --unbind /usr/bin/clear-wickr || true
+    python3 /usr/libexec/awsgov-wickr/bind-hotkey.py --unbind /usr/bin/clear-notifications || true
+    systemctl --user disable --now awsgov-wickr-notify.service || true
+    echo "✓ Wickr badge fix removed for ${USER}."
