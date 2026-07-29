@@ -169,6 +169,12 @@ class BuildCustomizer:
         ("mods/awsgov-wickr/bind-hotkey.py", "build_files/dx/awsgov-wickr/bind-hotkey.py"),
         ("mods/awsgov-wickr/awsgov-wickr-notify.service", "build_files/dx/awsgov-wickr/awsgov-wickr-notify.service"),
         ("mods/awsgov-wickr/30-awsgov-wickr.sh", "build_files/dx/awsgov-wickr/30-awsgov-wickr.sh"),
+        # INNOGRIT IG5236 NVMe APST workaround. A system-setup hook rather than a build
+        # script: it has to inspect the running machine's PCI devices, so it cannot be
+        # decided at build time. Lands in system_files/shared (not dx) because the quirk
+        # is hardware-level and applies to every variant, and sits next to upstream's
+        # 10-framework.sh, which uses the same hardware-conditional karg pattern.
+        ("mods/20-nvme-apst.sh", "system_files/shared/usr/share/ublue-os/system-setup.hooks.d/20-nvme-apst.sh"),
     ]
 
     # Default array names to look for when scanning files (derived from the
