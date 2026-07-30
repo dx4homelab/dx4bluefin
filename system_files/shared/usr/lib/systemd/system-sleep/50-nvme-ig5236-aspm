@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Re-assert ASPM-off on INNOGRIT IG5236 controllers around a sleep cycle.
+#
+# 99-nvme-ig5236-aspm.rules covers boot and driver re-bind, but udev does not
+# re-run on resume. The kernel is expected to restore the disabled ASPM state
+# from its saved link config, so this is defensive: it guarantees the link
+# power-state knobs are off *before* entering suspend and again after coming
+# back, rather than trusting the restore path on a controller already known to
+# mishandle power transitions.
+#
+# Logs the pre-existing values so the journal shows whether this hook actually
+# had to change anything. Observed on fury4dx: post-resume consistently reports
+# "was l1_aspm=0 d3cold_allowed=0", i.e. the kernel restores the state correctly
+# and this hook is redundant insurance. Kept because the failure it guards
+# against takes the root filesystem read-only, and it costs one exec per sleep.
+# If it ever logs "was l1_aspm=1", the kernel restore path regressed and this
+# hook became load-bearing — worth alerting on.
+#
+# Uses logger rather than stdout: systemd-sleep does not reliably route hook
+# stdout to the journal, which made an earlier revision unverifiable.
+#
+# See /usr/lib/udev/rules.d/99-nvme-ig5236-aspm.rules for the full rationale.
+
+IG5236_VENDOR="0x1dbe"
+IG5236_DEVICE="0x5236"
+
+apply() {
+	local dev found=0 was_aspm was_d3
+	for dev in /sys/bus/pci/devices/*; do
+		[[ "$(cat "$dev/vendor" 2>/dev/null)" == "$IG5236_VENDOR" ]] || continue
+		[[ "$(cat "$dev/device" 2>/dev/null)" == "$IG5236_DEVICE" ]] || continue
+		found=1
+		was_aspm=$(cat "$dev/link/l1_aspm" 2>/dev/null || echo "?")
+		was_d3=$(cat "$dev/d3cold_allowed" 2>/dev/null || echo "?")
+		# Substates first, then the L1 master knob, matching the udev rule.
+		for knob in link/l1_2_pcipm link/l1_1_pcipm link/l1_2_aspm \
+			link/l1_1_aspm link/l1_aspm d3cold_allowed; do
+			[[ -w "$dev/$knob" ]] && echo 0 >"$dev/$knob" 2>/dev/null
+		done
+		logger -t nvme-ig5236-aspm \
+			"$1: ${dev##*/} ASPM/d3cold disabled (was l1_aspm=$was_aspm d3cold_allowed=$was_d3)"
+	done
+	[[ $found -eq 1 ]] ||
+		logger -t nvme-ig5236-aspm "$1: no IG5236 controller present, nothing to do"
+}
+
+case "$1" in
+pre) apply "pre-$2" ;;
+post) apply "post-$2" ;;
+esac
