@@ -145,6 +145,9 @@ class BuildCustomizer:
     # Files copied verbatim into the (cloned) build tree, made executable.
     # (src, dest) are relative to repo_root. Used to add build scripts that upstream
     # does not ship; build-dx.sh is patched (LINE_MODS above) to invoke them.
+    #
+    # An optional third element overrides the destination mode for entries that are
+    # data rather than scripts (udev rules, unit files). Omit it to get 0755.
     EXTRA_FILE_COPIES = [
         ("mods/01-custom-dx4homelab.sh", "build_files/dx/01-custom-dx4homelab.sh"),
         # Custom ujust recipe + Brewfile baked into the dx image so a freshly
@@ -175,6 +178,26 @@ class BuildCustomizer:
         # is hardware-level and applies to every variant, and sits next to upstream's
         # 10-framework.sh, which uses the same hardware-conditional karg pattern.
         ("mods/20-nvme-apst.sh", "system_files/shared/usr/share/ublue-os/system-setup.hooks.d/20-nvme-apst.sh"),
+        # INNOGRIT IG5236 suspend/resume workaround, companion to 20-nvme-apst.sh above.
+        # The APST karg only covers *idle* dropouts; resume from S3 is a separate path
+        # (full controller shutdown + PCIe link retrain out of D3) that the same silicon
+        # also fails, taking root read-only. Disabling ASPM L1 + the PCI-PM L1 substates
+        # removes the link power-state transitions from that path.
+        #
+        # Static files, not a system-setup hook: udev matches the PCI ID natively, so
+        # there is nothing to decide at first boot, and unlike a karg this needs no
+        # reboot to take effect. Both land in system_files/shared for the same reason as
+        # 20-nvme-apst.sh — the quirk is hardware-level and applies to every variant.
+        # The .rules file is data, so it gets 0644 rather than the default 0755.
+        (
+            "mods/udev/99-nvme-ig5236-aspm.rules",
+            "system_files/shared/usr/lib/udev/rules.d/99-nvme-ig5236-aspm.rules",
+            0o644,
+        ),
+        (
+            "mods/system-sleep/50-nvme-ig5236-aspm",
+            "system_files/shared/usr/lib/systemd/system-sleep/50-nvme-ig5236-aspm",
+        ),
     ]
 
     # Default array names to look for when scanning files (derived from the
@@ -614,12 +637,18 @@ class BuildCustomizer:
         return results
 
     def apply_file_copies(self, dry_run: bool = True) -> dict:
-        """Copy EXTRA_FILE_COPIES into the build tree (executable), atomically.
+        """Copy EXTRA_FILE_COPIES into the build tree, atomically.
+
+        Entries are (src, dest) or (src, dest, mode); mode defaults to 0o755 since
+        most copies are build scripts. Data files (udev rules, unit files) pass an
+        explicit mode so they do not ship needlessly executable.
 
         Returns a mapping: { dest_path: "copied" | "missing-source" | "dry-run" }.
         """
         results: dict = {}
-        for rel_src, rel_dest in self.EXTRA_FILE_COPIES:
+        for entry in self.EXTRA_FILE_COPIES:
+            rel_src, rel_dest = entry[0], entry[1]
+            mode = entry[2] if len(entry) > 2 else 0o755
             src = self.repo_root / rel_src
             dest = self.repo_root / rel_dest
             if not src.is_file():
@@ -627,16 +656,16 @@ class BuildCustomizer:
                 results[str(dest)] = "missing-source"
                 continue
             if dry_run:
-                LOG.info("Dry-run: would copy %s -> %s (+x)", src, dest)
+                LOG.info("Dry-run: would copy %s -> %s (mode %o)", src, dest, mode)
                 results[str(dest)] = "dry-run"
                 continue
             dest.parent.mkdir(parents=True, exist_ok=True)
             content = src.read_bytes()
             tmp = Path(tempfile.mktemp(dir=str(dest.parent)))
             tmp.write_bytes(content)
-            os.chmod(tmp, 0o755)
+            os.chmod(tmp, mode)
             os.replace(str(tmp), str(dest))
-            LOG.info("Copied %s -> %s (+x)", src, dest)
+            LOG.info("Copied %s -> %s (mode %o)", src, dest, mode)
             results[str(dest)] = "copied"
         return results
 

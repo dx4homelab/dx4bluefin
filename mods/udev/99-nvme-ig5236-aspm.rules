@@ -1,0 +1,35 @@
+# INNOGRIT IG5236 "RainierPC" NVMe controllers (HP SSD FX900 Pro, Adata Legend
+# 850, and other rebadges) mishandle PCIe power-state transitions.
+#
+# 20-nvme-apst.sh already disables NVMe APST via
+# nvme_core.default_ps_max_latency_us=0, which stops the *idle* dropouts:
+#   nvme nvmeN: controller is down; will reset: CSTS=0xffffffff, PCI_STATUS=0x10
+#
+# That karg does not cover suspend/resume. On S3, pm_suspend_via_firmware() is
+# true, so nvme_suspend() takes the full-shutdown branch and nvme_resume() does a
+# complete controller reset — meaning every resume is an NVMe re-init plus a PCIe
+# link retrain out of D3. This controller does not reliably survive that. Measured
+# on fury4dx (4 TB FX900 Pro holding the whole OS): 2 of 4 suspends never resumed,
+# a 3rd resumed only after a controller reset, and the upstream port logged PCIe
+# correctable RxErr / Data Link Layer Timeout storms. When the drive holds root,
+# a resume that does not recover takes the filesystem read-only.
+#
+# Disabling ASPM L1 — including the PCI-PM L1 substates, which are the ones that
+# engage when the device is put into D3hot for suspend — removes the link
+# power-state transitions from that path. Blocking d3cold keeps the controller
+# from losing main power across the cycle.
+#
+# Side benefit: with ASPM off, pcie_aspm_enabled() returns false, which forces
+# nvme_suspend() down the full-shutdown branch even under s2idle. Without that,
+# s2idle would instead park the drive in its deepest non-operational power state
+# (PS4 on this device: 0.008 W, 85 ms exit latency) — the exact state that hangs
+# it. So this also makes s2idle safe, not just deep.
+#
+# Gated on the controller PCI ID so machines without this silicon keep their PCIe
+# power savings. Substates are cleared before the l1_aspm master knob so the
+# teardown order is well defined. Verified on fury4dx: writing l1_aspm=0 leaves
+# lspci reporting "ASPM Disabled" with all four L1 substates cleared.
+ACTION=="add|bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x1dbe", ATTR{device}=="0x5236", \
+    ATTR{link/l1_2_pcipm}="0", ATTR{link/l1_1_pcipm}="0", \
+    ATTR{link/l1_2_aspm}="0", ATTR{link/l1_1_aspm}="0", \
+    ATTR{link/l1_aspm}="0", ATTR{d3cold_allowed}="0"
