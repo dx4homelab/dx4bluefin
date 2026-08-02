@@ -2,6 +2,14 @@ name: MODS (new approach to build bluefin)
 on:
   workflow_dispatch:
   push:
+    # main only: this workflow always checks out and rewrites MAIN (both jobs use
+    # ref: main), so a feature-branch push never validates the branch's own mods —
+    # it just re-runs main's pipeline and dispatches two full image rebuilds that
+    # the eventual merge immediately supersedes (observed: PR #11 and #12 branches
+    # each burned a build cycle, cancelled/failed). Image rebuilds only make sense
+    # when mods land on main.
+    branches:
+      - main
     paths:
       - 'mods/**.*'
       - '.github/workflows/mods.yml'
