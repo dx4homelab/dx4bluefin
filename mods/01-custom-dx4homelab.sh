@@ -126,3 +126,12 @@ if [ -n "$missing" ]; then
 fi
 
 echo "AWS WickrGov installed natively to $APPROOT ($(du -sh "$APPROOT" | cut -f1))"
+
+# --- 8. Fleet monitoring kit: enable the units baked via EXTRA_FILE_COPIES ---
+# nvme-watch (kernel-log PCIe/NVMe dropout watcher -> ntfy) and smartd
+# (media/wear/temp -> ntfy) are unconditional. podman.socket is what the
+# beszel-agent quadlet mounts for container metrics; the agent itself stays
+# inert until /etc/beszel/agent.env is provisioned per host (see
+# agent.env.example), so enabling the socket here costs nothing on
+# un-provisioned machines.
+systemctl enable nvme-watch.service smartd.service podman.socket
