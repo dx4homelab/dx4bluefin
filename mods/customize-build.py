@@ -198,6 +198,41 @@ class BuildCustomizer:
             "mods/system-sleep/50-nvme-ig5236-aspm",
             "system_files/shared/usr/lib/systemd/system-sleep/50-nvme-ig5236-aspm",
         ),
+        # Fleet monitoring kit (2026-08): every machine ships wired to the homelab
+        # alerting stack (ntfy.dx4homelab.net/homelab-alerts) so closet nodes are
+        # monitored from first boot — a hard precondition for powering them on.
+        # Three layers, each catching what the others cannot:
+        #   - nvme-watch: kernel-log watcher for PCIe/controller dropouts, the
+        #     IG5236 failure class that SMART provably never reports (see
+        #     20-nvme-apst.sh above for the underlying defect);
+        #   - smartd: media/wear/temperature with scheduled self-tests, alerts
+        #     via -M exec to ntfy (smartmontools is already in the base image);
+        #   - beszel-agent quadlet: dashboard metrics, inert until the per-host
+        #     /etc/beszel/agent.env is provisioned (no secret in the image).
+        # Units are enabled at build time in 01-custom-dx4homelab.sh (section 8).
+        # All land in system_files/shared: hardware/fleet-level, not dx-specific.
+        ("mods/monitoring/nvme-watch.sh", "system_files/shared/usr/libexec/nvme-watch.sh"),
+        (
+            "mods/monitoring/nvme-watch.service",
+            "system_files/shared/usr/lib/systemd/system/nvme-watch.service",
+            0o644,
+        ),
+        ("mods/monitoring/smartd-ntfy.sh", "system_files/shared/usr/libexec/smartd-ntfy.sh"),
+        (
+            "mods/monitoring/smartd.conf",
+            "system_files/shared/etc/smartd.conf",
+            0o644,
+        ),
+        (
+            "mods/monitoring/beszel-agent.container",
+            "system_files/shared/etc/containers/systemd/beszel-agent.container",
+            0o644,
+        ),
+        (
+            "mods/monitoring/agent.env.example",
+            "system_files/shared/etc/beszel/agent.env.example",
+            0o644,
+        ),
     ]
 
     # Default array names to look for when scanning files (derived from the

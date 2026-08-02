@@ -1,0 +1,13 @@
+[Unit]
+Description=Push NVMe/PCIe kernel error events to ntfy
+Documentation=https://github.com/dx4homelab/dx4bluefin
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/libexec/nvme-watch.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
