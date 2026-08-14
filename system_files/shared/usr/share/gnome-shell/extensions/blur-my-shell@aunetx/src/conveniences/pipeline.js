@@ -3,6 +3,7 @@ import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Background from 'resource:///org/gnome/shell/ui/background.js';
 import * as uniforms from './shader_uniforms.js';
+import * as utils from './utils.js';
 
 /// A `Pipeline` object is a handy way to manage the effects attached to an actor. It only manages
 /// one actor at a time (so blurring multiple widgets will need multiple `Pipeline`), and is
@@ -44,19 +45,18 @@ export const Pipeline = class Pipeline {
     ) {
         let monitor = Main.layoutManager.monitors[monitor_index];
 
+        this.remove_pipeline_from_actor();
+
         // create the new actor
         this.actor = new St.Widget({
             name: widget_name,
             x: use_absolute_position ? monitor.x : 0,
-            y: .5 + (use_absolute_position ? monitor.y : 0), // add 1 to correct z-position
+            y: utils.subpixel_stage_offset() + (use_absolute_position ? monitor.y : 0),
             z_position: 1, // seems to fix the multi-monitor glitch
             width: monitor.width,
             height: monitor.height
         });
 
-        // remove the effects, wether or not we attach the pipeline to the actor: if they are fired
-        // while the actor has changed, this could go bad
-        this.remove_all_effects();
         if (this.pipeline_id)
             this.attach_pipeline_to_actor(this.actor);
 
@@ -118,13 +118,13 @@ export const Pipeline = class Pipeline {
 
     /// Attach a Pipeline object with `pipeline_id` already set to an actor.
     attach_pipeline_to_actor(actor) {
-        // set the actor
-        if (actor)
-            this.actor = actor;
-        else {
+        if (!actor) {
             this.remove_pipeline_from_actor();
             return;
         }
+
+        this.disconnect_actor_destroy();
+        this.actor = actor;
 
         // attach the pipeline
         let pipeline = this.pipelines_manager.pipelines[this.pipeline_id];
@@ -148,13 +148,27 @@ export const Pipeline = class Pipeline {
 
     remove_pipeline_from_actor() {
         this.remove_all_effects();
-        if (this.actor && this.actor_destroy_id)
-            this.actor.disconnect(this.actor_destroy_id);
-        if (this.actor && this.child_added_id)
-            this.actor.disconnect(this.child_added_id);
-        this.actor_destroy_id = null;
-        this.child_added_id = null;
+        this.disconnect_actor_destroy();
+        this.disconnect_child_added();
         this.actor = null;
+    }
+
+    disconnect_actor_destroy() {
+        if (this.actor && this.actor_destroy_id) {
+            try {
+                this.actor.disconnect(this.actor_destroy_id);
+            } catch (e) { }
+        }
+        this.actor_destroy_id = null;
+    }
+
+    disconnect_child_added() {
+        if (this.actor && this.child_added_id) {
+            try {
+                this.actor.disconnect(this.child_added_id);
+            } catch (e) { }
+        }
+        this.child_added_id = null;
     }
 
     /// Update the effects from the given pipeline object, the hard way.
@@ -345,7 +359,6 @@ export const Pipeline = class Pipeline {
     /// Resets the `Pipeline` object to a sane state, removing every effect and signal.
     /// Note: exposed to public API.
     destroy() {
-        this.remove_all_effects();
         this.remove_connections();
         this.remove_pipeline_from_actor();
         this.pipeline_id = null;

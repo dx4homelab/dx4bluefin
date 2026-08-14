@@ -1,3 +1,4 @@
+import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 const SURFACE_SIGNALS = [
@@ -18,7 +19,7 @@ const SURFACE_SIGNALS = [
     'notify::scale-y',
     'notify::pseudo-class',
     'style-changed',
-];
+]; 
 
 export const PopupBlurSurfaceSignals = class PopupBlurSurfaceSignals {
     constructor(surface) {
@@ -35,10 +36,26 @@ export const PopupBlurSurfaceSignals = class PopupBlurSurfaceSignals {
         this.signal_actors.add(actor);
         this.track_destroy(actor);
 
+        const is_heavy_surface = this.surface.is_heavy_surface();
+
         SURFACE_SIGNALS.forEach(signal => {
             try {
-                const id = actor.connect(signal, () => this.surface.queue_update());
-                this.signal_ids.push([actor, id]);
+            let id = actor.connect(signal, () => {
+                this.clear_pending_idles();
+                const is_visibility_change = signal === 'notify::visible' || signal === 'notify::mapped';
+                if (is_heavy_surface || is_visibility_change) {
+                    this.surface.queue_update();
+                    return;
+                }
+                else {
+                    this.updateId = global.compositor.get_laters().add(Meta.LaterType.IDLE, () => {
+                        this.updateId = 0;
+                        this.surface.queue_update();
+                        return false;
+                    });
+                }
+            });
+            this.signal_ids.push([actor, id, signal]);
             } catch (e) { }
         });
     }
@@ -93,7 +110,15 @@ export const PopupBlurSurfaceSignals = class PopupBlurSurfaceSignals {
         });
     }
 
+    clear_pending_idles() {
+        if (this.updateId) {
+            global.compositor.get_laters().remove(this.updateId);
+            this.updateId = 0;
+        }
+    }
+
     disconnect_all() {
+        this.clear_pending_idles();
         this.signal_ids.forEach(([signal_actor, signal_id]) => {
             if (this.destroyed_actors.has(signal_actor))
                 return;

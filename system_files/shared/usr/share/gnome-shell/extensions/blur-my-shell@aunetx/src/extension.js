@@ -6,7 +6,6 @@ import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import { update_from_old_settings } from './conveniences/settings_updater.js';
-import { import_in_shell_only} from './conveniences/utils.js';
 import { PipelinesManager } from './conveniences/pipelines_manager.js';
 import { EffectsManager } from './conveniences/effects_manager.js';
 import { Connections } from './conveniences/connections.js';
@@ -23,8 +22,7 @@ import { CoverflowAltTabBlur } from './components/coverflow_alt_tab.js';
 import { ApplicationsBlur } from './components/applications.js';
 import { ScreenshotBlur } from './components/screenshot.js';
 import { PopupBlur } from './components/popup.js';
-
-const BlurModule = await import_in_shell_only('gi://Blur');
+import { NativeDynamicBlurEffect } from './effects/native_dynamic_gaussian_blur.js';
 
 
 /// The main extension class, created when the GNOME Shell is loaded.
@@ -85,7 +83,7 @@ export default class BlurMyShell extends Extension {
         if (this._settings.lockscreen.BLUR && !this._lockscreen_blur.enabled)
             this._lockscreen_blur.enable();
 
-        // update whether or not the external rounded corners library was found
+        // update whether or not the active blur effect supports rounded corners
         this._update_rounded_blur_found();
 
         // ensure we take the correct action for the current session mode
@@ -168,7 +166,8 @@ export default class BlurMyShell extends Extension {
             this._disable_user_session();
         this._overview_blur.restore_patched_proto();
 
-        // disable lockscreen blur too
+        // disable components that stay active outside the user session
+        this._popup.disable();
         this._lockscreen_blur.disable();
 
         // untrack them
@@ -182,6 +181,11 @@ export default class BlurMyShell extends Extension {
         this._applications_blur = null;
         this._screenshot_blur = null;
         this._popup = null;
+
+        this._effects_manager.destroy_all();
+        this._pipelines_manager.destroy();
+        this._effects_manager = null;
+        this._pipelines_manager = null;
 
         // make sure no settings change can re-enable them
         this._settings.disconnect_all_settings();
@@ -207,7 +211,7 @@ export default class BlurMyShell extends Extension {
     _disable_user_session() {
         this._log("disabling user session mode...");
 
-        // disable every component except lockscreen blur
+        // disable every component except lockscreen blur and popup blur
         this._panel_blur.disable();
         this._dash_to_dock_blur.disable();
         this._overview_blur.disable();
@@ -216,7 +220,6 @@ export default class BlurMyShell extends Extension {
         this._coverflow_alt_tab_blur.disable();
         this._applications_blur.disable();
         this._screenshot_blur.disable();
-        this._popup.disable();
 
         // remove the clipped redraws flag
         this._reenable_clipped_redraws();
@@ -251,16 +254,14 @@ export default class BlurMyShell extends Extension {
         }
     }
 
-    /// Verify whether or not the gi://Blur library was found, in order to inform
-    /// the preferences and instruct the user to install it to have native rounded
-    /// corners in dynamic blur.
+    /// Verify whether the active native blur effect supports rounded corners.
     _update_rounded_blur_found() {
-        if (BlurModule === null) {
+        if (!NativeDynamicBlurEffect.supports_corner_radius) {
             this._settings.ROUNDED_BLUR_FOUND = false;
             this._log("using original implementation for the native blur effect")
         } else {
             this._settings.ROUNDED_BLUR_FOUND = true;
-            this._log("using external library for the native blur effect")
+            this._log("using native rounded corners for the blur effect")
         }
     }
 
@@ -434,8 +435,10 @@ export default class BlurMyShell extends Extension {
 
         // panel override background toggled on/off
         this._settings.panel.OVERRIDE_BACKGROUND_changed(() => {
-            if (this._settings.panel.BLUR)
+            if (this._settings.panel.BLUR) {
                 this._panel_blur.connect_to_windows_and_overview();
+                this._panel_blur.reset();
+            }
         });
 
         // panel style changed
@@ -456,6 +459,18 @@ export default class BlurMyShell extends Extension {
             if (this._settings.panel.BLUR) {
                 this._panel_blur.connect_to_windows_and_overview();
                 this._panel_blur.reset();
+            }
+        });
+
+        this._settings.panel.GRADIENT_PANEL_changed(() => {
+            if (this._settings.panel.BLUR) {
+                this._panel_blur.update_visibility() ;
+            }
+        });
+
+        this._settings.panel.GRADIENT_PANEL_MODE_changed(() => {
+            if (this._settings.panel.BLUR) {
+                this._panel_blur.update_visibility();
             }
         });
 

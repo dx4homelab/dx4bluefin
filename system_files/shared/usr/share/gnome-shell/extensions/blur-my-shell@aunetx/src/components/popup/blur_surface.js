@@ -42,7 +42,6 @@ export const PopupBlurSurface = class PopupBlurSurface {
         this.opacity = null;
         this.static_blur = settings.popup.STATIC_BLUR;
         this.static_actor = null;
-        this.corner_changed_id = 0;
         this.actor_destroyed = false;
         this.blur_actor_destroyed = false;
         this.destroyed = false;
@@ -98,7 +97,6 @@ export const PopupBlurSurface = class PopupBlurSurface {
                 corner_radius_getter: () => this.get_corner_radius(),
             }
         );
-        this.corner_effect = this.create_corner_effect();
         this.actor = this.blur_actor;
         return true;
     }
@@ -109,6 +107,7 @@ export const PopupBlurSurface = class PopupBlurSurface {
             this.effects_manager,
             this.target,
             this.root_actor,
+            this.parent,
             () => this.get_corner_radius()
         );
         if (!this.static_actor.create())
@@ -154,6 +153,17 @@ export const PopupBlurSurface = class PopupBlurSurface {
             return actor_index === 0;
         const sibling_index = children.indexOf(sibling);
         return sibling_index >= 0 && actor_index < sibling_index;
+    }
+    
+
+    is_quick_settings() {
+        return this.style.has_any_style_class(this.target, ['quick-toggle-menu','quick-settings','datemenu-popover'])
+            || this.style.has_any_style_class(this.root_actor, ['quick-toggle-menu','quick-settings','datemenu-popover']);
+    }
+
+    is_heavy_surface() {
+        return this.style.has_any_style_class(this.target, ['datemenu-popover','quick-settings','modal-dialog','candidate-popup-content', 'candidate-popup-boxpointer'])
+            || this.style.has_any_style_class(this.root_actor, ['datemenu-popover','quick-settings','modal-dialog','candidate-popup-content', 'candidate-popup-boxpointer']);
     }
 
     update() {
@@ -378,20 +388,6 @@ export const PopupBlurSurface = class PopupBlurSurface {
         this.static_actor?.update_settings();
     }
 
-    create_corner_effect() {
-        if (this.settings.ROUNDED_BLUR_FOUND || this.get_corner_radius() <= 0)
-            return null;
-        const corner_effect = this.effects_manager.new_corner_effect({
-            radius: this.get_corner_radius(),
-        });
-        this.blur_actor.add_effect(corner_effect);
-        this.corner_changed_id = this.settings.popup.settings.connect(
-            `changed::${this.corner_radius.key}`,
-            () => corner_effect.radius = this.get_corner_radius()
-        );
-        return corner_effect;
-    }
-
     get_corner_radius() {
         return this.settings.popup[this.corner_radius.property] ?? this.settings.popup.CORNER_RADIUS;
     }
@@ -450,22 +446,10 @@ export const PopupBlurSurface = class PopupBlurSurface {
         } catch (e) { }
         if (!actor_already_destroyed)
             this.style.restore_target_style();
-        if (this.corner_changed_id) {
-            try {
-                this.settings.popup.settings.disconnect(this.corner_changed_id);
-            } catch (e) { }
-            this.corner_changed_id = 0;
-        }
         this.fade = null;
         this.signals.disconnect_all();
-        if (this.corner_effect) {
-            try {
-                this.effects_manager.remove(this.corner_effect);
-            } catch (e) { }
-            this.corner_effect = null;
-        }
         if (this.static_blur)
-            this.destroy_static_actor();
+            this.destroy_static_actor(actor_already_destroyed);
         else
             this.destroy_dynamic_actor();
     }
@@ -485,8 +469,8 @@ export const PopupBlurSurface = class PopupBlurSurface {
         } catch (e) { }
     }
 
-    destroy_static_actor() {
-        this.static_actor?.destroy();
+    destroy_static_actor(actor_already_destroyed = false) {
+        this.static_actor?.destroy(actor_already_destroyed);
         this.static_actor = null;
         this.actor = null;
         this.blur_actor = null;

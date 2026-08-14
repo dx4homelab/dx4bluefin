@@ -235,11 +235,10 @@ jobs:
             digest_file="$PWD/.push-digest"
             for tag in ${{ steps.generate-tags.outputs.alias_tags }}; do
               dest=${{ steps.registry_case.outputs.lowercase }}/${{ env.IMAGE_NAME }}:${tag}
-              if [[ "${tag}" == "${{ env.DEFAULT_TAG }}" ]]; then
-                sudo -E podman push --digestfile "${digest_file}" ${{ env.IMAGE_NAME }}:${tag} "${dest}"
-              else
-                sudo -E podman push ${{ env.IMAGE_NAME }}:${tag} "${dest}"
-              fi
+              sudo -E podman push --digestfile "${digest_file}" ${{ env.IMAGE_NAME }}:${tag} "${dest}"
+              # We need to push twice to workaround https://github.com/containers/podman/issues/27796
+              # If we don't do this then the digest changes and we are only signing this specific tag
+              sudo -E podman push --digestfile "${digest_file}" ${{ env.IMAGE_NAME }}:${tag} "${dest}"
             done
 
             digest="$(cat "${digest_file}")"
@@ -294,7 +293,7 @@ jobs:
           cosign sign -y --key env://COSIGN_PRIVATE_KEY ${LOWERCASE}/${IMAGE_NAME}@${SBOM_DIGEST}
       - name: Attestation
         if: github.event_name != 'pull_request'
-        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-name: ${{ env.TARGET_IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
