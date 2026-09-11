@@ -563,6 +563,12 @@ export default class BlurMyShell extends Extension {
                 this._applications_blur.connect_to_overview();
         });
 
+        // application unblur-when-fullscreen changed
+        this._settings.applications.UNBLUR_WHEN_FULLSCREEN_changed(() => {
+            if (this._settings.applications.BLUR)
+                this._applications_blur.update_fullscreen_status();
+        });
+
         // application enable-all changed
         this._settings.applications.ENABLE_ALL_changed(() => {
             if (this._settings.applications.BLUR)
@@ -684,6 +690,13 @@ export default class BlurMyShell extends Extension {
 
         // popup background override toggled on/off
         this._settings.popup.OVERRIDE_BACKGROUND_changed(() => {
+            if (this._settings.popup.BLUR)
+                this._popup.update_background();
+        });
+
+        // Apply only the popup surface override, leaving shell theme control
+        // and text styles intact.
+        this._settings.popup.PRESERVE_SHELL_THEME_changed(() => {
             if (this._settings.popup.BLUR)
                 this._popup.update_background();
         });

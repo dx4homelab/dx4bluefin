@@ -98,6 +98,7 @@ export class StatusNotifierWatcher {
 
         try {
             const indicator = new AppIndicator.AppIndicator(service, busName, objPath);
+            const cancellable = this._cancellable;
             this._items.set(id, indicator);
             indicator.connect('destroy', () => this._onIndicatorDestroyed(indicator));
 
@@ -105,7 +106,7 @@ export class StatusNotifierWatcher {
                 if (!indicator.hasNameOwner) {
                     try {
                         await new PromiseUtils.TimeoutPromise(500,
-                            GLib.PRIORITY_DEFAULT, this._cancellable);
+                            GLib.PRIORITY_DEFAULT, cancellable);
                         if (this._items.has(id) && !indicator.hasNameOwner)
                             indicator.destroy();
                     } catch (e) {
@@ -179,7 +180,7 @@ export class StatusNotifierWatcher {
 
                 if (ids.every(id => !this._items.has(id))) {
                     const service = services.find(s =>
-                        s && s.startsWith('org.kde.StatusNotifierItem')) || services[0];
+                        s?.startsWith('org.kde.StatusNotifierItem')) ?? services[0];
                     const id = Util.indicatorId(
                         path === DEFAULT_ITEM_OBJECT_PATH ? service : null,
                         name, path);

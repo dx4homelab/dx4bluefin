@@ -442,6 +442,11 @@
             <default>false</default>
             <summary>Wether or not to blur applications on the overview</summary>
         </key>
+        <!-- UNBLUR WHEN FULLSCREEN -->
+        <key type="b" name="unblur-when-fullscreen">
+            <default>false</default>
+            <summary>Wether or not to unblur applications when they are fullscreen</summary>
+        </key>
         <!-- ENABLE ALL -->
         <key type="b" name="enable-all">
             <default>false</default>
@@ -667,10 +672,20 @@
             <default>18</default>
             <summary>Radius for dialog corner rounding</summary>
         </key>
+        <!-- ON-SCREEN KEYBOARD CORNER RADIUS -->
+        <key type="i" name="osk-corner-radius">
+            <default>0</default>
+            <summary>Radius for on-screen keyboard corner rounding</summary>
+        </key>
         <!-- OVERRIDE BACKGROUND -->
         <key type="b" name="override-background">
             <default>true</default>
             <summary>Boolean, whether to override the background or not</summary>
+        </key>
+        <!-- PRESERVE SHELL THEME -->
+        <key type="b" name="preserve-shell-theme">
+            <default>false</default>
+            <summary>Boolean, whether to preserve the shell theme's popup control styling</summary>
         </key>
         <!-- STYLE POPUP -->
         <key type="i" name="style-popup">

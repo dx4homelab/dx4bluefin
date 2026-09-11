@@ -68,6 +68,7 @@ export const KEYS = [
             { type: Type.I, name: "opacity" },
             { type: Type.B, name: "dynamic-opacity" },
             { type: Type.B, name: "blur-on-overview" },
+            { type: Type.B, name: "unblur-when-fullscreen" },
             { type: Type.B, name: "enable-all" },
             { type: Type.AS, name: "whitelist" },
             { type: Type.AS, name: "blacklist" },
@@ -112,7 +113,9 @@ export const KEYS = [
             { type: Type.I, name: "notification-corner-radius" },
             { type: Type.I, name: "osd-corner-radius" },
             { type: Type.I, name: "dialog-corner-radius" },
+            { type: Type.I, name: "osk-corner-radius" },
             { type: Type.B, name: "override-background" },
+            { type: Type.B, name: "preserve-shell-theme" },
             { type: Type.I, name: "style-popup" },
         ]
     },

@@ -363,6 +363,7 @@ export const DockAbstractAppIcon = GObject.registerClass({
         super._updateDotStyle();
         const themeNode = this._dot.get_theme_node();
         this._dot.translationX = themeNode.get_length('offset-x');
+        this._dot.translationY = 0;
     }
 
     _addUrgentWindow(window) {
@@ -1032,7 +1033,7 @@ const DockAppIconMenu = class DockAppIconMenu extends PopupMenu.PopupMenu {
             if (!source.mapped)
                 this.close();
         });
-        source.connect('destroy', () => this.destroy());
+        this._signalsHandler.add(source, 'destroy', () => this.destroy());
 
         Main.uiGroup.add_child(this.actor);
 
