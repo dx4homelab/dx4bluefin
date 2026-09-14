@@ -38,8 +38,11 @@ signal that upstream changed and a `LINE_MODS` entry needs updating.
 
 ## ISO downloads (build-disk.yml)
 
-The weekly ISO (Saturday 08:00 UTC, or `workflow_dispatch` with "Upload to
-S3") lands at a **public, stable URL** — the `dx4homelab` bucket policy grants
+The ISO is rebuilt automatically whenever the **"Build dx4homelab/bluefin/dx
+Stable"** image workflow completes successfully on `main` (`workflow_run`
+trigger — so after every Friday MODS run and after any push to `mods/**`), or
+on `workflow_dispatch` with "Upload to S3". Either way it lands at a **public,
+stable URL** — the `dx4homelab` bucket policy grants
 anonymous `s3:GetObject` on `iso/*` (listing is not public, so the bucket root
 shows AccessDenied in a browser; that is expected):
 
@@ -48,8 +51,8 @@ shows AccessDenied in a browser; that is expected):
 Each upload also ships `install.iso.sha256` next to it and posts the link,
 size, checksum and image digest to the rolling **"ISO downloads (weekly
 build)"** issue (label `iso-download`): the body always holds the newest
-build, every build adds a comment with an `@dx4homelab` mention so GitHub
-emails the notification. If the issue is closed, the next build opens a fresh
+build, every build adds a comment (linking the image build that triggered
+it) with an `@dx4homelab` mention so GitHub emails the notification. If the issue is closed, the next build opens a fresh
 one. Pre-signed URLs were deliberately not used: URLs signed with the OIDC
 role's temporary credentials die with the 1 h session.
 
