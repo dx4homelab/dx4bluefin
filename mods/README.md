@@ -41,20 +41,29 @@ signal that upstream changed and a `LINE_MODS` entry needs updating.
 The ISO is rebuilt automatically whenever the **"Build dx4homelab/bluefin/dx
 Stable"** image workflow completes successfully on `main` (`workflow_run`
 trigger — so after every Friday MODS run and after any push to `mods/**`), or
-on `workflow_dispatch` with "Upload to S3". Either way it lands at a **public,
-stable URL** — the `dx4homelab` bucket policy grants
-anonymous `s3:GetObject` on `iso/*` (listing is not public, so the bucket root
-shows AccessDenied in a browser; that is expected):
+on `workflow_dispatch` with "Upload to S3". Either way it lands in the
+`dx4homelab` bucket under `iso/bootiso/` as
+`<flavor>-<YYYYMMDD>-<short sha>.iso` plus a matching `.sha256`, e.g.
 
-    https://dx4homelab.s3.us-east-2.amazonaws.com/iso/bootiso/install.iso
+    https://dx4homelab.s3.us-east-2.amazonaws.com/iso/bootiso/bluefin-dx-stable-20260914-c5860c9.iso
 
-Each upload also ships `install.iso.sha256` next to it and posts the link,
-size, checksum and image digest to the rolling **"ISO downloads (weekly
-build)"** issue (label `iso-download`): the body always holds the newest
-build, every build adds a comment (linking the image build that triggered
-it) with an `@dx4homelab` mention so GitHub emails the notification. If the issue is closed, the next build opens a fresh
-one. Pre-signed URLs were deliberately not used: URLs signed with the OIDC
-role's temporary credentials die with the 1 h session.
+Objects under `iso/*` are **publicly readable by exact key** (bucket policy
+grants anonymous `s3:GetObject`); listing is not public, so the bucket root
+shows AccessDenied in a browser and unknown keys return 403. Only the
+`bootiso/` directory is uploaded — the bootc-image-builder manifest JSON is
+never published. After each upload the workflow prunes to the newest
+`ISO_KEEP` (4) revisions; this needs `s3:DeleteObject` on `iso/bootiso/*`,
+which is the `PruneOldIsoRevisions` statement in
+`mods/aws/github-upload-iso-policy.json` (apply with
+`aws iam create-policy-version --policy-arn arn:aws:iam::199715917706:policy/github-upload-iso-policy --policy-document file://mods/aws/github-upload-iso-policy.json --set-as-default`).
+
+Every build posts the link, size, checksum and image digest to the rolling
+**"ISO downloads (weekly build)"** issue (label `iso-download`): the body
+always holds the newest build, every build adds a comment (linking the image
+build that triggered it) with an `@dx4homelab` mention so GitHub emails the
+notification. If the issue is closed, the next build opens a fresh one.
+Pre-signed URLs were deliberately not used: URLs signed with the OIDC role's
+temporary credentials die with the 1 h session.
 
 ## Runbook: VS Code Wayland "Share Screen" popup
 
