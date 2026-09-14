@@ -136,7 +136,7 @@ jobs:
 
       - name: Configure AWS Credentials
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: arn:aws:iam::199715917706:role/github-s3-iso-upload-role # The ARN of the role created in Step 3
           aws-region: ${{ env.AWS_REGION }}
