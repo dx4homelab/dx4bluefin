@@ -42,6 +42,7 @@ env:
   AWS_REGION: "us-east-2"
   ISO_ISSUE_TITLE: "ISO downloads (weekly build)"
   ISO_ISSUE_LABEL: "iso-download"
+  ISO_KEEP: "4" # newest ISO revisions (+ their .sha256) kept in S3; older ones pruned after each upload
 
 jobs:
   build:
@@ -121,21 +122,27 @@ jobs:
           compression-level: 0
           overwrite: true
       
-      - name: Generate ISO checksum
-        # Written into the build output dir so the recursive S3 upload below
-        # ships it next to the ISO as <iso>.sha256 (sha256sum -c compatible).
+      - name: Rename ISO and generate checksum
+        # bib always emits bootiso/install.iso; rename it to
+        # <flavor>-<YYYYMMDD>-<short sha>.iso so every revision has a unique key
+        # in S3, then write <iso>.sha256 next to it (sha256sum -c compatible).
         if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         id: checksum
         run: |
           set -euo pipefail
           out="${{ steps.build.outputs.output-directory }}"
-          iso=$(find "$out" -type f -name '*.iso' | head -n1)
-          if [ -z "$iso" ]; then
+          src=$(find "$out" -type f -name '*.iso' | head -n1)
+          if [ -z "$src" ]; then
             echo "::error::no .iso found under $out"; exit 1
           fi
-          ( cd "$(dirname "$iso")" && sha256sum "$(basename "$iso")" > "$(basename "$iso").sha256" )
+          iso_dir=$(dirname "$src")
+          name="${IMAGE_FLAVOR//[:\/]/-}-$(date -u +%Y%m%d)-${GITHUB_SHA::7}.iso"
+          mv -v "$src" "${iso_dir}/${name}"
+          iso="${iso_dir}/${name}"
+          ( cd "$iso_dir" && sha256sum "$name" > "${name}.sha256" )
           digest=$(skopeo inspect --format '{{.Digest}}' "docker://${IMAGE_REGISTRY}/${IMAGE_FLAVOR}" 2>/dev/null || echo "unknown")
           {
+            echo "iso-dir=${iso_dir}"
             echo "iso-key=${iso#"$out"/}"
             echo "sha256=$(cut -d' ' -f1 "${iso}.sha256")"
             echo "size=$(numfmt --to=iec-i --suffix=B "$(stat -c %s "$iso")")"
@@ -149,10 +156,37 @@ jobs:
           role-to-assume: arn:aws:iam::199715917706:role/github-s3-iso-upload-role # The ARN of the role created in Step 3
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload ISO images to S3
+      - name: Upload ISO and checksum to S3
+        # Only the directory holding the ISO (bootiso/) is uploaded; the
+        # bootc-image-builder manifest JSON in the output root stays private.
         if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        env:
+          ISO_DIR: ${{ steps.checksum.outputs.iso-dir }}
+          ISO_KEY: ${{ steps.checksum.outputs.iso-key }}
         run: |
-          aws s3 cp ${{ steps.build.outputs.output-directory }} s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/ --recursive
+          set -euo pipefail
+          aws s3 cp "$ISO_DIR" "s3://${S3_BUCKET}/${S3_PREFIX}/$(dirname "$ISO_KEY")/" --recursive \
+            --exclude '*' --include '*.iso' --include '*.iso.sha256'
+
+      - name: Prune old ISO revisions in S3
+        # Keep the newest $ISO_KEEP *.iso objects (by LastModified) under the
+        # ISO prefix and delete the rest together with their .sha256 files.
+        # Needs s3:DeleteObject on iso/bootiso/* (mods/aws/github-upload-iso-policy.json).
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        env:
+          ISO_KEY: ${{ steps.checksum.outputs.iso-key }}
+        run: |
+          set -euo pipefail
+          prefix="${S3_PREFIX}/$(dirname "$ISO_KEY")/"
+          mapfile -t isos < <(aws s3api list-objects-v2 --bucket "$S3_BUCKET" --prefix "$prefix" \
+            --query "reverse(sort_by(Contents[?ends_with(Key, '.iso')], &LastModified))[].Key" --output text | tr '\t' '\n' | sed '/^None$/d;/^$/d')
+          echo "ISO revisions in s3://${S3_BUCKET}/${prefix} (newest first): ${#isos[@]}"
+          printf '  %s\n' "${isos[@]}"
+          for key in "${isos[@]:${ISO_KEEP}}"; do
+            echo "pruning $key"
+            aws s3 rm "s3://${S3_BUCKET}/${key}"
+            aws s3 rm "s3://${S3_BUCKET}/${key}.sha256" || true
+          done
 
       - name: Publish download link to GitHub issue
         # One rolling issue (found by label) keeps the latest link in its body;
