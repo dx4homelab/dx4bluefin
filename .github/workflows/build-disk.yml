@@ -15,11 +15,15 @@ on:
         options:
           - amd64
           - arm64
-  schedule:
-    # Once a week. Friday's MODS run (07:00 UTC) syncs upstream and triggers the
-    # image rebuild; this runs the next morning so the ISO picks up the fresh
-    # bluefin-dx:stable, with margin for the image build to finish.
-    - cron: "0 8 * * 6" # 08:00 UTC every Saturday
+  workflow_run:
+    # Chain off the stable image build instead of guessing with a cron: the
+    # MODS run (Friday 07:00 UTC, or any push to mods/**) dispatches the image
+    # build, and this fires once that run completes on main. The job-level
+    # `if` below skips failed/cancelled image builds, so the ISO is only ever
+    # rebuilt from a freshly pushed bluefin-dx:stable.
+    workflows: ["Build dx4homelab/bluefin/dx Stable"]
+    types: [completed]
+    branches: [main]
   pull_request:
     branches:
       - main
@@ -46,7 +50,8 @@ concurrency:
 jobs:
   build:
     name: Build disk images
-    # Default to amd64 unless arm64 is explicitly chosen (schedule/PR have no inputs).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # Default to amd64 unless arm64 is explicitly chosen (workflow_run/PR have no inputs).
     runs-on: ${{ inputs.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -116,7 +121,7 @@ jobs:
       - name: Generate ISO checksum
         # Written into the build output dir so the recursive S3 upload below
         # ships it next to the ISO as <iso>.sha256 (sha256sum -c compatible).
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         id: checksum
         run: |
           set -euo pipefail
@@ -135,14 +140,14 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS Credentials
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: arn:aws:iam::199715917706:role/github-s3-iso-upload-role # The ARN of the role created in Step 3
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload ISO images to S3
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         run: |
           aws s3 cp ${{ steps.build.outputs.output-directory }} s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/ --recursive
 
@@ -150,7 +155,7 @@ jobs:
         # One rolling issue (found by label) keeps the latest link in its body;
         # each build adds a comment. The @mention + assignee make GitHub email
         # the repo owner on every build without any SMTP/SES setup.
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -160,10 +165,16 @@ jobs:
           ISO_SIZE: ${{ steps.checksum.outputs.size }}
           IMAGE_DIGEST: ${{ steps.checksum.outputs.image-digest }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          IMAGE_BUILD_URL: ${{ github.event.workflow_run.html_url || '' }}
         run: |
           set -euo pipefail
           built=$(date -u +'%Y-%m-%d %H:%M UTC')
           iso_file=$(basename "$ISO_URL")
+          if [ -n "$IMAGE_BUILD_URL" ]; then
+            trigger="chained off [image build](${IMAGE_BUILD_URL})"
+          else
+            trigger="manual dispatch"
+          fi
 
           details=$(cat <<EOF
           | | |
@@ -173,6 +184,7 @@ jobs:
           | **Image** | \`${IMAGE_REGISTRY}/${IMAGE_FLAVOR}\` |
           | **Image digest** | \`${IMAGE_DIGEST}\` |
           | **Built** | ${built} ([run](${RUN_URL})) |
+          | **Trigger** | ${trigger} |
 
           Verify after download:
           \`\`\`bash
