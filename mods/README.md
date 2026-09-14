@@ -36,6 +36,23 @@ idempotent re-runs), and a missing anchor with pending insertions raises
 instead of silently dropping the customization. A failed MODS run is the
 signal that upstream changed and a `LINE_MODS` entry needs updating.
 
+## ISO downloads (build-disk.yml)
+
+The weekly ISO (Saturday 08:00 UTC, or `workflow_dispatch` with "Upload to
+S3") lands at a **public, stable URL** — the `dx4homelab` bucket policy grants
+anonymous `s3:GetObject` on `iso/*` (listing is not public, so the bucket root
+shows AccessDenied in a browser; that is expected):
+
+    https://dx4homelab.s3.us-east-2.amazonaws.com/iso/bootiso/install.iso
+
+Each upload also ships `install.iso.sha256` next to it and posts the link,
+size, checksum and image digest to the rolling **"ISO downloads (weekly
+build)"** issue (label `iso-download`): the body always holds the newest
+build, every build adds a comment with an `@dx4homelab` mention so GitHub
+emails the notification. If the issue is closed, the next build opens a fresh
+one. Pre-signed URLs were deliberately not used: URLs signed with the OIDC
+role's temporary credentials die with the 1 h session.
+
 ## Runbook: VS Code Wayland "Share Screen" popup
 
 **Symptom:** on VS Code launch — or when a display sleeps/wakes

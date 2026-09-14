@@ -33,6 +33,11 @@ env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
   DEFAULT_TAG: "latest"
   BIB_IMAGE: "quay.io/centos-bootc/bootc-image-builder:latest" # "quay.io/centos-bootc/bootc-image-builder:latest" - see https://github.com/osbuild/bootc-image-builder/pull/954
+  S3_BUCKET: "dx4homelab"
+  S3_PREFIX: "iso"
+  AWS_REGION: "us-east-2"
+  ISO_ISSUE_TITLE: "ISO downloads (weekly build)"
+  ISO_ISSUE_LABEL: "iso-download"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -53,6 +58,7 @@ jobs:
       contents: read
       packages: read
       id-token: write
+      issues: write # rolling "ISO downloads" issue, see "Publish download link" step
 
     steps:
       - name: Prepare environment
@@ -107,14 +113,87 @@ jobs:
           compression-level: 0
           overwrite: true
       
+      - name: Generate ISO checksum
+        # Written into the build output dir so the recursive S3 upload below
+        # ships it next to the ISO as <iso>.sha256 (sha256sum -c compatible).
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        id: checksum
+        run: |
+          set -euo pipefail
+          out="${{ steps.build.outputs.output-directory }}"
+          iso=$(find "$out" -type f -name '*.iso' | head -n1)
+          if [ -z "$iso" ]; then
+            echo "::error::no .iso found under $out"; exit 1
+          fi
+          ( cd "$(dirname "$iso")" && sha256sum "$(basename "$iso")" > "$(basename "$iso").sha256" )
+          digest=$(skopeo inspect --format '{{.Digest}}' "docker://${IMAGE_REGISTRY}/${IMAGE_FLAVOR}" 2>/dev/null || echo "unknown")
+          {
+            echo "iso-key=${iso#"$out"/}"
+            echo "sha256=$(cut -d' ' -f1 "${iso}.sha256")"
+            echo "size=$(numfmt --to=iec-i --suffix=B "$(stat -c %s "$iso")")"
+            echo "image-digest=${digest}"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS Credentials
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: arn:aws:iam::199715917706:role/github-s3-iso-upload-role # The ARN of the role created in Step 3
-          aws-region: us-east-2 # Replace with your bucket's region
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload ISO images to S3
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         run: |
-          aws s3 cp ${{ steps.build.outputs.output-directory }} s3://dx4homelab/iso/ --recursive
+          aws s3 cp ${{ steps.build.outputs.output-directory }} s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/ --recursive
+
+      - name: Publish download link to GitHub issue
+        # One rolling issue (found by label) keeps the latest link in its body;
+        # each build adds a comment. The @mention + assignee make GitHub email
+        # the repo owner on every build without any SMTP/SES setup.
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          ISO_URL: https://${{ env.S3_BUCKET }}.s3.${{ env.AWS_REGION }}.amazonaws.com/${{ env.S3_PREFIX }}/${{ steps.checksum.outputs.iso-key }}
+          ISO_SHA256: ${{ steps.checksum.outputs.sha256 }}
+          ISO_SIZE: ${{ steps.checksum.outputs.size }}
+          IMAGE_DIGEST: ${{ steps.checksum.outputs.image-digest }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          built=$(date -u +'%Y-%m-%d %H:%M UTC')
+          iso_file=$(basename "$ISO_URL")
+
+          details=$(cat <<EOF
+          | | |
+          |---|---|
+          | **ISO** | [${iso_file}](${ISO_URL}) (${ISO_SIZE}) |
+          | **SHA-256** | \`${ISO_SHA256}\` ([.sha256](${ISO_URL}.sha256)) |
+          | **Image** | \`${IMAGE_REGISTRY}/${IMAGE_FLAVOR}\` |
+          | **Image digest** | \`${IMAGE_DIGEST}\` |
+          | **Built** | ${built} ([run](${RUN_URL})) |
+
+          Verify after download:
+          \`\`\`bash
+          curl -LO "${ISO_URL}" && curl -LO "${ISO_URL}.sha256" && sha256sum -c "${iso_file}.sha256"
+          \`\`\`
+          EOF
+          )
+
+          gh label create "$ISO_ISSUE_LABEL" --color 0E8A16 --force \
+            --description "Rolling issue with the latest ISO download link (updated by build-disk.yml)"
+
+          num=$(gh issue list --label "$ISO_ISSUE_LABEL" --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -z "$num" ]; then
+            url=$(gh issue create --title "$ISO_ISSUE_TITLE" --label "$ISO_ISSUE_LABEL" --assignee "$OWNER" \
+              --body "Placeholder, updated by the first build.")
+            num="${url##*/}"
+            echo "created issue #$num"
+          fi
+
+          printf '%s\n' "@${OWNER} new ISO is available." "" "$details" | gh issue comment "$num" --body-file -
+          printf '%s\n' "Latest ISO. Each build posts a comment below; this body always reflects the newest one." "" "$details" \
+            | gh issue edit "$num" --body-file -
+
+          printf '%s\n' "## ISO download" "" "$details" "" "Posted to issue #${num}." >> "$GITHUB_STEP_SUMMARY"
