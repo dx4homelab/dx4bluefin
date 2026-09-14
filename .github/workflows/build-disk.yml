@@ -43,14 +43,17 @@ env:
   ISO_ISSUE_TITLE: "ISO downloads (weekly build)"
   ISO_ISSUE_LABEL: "iso-download"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build disk images
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # Job-level (not workflow-level) on purpose: a workflow_run fired by a
+    # failed/cancelled image build is skipped by the `if` above and must not
+    # enter the group, otherwise it would cancel an ISO build in progress.
+    # Matrix values are part of the key so matrix legs never cancel each other.
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ matrix.image-flavor }}-${{ matrix.disk-type }}
+      cancel-in-progress: true
     # Default to amd64 unless arm64 is explicitly chosen (workflow_run/PR have no inputs).
     runs-on: ${{ inputs.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:
