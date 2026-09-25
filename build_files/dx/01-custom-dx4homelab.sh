@@ -5,7 +5,7 @@
 #
 # Currently installs: AWS WickrGov, natively, by extracting its snap — snapd is NOT
 # used at runtime (snapd + ostree /var/home can't run confined app snaps). The Wickr
-# client is a self-contained Qt 6.9.2 / QtWebEngine app with a bundled FIPS OpenSSL;
+# client is a self-contained Qt 6 / QtWebEngine app with a bundled FIPS OpenSSL;
 # we unpack it into /usr/lib (NOT /opt — the Containerfile relinks /opt -> /var/opt),
 # supply the two libs Fedora can't (libapparmor from the core24 base; a libbz2 soname
 # symlink), and ship a launcher that uses host Mesa with software rendering (hardware
@@ -52,6 +52,11 @@ snap_dl() {
 snap_dl awswickrgov "$WORK/wickr.snap"
 rm -rf "$APPROOT"
 unsquashfs -q -n -d "$APPROOT" "$WORK/wickr.snap"
+# The bundled Qt dir is versioned (opt/Qtqt692 -> opt/Qtqt6111 ...) and moves with each
+# Qt bump, so take it from the snap's own QT_BASE_DIR rather than hardcoding it.
+QTREL="$(sed -n 's|^ *QT_BASE_DIR: *\$SNAP/||p;T;q' "$APPROOT/meta/snap.yaml")"
+test -n "$QTREL"
+test -d "$APPROOT/$QTREL/lib"
 
 # --- 2. libapparmor.so.1: Fedora ships none; take it from the core24 base.
 # Selective extraction following the symlink to its versioned target. A FULL core24
@@ -82,7 +87,7 @@ cat > /usr/bin/awswickrgov <<'WRAP'
 #!/usr/bin/bash
 SNAP=/usr/lib/awswickrgov
 ARCH=x86_64-linux-gnu
-export QT_BASE_DIR="$SNAP/opt/Qtqt692" QTDIR="$SNAP/opt/Qtqt692"
+export QT_BASE_DIR="$SNAP/@QTREL@" QTDIR="$SNAP/@QTREL@"
 export QT_PLUGIN_PATH="$QT_BASE_DIR/plugins" QML2_IMPORT_PATH="$QT_BASE_DIR/qml"
 export LD_LIBRARY_PATH="$QT_BASE_DIR/lib:$SNAP/usr/lib/$ARCH:$SNAP/usr/lib/$ARCH/pulseaudio:$SNAP/usr/lib/$ARCH/libproxy:$SNAP/lib/$ARCH:$SNAP/usr/lib"
 export OPENSSL_MODULES="$SNAP/fips" OPENSSL_CONF="$SNAP/fips/openssl.cnf"
@@ -96,6 +101,7 @@ export XDG_DATA_DIRS="$SNAP/usr/share:$SNAP/share:${XDG_DATA_DIRS:-/usr/share}"
 export PATH="$QT_BASE_DIR/bin:$SNAP/usr/bin:$PATH"
 exec "$SNAP/usr/bin/AWSWickrGov" "$@"
 WRAP
+sed -i "s|@QTREL@|$QTREL|g" /usr/bin/awswickrgov
 chmod +x /usr/bin/awswickrgov
 
 # --- 6. Desktop entry + icon ---
@@ -118,7 +124,7 @@ StartupWMClass=AWSWickrGov
 DESK
 
 # --- 7. Assert every library the app links is satisfied; fail the build loudly if not ---
-APP_LD="$APPROOT/opt/Qtqt692/lib:$APPROOT/usr/lib/$ARCH:$APPROOT/usr/lib/$ARCH/pulseaudio:$APPROOT/lib/$ARCH:$APPROOT/usr/lib"
+APP_LD="$APPROOT/$QTREL/lib:$APPROOT/usr/lib/$ARCH:$APPROOT/usr/lib/$ARCH/pulseaudio:$APPROOT/usr/lib/$ARCH/libproxy:$APPROOT/lib/$ARCH:$APPROOT/usr/lib"
 missing="$(LD_LIBRARY_PATH="$APP_LD" ldd "$APPROOT/usr/bin/AWSWickrGov" 2>/dev/null | awk '/not found/{print $1}' | sort -u | tr '\n' ' ')"
 if [ -n "$missing" ]; then
   echo "ERROR: AWS WickrGov has unmet libraries on this image: $missing" >&2

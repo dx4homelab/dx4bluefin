@@ -38,7 +38,7 @@ install-dx4homelab-brews:
 install-extra-ca-trust dir="~/.config/dx4homelab/ca-anchors":
     #!/usr/bin/env bash
     set -euo pipefail
-    DIR="{{dir}}"; DIR="${DIR/#\~/$HOME}"
+    DIR="{{ dir }}"; DIR="${DIR/#\~/$HOME}"
     if [[ ! -d "$DIR" ]]; then
         echo "No CA directory at: $DIR" >&2
         echo "Create it and add your *.crt/*.pem CA files, or pass a path:" >&2
@@ -94,7 +94,7 @@ purge-stale-snap-selinux force="":
     fi
     echo "Found local (priority 400) snap SELinux module(s):"
     printf '    %s\n' "${stale[@]}"
-    if rpm -q snapd >/dev/null 2>&1 && [[ "{{force}}" != "force" ]]; then
+    if rpm -q snapd >/dev/null 2>&1 && [[ "{{ force }}" != "force" ]]; then
         echo "" >&2
         echo "! The 'snapd' package IS installed — these modules may still be in use." >&2
         echo "  Refusing to remove them without an explicit override. If you really want" >&2
@@ -140,7 +140,7 @@ clear-all-notifications:
 # (Re)apply the AWS WickrGov dock-badge fix for the current user: enable+start the tracker
 # service and (re)bind the two clear hotkeys. Idempotent — run it if you wiped your shortcuts
 # or want different keys. The bindings merge into your shortcuts (never clobber existing ones).
-#   ujust setup-wickr-badge-fix '<Alt>w' '<Alt><Shift>w'
+# ujust setup-wickr-badge-fix '<Alt>w' '<Alt><Shift>w'
 [group('dx4homelab')]
 setup-wickr-badge-fix wickr_key='<Alt>w' all_key='<Alt><Shift>w':
     #!/usr/bin/env bash
@@ -148,11 +148,11 @@ setup-wickr-badge-fix wickr_key='<Alt>w' all_key='<Alt><Shift>w':
     systemctl --user enable --now awsgov-wickr-notify.service
     python3 /usr/libexec/awsgov-wickr/bind-hotkey.py \
         --command /usr/bin/clear-wickr \
-        --name "Clear AWS WickrGov notifications" --binding '{{wickr_key}}'
+        --name "Clear AWS WickrGov notifications" --binding '{{ wickr_key }}'
     python3 /usr/libexec/awsgov-wickr/bind-hotkey.py \
         --command /usr/bin/clear-notifications \
-        --name "Clear ALL notifications (hard clear)" --binding '{{all_key}}'
-    echo "✓ Wickr badge fix active: {{wickr_key}} = Wickr-only clear, {{all_key}} = clear-all."
+        --name "Clear ALL notifications (hard clear)" --binding '{{ all_key }}'
+    echo "✓ Wickr badge fix active: {{ wickr_key }} = Wickr-only clear, {{ all_key }} = clear-all."
 
 # Undo the per-user setup: unbind both hotkeys and stop+disable the tracker service for the
 # current user. The baked binaries stay in the image; re-enable with `ujust setup-wickr-badge-fix`.
