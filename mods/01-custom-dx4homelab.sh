@@ -82,6 +82,13 @@ for pat in 'libEGL*' 'libGLX*' 'libGL.so*' 'libGLdispatch*' 'libOpenGL*' \
 done
 rm -rf "$GLD/dri"
 
+# --- 4b. Spell check: WickrClientSdk::configureWEB() unconditionally sets
+# QTWEBENGINE_DICTIONARIES_PATH=applicationDirPath()+"/qtwebengine_dictionaries", but calls
+# it before QApplication exists, so the path is "/qtwebengine_dictionaries" (an env override
+# in the wrapper gets clobbered). Point that root path at the bundled .bdic files.
+ln -sfn "$APPROOT/usr/bin/qtwebengine_dictionaries" /qtwebengine_dictionaries
+[ -d /qtwebengine_dictionaries ] || echo "WARNING: WickrGov dictionaries moved; spell check will be off" >&2
+
 # --- 5. Launcher wrapper (the recipe validated on the workstation) ---
 cat > /usr/bin/awswickrgov <<'WRAP'
 #!/usr/bin/bash
