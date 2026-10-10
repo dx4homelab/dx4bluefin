@@ -172,6 +172,9 @@ class BuildCustomizer:
         ("mods/awsgov-wickr/bind-hotkey.py", "build_files/dx/awsgov-wickr/bind-hotkey.py"),
         ("mods/awsgov-wickr/awsgov-wickr-notify.service", "build_files/dx/awsgov-wickr/awsgov-wickr-notify.service"),
         ("mods/awsgov-wickr/30-awsgov-wickr.sh", "build_files/dx/awsgov-wickr/30-awsgov-wickr.sh"),
+        ("mods/awsgov-wickr/wickr-compose.py", "build_files/dx/awsgov-wickr/wickr-compose.py"),
+        ("mods/awsgov-wickr/io.github.dx4homelab.WickrCompose.desktop",
+         "build_files/dx/awsgov-wickr/io.github.dx4homelab.WickrCompose.desktop"),
         # INNOGRIT IG5236 NVMe APST workaround. A system-setup hook rather than a build
         # script: it has to inspect the running machine's PCI devices, so it cannot be
         # decided at build time. Lands in system_files/shared (not dx) because the quirk

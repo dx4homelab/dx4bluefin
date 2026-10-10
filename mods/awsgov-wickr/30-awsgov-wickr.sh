@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # dx4homelab per-user first-login hook: bind the two notification-clear hotkeys for the
-# AWS WickrGov dock-badge fix. Runs in the user session (has dconf/D-Bus), so it configures
-# the pre-existing primary user too. bind-hotkey.py MERGES into the custom-keybindings array
-# (reuses its own slot, never clobbers foreign shortcuts) — unlike a dconf-db default, which
-# GNOME would silently overwrite the first time the user edits any shortcut.
+# AWS WickrGov dock-badge fix, plus the wickr-compose launcher. Runs in the user session
+# (has dconf/D-Bus), so it configures the pre-existing primary user too. bind-hotkey.py
+# MERGES into the custom-keybindings array (reuses its own slot, never clobbers foreign
+# shortcuts) — unlike a dconf-db default, which GNOME would silently overwrite the first
+# time the user edits any shortcut.
 #
 # Bump the version integer below to force a re-apply on an image update.
 source /usr/lib/ublue/setup-services/libsetup.sh
 
-version-script awsgov-wickr user 1 || exit 0
+version-script awsgov-wickr user 2 || exit 0
 
 set -euo pipefail
 
@@ -25,4 +26,9 @@ if command -v gsettings >/dev/null 2>&1 && [ -x "$BIND" ]; then
         --command /usr/bin/clear-notifications \
         --name "Clear ALL notifications (hard clear)" \
         --binding '<Alt><Shift>w' || true
+    # Super+Alt+W -> wickr-compose (spell/grammar/dictation compose box; copies for Wickr)
+    python3 "$BIND" \
+        --command /usr/bin/wickr-compose \
+        --name "Compose message for AWS WickrGov" \
+        --binding '<Super><Alt>w' || true
 fi

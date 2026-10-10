@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Compose for Wickr
+GenericName=Message Composer
+Comment=Write a message with local spell/grammar check and dictation, then paste it into AWS WickrGov
+Exec=/usr/bin/wickr-compose
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+Keywords=wickr;spell;grammar;dictation;languagetool;whisper;
+StartupNotify=true

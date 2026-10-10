@@ -19,7 +19,7 @@ import subprocess
 SCHEMA = "org.gnome.settings-daemon.plugins.media-keys"
 CBASE = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/"
 CBSCH = "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding"
-OURS = {"clear-notifications", "clear-wickr"}
+OURS = {"clear-notifications", "clear-wickr", "wickr-compose"}
 
 
 def gget(schema, key, path=None):
