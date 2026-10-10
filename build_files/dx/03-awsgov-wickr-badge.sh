@@ -5,6 +5,9 @@
 #                                    ids of AWS WickrGov notifications as they are posted.
 #   - clear-wickr                  : close ONLY the tracked Wickr notifications  (Alt+W)
 #   - clear-notifications          : hard clear ALL apps' notifications         (Alt+Shift+W)
+#   - wickr-compose                : compose box with local spelling (libspelling), grammar
+#                                    (LanguageTool, `ujust setup-languagetool`) and dictation
+#                                    (local whisper.cpp); copies the text for Wickr (Super+Alt+W)
 #
 # Both closers target the internal `org.gnome.Shell` notification server, which — unlike the
 # public `org.freedesktop.Notifications` proxy on GNOME 45+ — does not reject closing another
@@ -21,19 +24,25 @@ SRC=/ctx/build_files/dx/awsgov-wickr
 # The daemon needs PyGObject (gi / Gio / GLib). Present in the GNOME base already; pin it so a
 # future base change can't silently drop it. Guarded so we don't hit dnf when it's already there.
 rpm -q python3-gobject-base >/dev/null 2>&1 || dnf -y install python3-gobject-base
+# wickr-compose's GUI stack (GTK4 / libadwaita / GtkSourceView 5 / libspelling typelibs).
+rpm -q python3-gobject gtk4 libadwaita gtksourceview5 libspelling >/dev/null 2>&1 \
+  || dnf -y install python3-gobject gtk4 libadwaita gtksourceview5 libspelling
 
 # --- binaries ---
 install -Dm0755 "$SRC/wickr-notify-daemon.py" /usr/libexec/awsgov-wickr/awsgov-wickr-notify-daemon
 install -Dm0755 "$SRC/bind-hotkey.py"         /usr/libexec/awsgov-wickr/bind-hotkey.py
 install -Dm0755 "$SRC/clear-wickr.sh"         /usr/bin/clear-wickr
 install -Dm0755 "$SRC/clear-notifications.py" /usr/bin/clear-notifications
+install -Dm0755 "$SRC/wickr-compose.py"       /usr/bin/wickr-compose
+install -Dm0644 "$SRC/io.github.dx4homelab.WickrCompose.desktop" \
+  /usr/share/applications/io.github.dx4homelab.WickrCompose.desktop
 
 # --- systemd --user unit, enabled for every user (reaches the pre-existing primary user;
 #     etc/skel and presets do not) ---
 install -Dm0644 "$SRC/awsgov-wickr-notify.service" /usr/lib/systemd/user/awsgov-wickr-notify.service
 systemctl --global enable awsgov-wickr-notify.service
 
-# --- per-user first-login hook: binds Alt+W and Alt+Shift+W ---
+# --- per-user first-login hook: binds Alt+W, Alt+Shift+W and Super+Alt+W ---
 install -Dm0755 "$SRC/30-awsgov-wickr.sh" /usr/share/ublue-os/user-setup.hooks.d/30-awsgov-wickr.sh
 
 # --- build-time gates (static only; a session bus / GNOME is not available in the build
@@ -43,10 +52,13 @@ test -x /usr/bin/clear-notifications
 test -x /usr/libexec/awsgov-wickr/awsgov-wickr-notify-daemon
 # the daemon's runtime import must resolve inside the image
 python3 -c 'import gi; gi.require_version("Gio", "2.0"); from gi.repository import Gio, GLib'
+/usr/bin/wickr-compose --self-test  # imports GTK4/Adw/GtkSource/Spelling; services report OFF here
+desktop-file-validate /usr/share/applications/io.github.dx4homelab.WickrCompose.desktop
 # parse (do NOT py_compile — avoid writing __pycache__/*.pyc into /usr that lint may flag)
 python3 - /usr/libexec/awsgov-wickr/awsgov-wickr-notify-daemon \
            /usr/libexec/awsgov-wickr/bind-hotkey.py \
-           /usr/bin/clear-notifications <<'PY'
+           /usr/bin/clear-notifications \
+           /usr/bin/wickr-compose <<'PY'
 import ast, sys
 for p in sys.argv[1:]:
     ast.parse(open(p, encoding="utf-8").read())
@@ -56,4 +68,4 @@ bash -n /usr/share/ublue-os/user-setup.hooks.d/30-awsgov-wickr.sh
 systemctl --global is-enabled awsgov-wickr-notify.service | grep -qx enabled
 systemd-analyze verify /usr/lib/systemd/user/awsgov-wickr-notify.service || true
 
-echo "awsgov-wickr: baked (daemon enabled image-wide; Alt+W / Alt+Shift+W bound per user at login)"
+echo "awsgov-wickr: baked (daemon enabled image-wide; Alt+W / Alt+Shift+W / Super+Alt+W bound per user at login)"

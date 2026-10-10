@@ -164,3 +164,59 @@ remove-wickr-badge-fix:
     python3 /usr/libexec/awsgov-wickr/bind-hotkey.py --unbind /usr/bin/clear-notifications || true
     systemctl --user disable --now awsgov-wickr-notify.service || true
     echo "✓ Wickr badge fix removed for ${USER}."
+
+# Rootless podman quadlet published on 127.0.0.1:8010 only, so message text never leaves
+# this machine. Opt-in and per user: the ~0.5 GB image is pulled on install (not baked into
+# the OS image) and the server uses ~0.8 GB RAM. Pinned by digest; bump IMAGE to update.
+# Local LanguageTool grammar server for wickr-compose. Usage: ujust setup-languagetool [install|remove|status]
+[group('dx4homelab')]
+setup-languagetool action="install":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    IMAGE="docker.io/erikvl87/languagetool:6.8@sha256:ef8fa12cbd485166c9ceeb7139d76d56d07707a624da6bb1fc1fbb5411750527"
+    UNIT="${XDG_CONFIG_HOME:-$HOME/.config}/containers/systemd/languagetool.container"
+    up() { curl -fs -m 2 http://127.0.0.1:8010/v2/languages >/dev/null; }
+    case "{{ action }}" in
+    install)
+        podman pull "$IMAGE"
+        mkdir -p "$(dirname "$UNIT")"
+        printf '%s\n' \
+            "[Unit]" \
+            "Description=LanguageTool grammar server (local, for wickr-compose)" \
+            "" \
+            "[Container]" \
+            "ContainerName=languagetool" \
+            "Image=$IMAGE" \
+            "PublishPort=127.0.0.1:8010:8010" \
+            "Environment=Java_Xms=256m Java_Xmx=1g" \
+            "DropCapability=ALL" \
+            "NoNewPrivileges=true" \
+            "" \
+            "[Service]" \
+            "Restart=on-failure" \
+            "TimeoutStartSec=300" \
+            "" \
+            "[Install]" \
+            "WantedBy=default.target" > "$UNIT"
+        systemctl --user daemon-reload
+        systemctl --user restart languagetool.service
+        echo -n "Waiting for LanguageTool on 127.0.0.1:8010 "
+        for _ in $(seq 1 60); do up && break; echo -n .; sleep 2; done
+        up || { echo; echo "LanguageTool did not come up: journalctl --user -u languagetool" >&2; exit 1; }
+        echo " ✓ ready. Grammar check is on in wickr-compose (starts with your session)."
+        ;;
+    remove)
+        systemctl --user stop languagetool.service 2>/dev/null || true
+        rm -f "$UNIT"
+        systemctl --user daemon-reload
+        podman rmi "$IMAGE" 2>/dev/null || true
+        echo "✓ LanguageTool removed; wickr-compose keeps spelling + dictation."
+        ;;
+    status)
+        systemctl --user --no-pager status languagetool.service || true
+        ;;
+    *)
+        echo "Usage: ujust setup-languagetool [install|remove|status]" >&2
+        exit 1
+        ;;
+    esac
