@@ -137,6 +137,10 @@ class BuildCustomizer:
                 "/ctx/build_files/dx/02-dod-ca-trust.sh": [
                     "/ctx/build_files/dx/03-awsgov-wickr-badge.sh",
                 ],
+                # Chain 04 (Eclipse IDE + Subclipse + EGit) on 03, same rationale.
+                "/ctx/build_files/dx/03-awsgov-wickr-badge.sh": [
+                    "/ctx/build_files/dx/04-eclipse-ide.sh",
+                ],
             },
             "delete": [],
         },
@@ -175,6 +179,10 @@ class BuildCustomizer:
         ("mods/awsgov-wickr/wickr-compose.py", "build_files/dx/awsgov-wickr/wickr-compose.py"),
         ("mods/awsgov-wickr/io.github.dx4homelab.WickrCompose.desktop",
          "build_files/dx/awsgov-wickr/io.github.dx4homelab.WickrCompose.desktop"),
+        # Eclipse IDE (current EPP jee release) with Subclipse + EGit, installed to
+        # /usr/lib/eclipse by the dx build step chained after 03 via LINE_MODS. Relies on
+        # subversion-javahl from ADDITION_LIST for Subclipse's JavaHL adapter.
+        ("mods/04-eclipse-ide.sh", "build_files/dx/04-eclipse-ide.sh"),
         # INNOGRIT IG5236 NVMe APST workaround. A system-setup hook rather than a build
         # script: it has to inspect the running machine's PCI devices, so it cannot be
         # decided at build time. Lands in system_files/shared (not dx) because the quirk

@@ -65,6 +65,82 @@ notification. If the issue is closed, the next build opens a fresh one.
 Pre-signed URLs were deliberately not used: URLs signed with the OIDC role's
 temporary credentials die with the 1 h session.
 
+## Eclipse IDE (04-eclipse-ide.sh)
+
+The dx image bakes Eclipse IDE (EPP **jee** package) with **Subclipse 4.3.4**
+(JavaHL adapter) and **EGit** into `/usr/lib/eclipse`, launched as
+`/usr/bin/eclipse`. It runs as a read-only *shared install*: per-user config
+and any plugins a user adds live in `~/.eclipse`.
+
+- **Updates come with the image only.** Every build takes the current EPP
+  release from `release.xml` (quarterly: Mar/Jun/Sep/Dec), so a new release
+  lands with the next Friday build. Eclipse's own weekly update check is
+  disabled (`org.eclipse.equinox.p2.ui.sdk.scheduler/enabled=false`):
+  updates it installed would land in `~/.eclipse`, drift from the image and
+  trigger the "shared installation has changed" migration on every upgrade.
+  If a new release breaks Subclipse, `bootc rollback`; to hold a release,
+  set `EPP_RELEASE=2026-09/R` in the script.
+- **JavaHL swap.** Subclipse is unmaintained; its newest adapter bundles
+  JavaHL **1.14** Java classes, which crash the JVM against Fedora's native
+  `libsvnjavahl` **1.15** (`terminate called after throwing an instance of
+  'Java::SignalExceptionThrown'`). The script replaces
+  `lib/javahl-*.jar` inside the adapter bundle with the image's
+  `/usr/share/java/svn-javahl.jar`, so the Java and native halves always come
+  from the same RPM.
+- **Hash pins.** subclipse.github.io publishes no checksums or signatures.
+  The five Subclipse jars are SHA-256 pinned (step 2b); each was committed
+  once to `subclipse/updates` (2021/2023) and never changed, so the pins
+  should never need a bump. A pin failure means the update site changed —
+  investigate before re-pinning.
+- **Alternative considered:** Subversive 5.1 (Eclipse, maintained, checksummed)
+  + ArSysOp SVNKit connector (PGP-signed). Rejected for now: its pure-Java
+  protocol stack bundles Apache SSHD 2.11 (Terrapin, CVE-2023-48795),
+  BouncyCastle 1.77 and trilead-ssh2, whereas JavaHL uses Fedora's patched
+  native Subversion/serf/OpenSSL. `git svn` + EGit is the leanest option
+  where the SVN workflow allows it.
+
+### Optional: a second Eclipse in a distrobox (not set up, not tested)
+
+Only worth it to run a *different* Eclipse next to the baked one — e.g. a
+pinned older release for a legacy project, or trying the next release before
+it reaches the image. Flatpak is not an option: Flathub has no jee build, and
+the sandbox can't reach the host's `libsvnjavahl` (Subclipse) or host
+JDKs/Maven/podman.
+
+The same build script works in a Fedora box (it only needs `dnf`, `curl`,
+`python3`, `desktop-file-utils` and `subversion-javahl`; the box also needs
+`gtk3` for SWT, and optionally `webkit2gtk4.1` for the internal browser and
+Javadoc hovers):
+
+```bash
+distrobox create --name eclipse --image registry.fedoraproject.org/fedora-toolbox:44
+distrobox enter eclipse -- sudo dnf -y install subversion-javahl desktop-file-utils \
+  python3 gtk3 webkit2gtk4.1
+# To pin a release or package, put e.g. EPP_RELEASE=2026-06/R EPP_PACKAGE=java after sudo.
+distrobox enter eclipse -- sh -c 'curl -fsSLo /tmp/04-eclipse-ide.sh \
+  https://raw.githubusercontent.com/dx4homelab/dx4bluefin/main/mods/04-eclipse-ide.sh \
+  && sudo bash /tmp/04-eclipse-ide.sh'
+# Own workspace: both installs default to ~/eclipse-workspace, and a workspace
+# is locked while open and gets its metadata upgraded by newer releases.
+distrobox enter eclipse -- distrobox-export --app eclipse \
+  --extra-flags "-data $HOME/eclipse-workspace-box"
+```
+
+Gotchas:
+
+- **Updates are manual.** Re-run the script line to move to the current
+  release (it wipes and reinstalls `/usr/lib/eclipse` in the box).
+- **Re-run the script after any `dnf upgrade` that bumps `subversion`** in the
+  box: the swapped JavaHL jar must match the box's native library, or the
+  `Java::SignalExceptionThrown` JVM crash returns.
+- Per-user state doesn't collide: `~/.eclipse/<product>_<version>_<hash>_…`
+  is keyed by install path, and the exported launcher is suffixed
+  "(on eclipse)".
+- If this gets used regularly, promote it to a CI-built image instead
+  (`FROM fedora-toolbox:44`, `COPY` + `RUN` the script, push to GHCR, then
+  `distrobox create --image ghcr.io/dx4homelab/eclipse-box`). The keyring PAT
+  lacks `workflow` scope; push the new workflow via `gh auth git-credential`.
+
 ## Runbook: VS Code Wayland "Share Screen" popup
 
 **Symptom:** on VS Code launch — or when a display sleeps/wakes
