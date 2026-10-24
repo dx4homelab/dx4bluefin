@@ -101,6 +101,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
+      - name: Pre-pull builder image
+        # On a failed pull the action only calls setFailed() and builds anyway, so a
+        # transient quay.io error ("can't talk to a V1 container registry") fails the job
+        # after a good build and skips the S3 upload. Retry here so the action's own pull
+        # follows a known-good one.
+        run: |
+          for i in 1 2 3 4 5; do
+            sudo podman pull "${BIB_IMAGE}" && exit 0
+            echo "Pull attempt ${i} failed, retrying in $((i * 15))s"
+            sleep $((i * 15))
+          done
+          exit 1
+
       - name: Build disk images
         id: build
         uses: osbuild/bootc-image-builder-action@main
