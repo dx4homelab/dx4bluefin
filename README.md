@@ -68,7 +68,7 @@ temporary credentials die with the 1 h session.
 ## Eclipse IDE (04-eclipse-ide.sh)
 
 The dx image bakes Eclipse IDE (EPP **jee** package) with **Subclipse 4.3.4**
-(JavaHL adapter) and **EGit** into `/usr/lib/eclipse`, launched as
+(JavaHL adapter, Revision Graph) and **EGit** into `/usr/lib/eclipse`, launched as
 `/usr/bin/eclipse`. It runs as a read-only *shared install*: per-user config
 and any plugins a user adds live in `~/.eclipse`.
 
@@ -86,9 +86,12 @@ and any plugins a user adds live in `~/.eclipse`.
   'Java::SignalExceptionThrown'`). The script replaces
   `lib/javahl-*.jar` inside the adapter bundle with the image's
   `/usr/share/java/svn-javahl.jar`, so the Java and native halves always come
-  from the same RPM.
+  from the same RPM. On a stock (unswapped) Subclipse the same mismatch also
+  shows up without a crash: Revision Graph fails with "An internal error
+  occurred during: Calculating graph information" / `NoSuchMethodError:
+  <init>` at `SVNClient.info(Native Method)`.
 - **Hash pins.** subclipse.github.io publishes no checksums or signatures.
-  The five Subclipse jars are SHA-256 pinned (step 2b); each was committed
+  The six Subclipse jars are SHA-256 pinned (step 2b); each was committed
   once to `subclipse/updates` (2021/2023) and never changed, so the pins
   should never need a bump. A pin failure means the update site changed —
   investigate before re-pinning.

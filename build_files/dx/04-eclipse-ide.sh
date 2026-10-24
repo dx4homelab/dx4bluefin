@@ -9,7 +9,8 @@
 #               per-user config and any plugins users add go to ~/.eclipse.
 #   - EGit    : from the matching simultaneous-release repo (already part of the jee
 #               package; listed so it survives a switch to a package that lacks it).
-#   - Subclipse 4.3.x + its JavaHL client adapter, from subclipse.github.io.
+#   - Subclipse 4.3.x + its JavaHL client adapter and Revision Graph, from
+#               subclipse.github.io (the graph's GEF Classic comes from the release repo).
 #
 # JavaHL: Subclipse is unmaintained (last release 4.3.4, 2023) and its newest adapter
 # bundles JavaHL 1.14 Java classes. Against Fedora's native libsvnjavahl 1.15 those crash
@@ -55,6 +56,7 @@ PROFILE="$(basename "$(ls -d "$APPROOT"/p2/org.eclipse.equinox.p2.engine/profile
 P2_IUS=(
   org.tigris.subversion.subclipse.feature.group
   org.tigris.subversion.clientadapter.javahl.feature.feature.group
+  org.tigris.subversion.subclipse.graph.feature.feature.group
   org.eclipse.egit.feature.group
 )
 # Without a config, logback (pulled in with m2e) logs at DEBUG: ~68k lines of HttpClient
@@ -86,8 +88,9 @@ f7f778b305809a32e400fa28396bc117816050246302771ac7d1c75d2a776f12  org.tigris.sub
 4ec0c255022c43be2d69e9096eae192358d77ba35f3d314b4651b0728856ca99  org.tigris.subversion.clientadapter.javahl_1.14.0.1.jar
 511c8b008c56dd8328c626cc465b7b303eb5dabb1c7768e3345049da1e56c3e3  org.tigris.subversion.subclipse.core_4.3.4.202306191346.jar
 834f6821c696341526219e54b971cfec23667a7b1bd34fb89222bbe308c88e77  org.tigris.subversion.subclipse.ui_4.3.4.202306191346.jar
+9b8629f198b99f323f62b78afbaa7415cd10d1d64fb08e442652e6474ea4f9a0  org.tigris.subversion.subclipse.graph_4.2.0.1.jar
 SHA
-test "$(cd "$APPROOT/plugins" && ls -d com.collabnet.* org.tigris.* | wc -l)" -eq 5
+test "$(cd "$APPROOT/plugins" && ls -d com.collabnet.* org.tigris.* | wc -l)" -eq 6
 
 # --- 3. Swap the adapter's bundled JavaHL 1.14 classes for the image's own ---
 # The bundle is a plain (unsigned) jar whose Bundle-ClassPath names lib/javahl-<ver>.jar,
@@ -135,7 +138,7 @@ Version=1.0
 Type=Application
 Name=Eclipse IDE
 GenericName=Integrated Development Environment
-Comment=Eclipse IDE with Subclipse and EGit
+Comment=Eclipse IDE with Subclipse, Revision Graph and EGit
 Exec=/usr/bin/eclipse
 Icon=eclipse
 Terminal=false
@@ -152,9 +155,11 @@ done
 bundles="$APPROOT/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
 grep -q '^org.tigris.subversion.clientadapter.javahl,' "$bundles"
 grep -q '^org.eclipse.egit.core,' "$bundles"
+grep -q '^org.tigris.subversion.subclipse.graph,' "$bundles"
+grep -q '^org.eclipse.gef,' "$bundles"
 grep -qx 'org.eclipse.equinox.p2.ui.sdk.scheduler/enabled=false' "$CUST"
 desktop-file-validate /usr/share/applications/eclipse.desktop
 test -x /usr/bin/eclipse
 
-echo "Eclipse $RELEASE ($EPP_PACKAGE) installed to $APPROOT ($(du -sh "$APPROOT" | cut -f1)) with Subclipse + EGit"
+echo "Eclipse $RELEASE ($EPP_PACKAGE) installed to $APPROOT ($(du -sh "$APPROOT" | cut -f1)) with Subclipse (+ Revision Graph) + EGit"
 echo "::endgroup::"
