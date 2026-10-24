@@ -90,6 +90,12 @@ and any plugins a user adds live in `~/.eclipse`.
   shows up without a crash: Revision Graph fails with "An internal error
   occurred during: Calculating graph information" / `NoSuchMethodError:
   <init>` at `SVNClient.info(Native Method)`.
+- **X11 by default.** `/usr/bin/eclipse` is a wrapper that sets
+  `GDK_BACKEND=x11` unless already set. On native Wayland, clicking a
+  perspective or view tab can start a part drag whose button release SWT
+  never receives, freezing the UI in `DnDManager.startDrag`. Try Wayland with
+  `GDK_BACKEND=wayland eclipse`. NVIDIA PRIME variables are deliberately not
+  set: they break GLX on machines without an NVIDIA GPU.
 - **Hash pins.** subclipse.github.io publishes no checksums or signatures.
   The six Subclipse jars are SHA-256 pinned (step 2b); each was committed
   once to `subclipse/updates` (2021/2023) and never changed, so the pins

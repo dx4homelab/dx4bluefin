@@ -129,7 +129,16 @@ sed -i '/^org\.eclipse\.equinox\.p2\.ui\.sdk\.scheduler\/enabled=/d' "$CUST"
 echo 'org.eclipse.equinox.p2.ui.sdk.scheduler/enabled=false' >> "$CUST"
 
 # --- 4. Launcher, desktop entry, icon ---
-ln -sf "$APPROOT/eclipse" /usr/bin/eclipse
+# X11 by default: on native Wayland, SWT's Tracker never sees the button release, so
+# a click that starts a part/perspective drag freezes the UI in DnDManager.startDrag.
+# A wrapper rather than a symlink so terminal launches get it too; GDK_BACKEND=wayland
+# still overrides it.
+cat > /usr/bin/eclipse <<WRAP
+#!/usr/bin/bash
+export GDK_BACKEND="\${GDK_BACKEND:-x11}"
+exec $APPROOT/eclipse "\$@"
+WRAP
+chmod 755 /usr/bin/eclipse
 install -Dm644 "$(ls "$APPROOT"/plugins/org.eclipse.platform_*/eclipse256.png | head -n1)" \
   /usr/share/pixmaps/eclipse.png
 cat > /usr/share/applications/eclipse.desktop <<'DESK'
