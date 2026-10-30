@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout dx4homelab/bluefin main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           token: ${{ secrets.PAT_TOKEN_OCT_2025 }}
