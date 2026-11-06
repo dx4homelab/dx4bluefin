@@ -15,22 +15,34 @@ on:
         options:
           - amd64
           - arm64
+      streams:
+        description: "Image streams to build ISOs for"
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - stable
+          - latest
   workflow_run:
-    # Chain off the stable image build instead of guessing with a cron: the
-    # MODS run (Friday 07:00 UTC, or any push to mods/**) dispatches the image
-    # build, and this fires once that run completes on main. The job-level
-    # `if` below skips failed/cancelled image builds, so the ISO is only ever
-    # rebuilt from a freshly pushed bluefin-dx:stable.
-    workflows: ["Build dx4homelab/bluefin/dx Stable"]
+    # Chain off the image builds instead of guessing with a cron: the MODS run
+    # (Friday 07:00 UTC, or any push to mods/**) dispatches both image builds,
+    # and this fires once each of them completes on main. The `select` job
+    # skips failed/cancelled image builds and picks the flavors of the stream
+    # that just finished, so ISOs are only ever rebuilt from freshly pushed
+    # images (stable -> bluefin-dx{,-nvidia-open}:stable, latest -> ...:latest).
+    workflows:
+      - "Build dx4homelab/bluefin/dx Stable"
+      - "Build dx4homelab/bluefin/dx Latest"
     types: [completed]
     branches: [main]
   pull_request:
     branches:
       - main
     paths:
-      - './disk_config/disk.toml'
-      - './disk_config/iso.toml'
-      - './.github/workflows/build-disk.yml'
+      - 'disk_config/disk.toml'
+      - 'disk_config/iso.toml'
+      - '.github/workflows/build-disk.yml'
 
 env:
   REPO_NAME: ${{ github.event.repository.name }} # output of build.yml, keep in sync
@@ -42,16 +54,52 @@ env:
   AWS_REGION: "us-east-2"
   ISO_ISSUE_TITLE: "ISO downloads (weekly build)"
   ISO_ISSUE_LABEL: "iso-download"
-  ISO_KEEP: "4" # newest ISO revisions (+ their .sha256) kept in S3; older ones pruned after each upload
+  ISO_KEEP: "4" # newest ISO revisions (+ their .sha256) kept in S3 per image flavor; older ones pruned after each upload
 
 jobs:
+  select:
+    name: Select images
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    outputs:
+      images: ${{ steps.select.outputs.images }}
+    steps:
+      - name: Pick image flavors for this trigger
+        id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          IMAGE_WORKFLOW: ${{ github.event.workflow_run.name || '' }}
+          STREAMS: ${{ inputs.streams || 'all' }}
+        run: |
+          set -euo pipefail
+          stable='"bluefin-dx:stable","bluefin-dx-nvidia-open:stable"'
+          latest='"bluefin-dx:latest","bluefin-dx-nvidia-open:latest"'
+          case "$EVENT" in
+            pull_request) images='"bluefin-dx:stable"' ;; # smoke test only
+            workflow_run)
+              case "$IMAGE_WORKFLOW" in
+                *Stable) images="$stable" ;;
+                *Latest) images="$latest" ;;
+                *) echo "::error::unexpected image workflow '$IMAGE_WORKFLOW'"; exit 1 ;;
+              esac ;;
+            *)
+              case "$STREAMS" in
+                stable) images="$stable" ;;
+                latest) images="$latest" ;;
+                *) images="$stable,$latest" ;;
+              esac ;;
+          esac
+          echo "images=[${images}]" | tee -a "$GITHUB_OUTPUT"
+
   build:
     name: Build disk images
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    needs: select
     # Job-level (not workflow-level) on purpose: a workflow_run fired by a
-    # failed/cancelled image build is skipped by the `if` above and must not
-    # enter the group, otherwise it would cancel an ISO build in progress.
-    # Matrix values are part of the key so matrix legs never cancel each other.
+    # failed/cancelled image build never reaches this job (select is skipped)
+    # and must not enter the group, otherwise it would cancel an ISO build in
+    # progress. Matrix values are part of the key so matrix legs never cancel
+    # each other, and the stable- and latest-triggered runs build disjoint
+    # flavors so they do not cancel each other either.
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ matrix.image-flavor }}-${{ matrix.disk-type }}
       cancel-in-progress: true
@@ -61,13 +109,11 @@ jobs:
       fail-fast: false
       matrix:
         disk-type: ["anaconda-iso"]
-        image-flavor: ["bluefin-dx:stable"]
-        # image-flavor: ["bluefin-dx-nvidia-open:stable","bluefin-dx:stable"]
+        image-flavor: ${{ fromJSON(needs.select.outputs.images) }}
     permissions:
       contents: read
       packages: read
       id-token: write
-      issues: write # rolling "ISO downloads" issue, see "Publish download link" step
 
     steps:
       - name: Prepare environment
@@ -76,10 +122,12 @@ jobs:
           USER_GID=$(id -g)
           # Concatenate the types with a hyphen
           DISK_TYPE=$(echo "${{ matrix.disk-type }}" | tr ' ' '-')
-          IMAGE_FLAVOR="${{ matrix.image-flavor }}"
           # Lowercase the image uri
+          IMAGE_FLAVOR="${{ matrix.image-flavor }}"; IMAGE_FLAVOR="${IMAGE_FLAVOR,,}"
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
-          echo "IMAGE_FLAVOR=${IMAGE_FLAVOR,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_FLAVOR=${IMAGE_FLAVOR}" >> ${GITHUB_ENV}
+          # bluefin-dx:stable -> bluefin-dx-stable (ISO file name prefix, artifact name)
+          echo "FLAVOR_SLUG=${IMAGE_FLAVOR//[:\/]/-}" >> ${GITHUB_ENV}
           echo "DISK_TYPE=${DISK_TYPE}" >> ${GITHUB_ENV}
           echo "USER_UID=${USER_UID}" >> ${GITHUB_ENV}
           echo "USER_GID=${USER_GID}" >> ${GITHUB_ENV}
@@ -129,12 +177,13 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 != true
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
+          name: ${{ env.FLAVOR_SLUG }}-${{ env.DISK_TYPE }}
           path: ${{ steps.build.outputs.output-directory }}
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
           overwrite: true
-      
+
       - name: Rename ISO and generate checksum
         # bib always emits bootiso/install.iso; rename it to
         # <flavor>-<YYYYMMDD>-<short sha>.iso so every revision has a unique key
@@ -149,7 +198,7 @@ jobs:
             echo "::error::no .iso found under $out"; exit 1
           fi
           iso_dir=$(dirname "$src")
-          name="${IMAGE_FLAVOR//[:\/]/-}-$(date -u +%Y%m%d)-${GITHUB_SHA::7}.iso"
+          name="${FLAVOR_SLUG}-$(date -u +%Y%m%d)-${GITHUB_SHA::7}.iso"
           mv -v "$src" "${iso_dir}/${name}"
           iso="${iso_dir}/${name}"
           ( cd "$iso_dir" && sha256sum "$name" > "${name}.sha256" )
@@ -182,18 +231,20 @@ jobs:
             --exclude '*' --include '*.iso' --include '*.iso.sha256'
 
       - name: Prune old ISO revisions in S3
-        # Keep the newest $ISO_KEEP *.iso objects (by LastModified) under the
-        # ISO prefix and delete the rest together with their .sha256 files.
+        # Keep the newest $ISO_KEEP *.iso objects (by LastModified) of THIS
+        # flavor under the ISO prefix and delete the rest together with their
+        # .sha256 files. All flavors share bootiso/, so the listing is narrowed
+        # to <flavor>- (e.g. bluefin-dx-stable-) and never touches the others.
         # Needs s3:DeleteObject on iso/bootiso/* (mods/aws/github-upload-iso-policy.json).
         if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         env:
           ISO_KEY: ${{ steps.checksum.outputs.iso-key }}
         run: |
           set -euo pipefail
-          prefix="${S3_PREFIX}/$(dirname "$ISO_KEY")/"
+          prefix="${S3_PREFIX}/$(dirname "$ISO_KEY")/${FLAVOR_SLUG}-"
           mapfile -t isos < <(aws s3api list-objects-v2 --bucket "$S3_BUCKET" --prefix "$prefix" \
             --query "reverse(sort_by(Contents[?ends_with(Key, '.iso')], &LastModified))[].Key" --output text | tr '\t' '\n' | sed '/^None$/d;/^$/d')
-          echo "ISO revisions in s3://${S3_BUCKET}/${prefix} (newest first): ${#isos[@]}"
+          echo "ISO revisions in s3://${S3_BUCKET}/${prefix}* (newest first): ${#isos[@]}"
           printf '  %s\n' "${isos[@]}"
           for key in "${isos[@]:${ISO_KEEP}}"; do
             echo "pruning $key"
@@ -201,15 +252,11 @@ jobs:
             aws s3 rm "s3://${S3_BUCKET}/${key}.sha256" || true
           done
 
-      - name: Publish download link to GitHub issue
-        # One rolling issue (found by label) keeps the latest link in its body;
-        # each build adds a comment. The @mention + assignee make GitHub email
-        # the repo owner on every build without any SMTP/SES setup.
+      - name: Write download details for the publish job
+        # Each matrix leg hands its section of the issue to the single publish
+        # job below as a tiny artifact, so four legs never race on the issue body.
         if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          OWNER: ${{ github.repository_owner }}
           ISO_URL: https://${{ env.S3_BUCKET }}.s3.${{ env.AWS_REGION }}.amazonaws.com/${{ env.S3_PREFIX }}/${{ steps.checksum.outputs.iso-key }}
           ISO_SHA256: ${{ steps.checksum.outputs.sha256 }}
           ISO_SIZE: ${{ steps.checksum.outputs.size }}
@@ -226,12 +273,15 @@ jobs:
             trigger="manual dispatch"
           fi
 
-          details=$(cat <<EOF
+          mkdir -p details
+          cat > details/section.md <<EOF
+          <!-- iso:${IMAGE_FLAVOR} -->
+          ### \`${IMAGE_REGISTRY}/${IMAGE_FLAVOR}\`
+
           | | |
           |---|---|
           | **ISO** | [${iso_file}](${ISO_URL}) (${ISO_SIZE}) |
           | **SHA-256** | \`${ISO_SHA256}\` ([.sha256](${ISO_URL}.sha256)) |
-          | **Image** | \`${IMAGE_REGISTRY}/${IMAGE_FLAVOR}\` |
           | **Image digest** | \`${IMAGE_DIGEST}\` |
           | **Built** | ${built} ([run](${RUN_URL})) |
           | **Trigger** | ${trigger} |
@@ -240,11 +290,61 @@ jobs:
           \`\`\`bash
           curl -LO "${ISO_URL}" && curl -LO "${ISO_URL}.sha256" && sha256sum -c "${iso_file}.sha256"
           \`\`\`
+          <!-- /iso:${IMAGE_FLAVOR} -->
           EOF
-          )
+          cat details/section.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload download details
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true)
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: iso-details-${{ env.FLAVOR_SLUG }}
+          path: details/section.md
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish download links
+    needs: build
+    # Runs after every matrix leg finished (even if some failed) and posts the
+    # ISOs that did get built. Serialized across runs: the stable- and
+    # latest-triggered runs land minutes apart on Friday and must not race on
+    # the issue body (read-modify-write).
+    if: always() && contains(fromJSON('["success", "failure"]'), needs.build.result) && (github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.upload-to-s3 == true))
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-issue
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write # rolling "ISO downloads" issue
+    steps:
+      - name: Download download details
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          pattern: iso-details-*
+          path: details
+
+      - name: Publish download links to GitHub issue
+        # One rolling issue (found by label) keeps the newest ISO of every image
+        # flavor in its body, each in a <!-- iso:<flavor> --> section that is
+        # replaced in place; each run adds a comment with the ISOs it built.
+        # The @mention + assignee make GitHub email the repo owner on every
+        # build without any SMTP/SES setup.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          sections=(details/*/section.md)
+          if [ ${#sections[@]} -eq 0 ]; then
+            echo "::warning::no ISO was built in this run, nothing to publish"; exit 0
+          fi
 
           gh label create "$ISO_ISSUE_LABEL" --color 0E8A16 --force \
-            --description "Rolling issue with the latest ISO download link (updated by build-disk.yml)"
+            --description "Rolling issue with the latest ISO download links (updated by build-disk.yml)"
 
           num=$(gh issue list --label "$ISO_ISSUE_LABEL" --state open --limit 1 --json number --jq '.[0].number // empty')
           if [ -z "$num" ]; then
@@ -254,8 +354,24 @@ jobs:
             echo "created issue #$num"
           fi
 
-          printf '%s\n' "@${OWNER} new ISO is available." "" "$details" | gh issue comment "$num" --body-file -
-          printf '%s\n' "Latest ISO. Each build posts a comment below; this body always reflects the newest one." "" "$details" \
-            | gh issue edit "$num" --body-file -
+          gh issue view "$num" --json body --jq .body > old-body.md
+          python3 - old-body.md new-body.md "${sections[@]}" <<'PY'
+          import re, sys
+          old, new, *files = sys.argv[1:]
+          order = ["bluefin-dx:stable", "bluefin-dx-nvidia-open:stable",
+                   "bluefin-dx:latest", "bluefin-dx-nvidia-open:latest"]
+          section = re.compile(r"<!-- iso:(\S+) -->.*?<!-- /iso:\1 -->", re.S)
+          kept = {m.group(1): m.group(0) for m in section.finditer(open(old).read())}
+          for f in files:
+              text = open(f).read().strip()
+              kept[section.match(text).group(1)] = text
+          flavors = order + sorted(set(kept) - set(order))
+          body = ["Newest ISO of every image. Each build posts a comment below; "
+                  "this body always reflects the newest build of each image.", ""]
+          body += [kept[f] + "\n" for f in flavors if f in kept]
+          open(new, "w").write("\n".join(body))
+          PY
 
-          printf '%s\n' "## ISO download" "" "$details" "" "Posted to issue #${num}." >> "$GITHUB_STEP_SUMMARY"
+          { echo "@${OWNER} new ISO is available."; echo; cat "${sections[@]}"; } | gh issue comment "$num" --body-file -
+          gh issue edit "$num" --body-file new-body.md
+          echo "Posted ${#sections[@]} ISO(s) to issue #${num}." | tee -a "$GITHUB_STEP_SUMMARY"
