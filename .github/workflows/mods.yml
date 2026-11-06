@@ -252,18 +252,37 @@ jobs:
           echo "MODS_CHANGED=${{ needs.self-update.outputs.mods_changed }}" >> "$GITHUB_ENV"
           echo "MODS_CHANGED=${{ needs.self-update.outputs.mods_changed }}"
 
-      - name: Start build-latest-bluefin workflow
+      - name: Start image builds, or only the ISO build, depending on what changed
+        # schedule/workflow_dispatch: always rebuild both images (weekly package
+        # refresh). push: look at the files the push itself changed. Files that
+        # cannot change the OS image (ISO workflow and config, README, IAM policy,
+        # this workflow, retired scripts) must not burn two ~1 h image rebuilds
+        # (observed 2026-11-06: a build-disk.yml change rebuilt 2 h old images).
+        # If only ISO files changed, rebuild the ISOs from the published images
+        # instead. Anything else, or an unreadable push range, rebuilds as before.
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_OCT_2025 }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
-          echo "=== Checking GITHUB EVENT NAME $GITHUB_EVENT_NAME to trigger rebuilds conditionally ==="
-          if [ "$GITHUB_EVENT_NAME" == "schedule" ]; then
-            echo "=== Triggering all workflow by schedule ==="
-            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
-          else
-            echo "=== Triggering build-dx4homelab-bluefin-dx-latest.yml workflow by other triggers ==="
-            gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
-            gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
+          set -euo pipefail
+          iso_re='^(mods/)?(disk_config/|build-disk\.yml)|^\.github/workflows/build-disk\.yml'
+          noimage_re='^(mods/)?(README\.md|disk_config/|build-disk\.yml|mods\.yml)|^mods/(aws|legacy-scripts)/|^mods/update-brew-installed-apps-run-localy-only\.sh|^\.github/workflows/(mods|build-disk)\.yml'
+          if [ "$GITHUB_EVENT_NAME" == "push" ] && [[ ! "$BEFORE" =~ ^0+$ ]]; then
+            mapfile -t changed < <(gh api --paginate "repos/${GITHUB_REPOSITORY}/compare/${BEFORE}...${AFTER}" --jq '.files[].filename' || true)
+            echo "=== files changed by this push (${#changed[@]}) ==="
+            printf '  %s\n' "${changed[@]}"
+            if [ ${#changed[@]} -gt 0 ] && ! printf '%s\n' "${changed[@]}" | grep -Evq "$noimage_re"; then
+              if printf '%s\n' "${changed[@]}" | grep -Eq "$iso_re"; then
+                echo "=== only ISO files changed: rebuilding the ISOs from the published images, not the images ==="
+                gh workflow run build-disk.yml --ref main -f upload-to-s3=true -f platform=amd64 -f streams=all
+              else
+                echo "=== nothing image- or ISO-relevant changed: no build dispatched ==="
+              fi
+              exit 0
+            fi
           fi
+          echo "=== triggering stable and latest image builds (event: $GITHUB_EVENT_NAME) ==="
+          gh workflow run build-dx4homelab-bluefin-dx-stable.yml --ref main
+          gh workflow run build-dx4homelab-bluefin-dx-latest.yml --ref main
         #

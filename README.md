@@ -11,7 +11,13 @@ Everything outside `mods/` and `.github/` is **generated**. On any push touching
 2. copies `mods/customize-build.py` to `build_files/mods/` and runs it with
    `--apply-defaults --write` (applies `ADDITION_LIST`, `REMOVAL_LIST`,
    `LINE_MODS`, `EXTRA_FILE_COPIES`, DNF exclusions),
-3. commits the result and dispatches the `stable` and `latest` image builds.
+3. commits the result and dispatches the `stable` and `latest` image builds —
+   unless the push only touched files that cannot change the image
+   (`mods/build-disk.yml`, `mods/disk_config/`, `mods/README.md`, `mods/aws/`,
+   `mods/mods.yml`, `mods/legacy-scripts/`). Then no image is rebuilt; if ISO
+   files were among them, `build-disk.yml` is dispatched instead and rebuilds
+   all four ISOs from the images already published. Scheduled and manual runs
+   always rebuild both images.
 
 > **Never fix only `build_files/`** — the next sync overwrites it. Make the
 > change in `mods/customize-build.py`, `cp` it to `build_files/mods/`, and
