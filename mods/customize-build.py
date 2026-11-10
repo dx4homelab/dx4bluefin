@@ -26,6 +26,7 @@ import re
 import shutil
 import time
 import stat
+import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -254,6 +255,14 @@ class BuildCustomizer:
             0o644,
         ),
     ]
+
+    # Fedora major versions whose base-image pin is added to image-versions.yml when
+    # upstream has not pinned one yet. `just build` refuses to build without a
+    # `silverblue-main-<version>` entry, so at a Fedora rollover the `latest` stream
+    # fails until upstream adds it (F45: ublue's base-main:latest moved on 2026-11-10).
+    # The digest is resolved at sync time, and the entry is skipped as soon as
+    # upstream ships its own — drop a version from this list once that has happened.
+    EXTRA_BASE_IMAGE_PINS: List[int] = [45]
 
     # Default array names to look for when scanning files (derived from the
     # per-array ADDITION_LIST and REMOVAL_LIST mappings). This keeps any
@@ -839,6 +848,43 @@ class BuildCustomizer:
             return modified_count, f"Dry-run: would modify {modified_count} DNF install command(s)"
 
 
+    def apply_base_image_pins(self, dry_run: bool = True) -> dict:
+        """Add a base-image pin for each EXTRA_BASE_IMAGE_PINS version upstream lacks.
+
+        Returns a mapping: { entry_name: "present" | "dry-run" | "added <digest>" }.
+        Raises if the digest cannot be resolved or the insertion anchor is gone, so a
+        sync never commits a tree whose `latest` build is known to fail.
+        """
+        results: dict = {}
+        path = self.repo_root / "image-versions.yml"
+        text = path.read_text()
+        anchor = "  - name: common\n"
+        for version in self.EXTRA_BASE_IMAGE_PINS:
+            name = f"silverblue-main-{version}"
+            if re.search(rf"^\s*- name: {name}\s*$", text, re.M):
+                results[name] = "present"
+                continue
+            if dry_run:
+                results[name] = "dry-run"
+                continue
+            image = "ghcr.io/ublue-os/silverblue-main"
+            digest = subprocess.run(
+                ["skopeo", "inspect", "--retry-times", "3", "--format", "{{.Digest}}",
+                 f"docker://{image}:{version}"],
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+            if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+                raise RuntimeError(f"unexpected digest for {image}:{version}: {digest!r}")
+            if text.count(anchor) != 1:
+                raise RuntimeError(f"anchor {anchor!r} not found exactly once in {path}")
+            entry = (f"  - name: {name}\n    image: {image}\n"
+                     f"    tag: {version}\n    digest: {digest}\n")
+            text = text.replace(anchor, entry + anchor)
+            results[name] = f"added {digest}"
+        if any(v.startswith("added") for v in results.values()):
+            self._write_atomic(path, text, backup=False)
+        return results
+
 def _cli():
     p = argparse.ArgumentParser(description="Script array editing helper")
     p.add_argument(
@@ -917,6 +963,11 @@ def _cli():
             print(f"\nExtra file copies ({len(copy_results)}):")
             for dest, status in copy_results.items():
                 print(f"  {dest}: {status}")
+
+    # Pin base images for Fedora versions upstream has not pinned yet.
+    if not args.skip_line_mods:
+        for name, status in bc.apply_base_image_pins(dry_run=not args.write).items():
+            print(f"\nBase image pin {name}: {status}")
 
     # If requested, apply the configured defaults (removals then additions).
     if args.apply_defaults:

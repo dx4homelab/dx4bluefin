@@ -42,6 +42,18 @@ idempotent re-runs), and a missing anchor with pending insertions raises
 instead of silently dropping the customization. A failed MODS run is the
 signal that upstream changed and a `LINE_MODS` entry needs updating.
 
+### Fedora rollover: base image pins
+
+`just build` refuses to run without a `silverblue-main-<fedora version>` entry
+in `image-versions.yml`. When ublue's `base-main:latest` moves to a new Fedora
+release before upstream Bluefin pins it, every `latest` build fails with
+`No digest pinned for silverblue-main-<version>`. `EXTRA_BASE_IMAGE_PINS` in
+`customize-build.py` lists versions to pin ourselves: at each sync the current
+digest of `ghcr.io/ublue-os/silverblue-main:<version>` is resolved with
+`skopeo` and added, unless upstream already ships the entry. Remove a version
+from the list once upstream has it. This only unblocks the build — the rest of
+upstream's scripts may still not be ready for the new release.
+
 ## ISO downloads (build-disk.yml)
 
 ISOs are built for four images: `bluefin-dx` and `bluefin-dx-nvidia-open`,
