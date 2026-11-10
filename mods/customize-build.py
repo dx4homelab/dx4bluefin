@@ -141,6 +141,10 @@ class BuildCustomizer:
                 "/ctx/build_files/dx/03-awsgov-wickr-badge.sh": [
                     "/ctx/build_files/dx/04-eclipse-ide.sh",
                 ],
+                # Chain 05 (Claude desktop, unofficial RPM) on 04, same rationale.
+                "/ctx/build_files/dx/04-eclipse-ide.sh": [
+                    "/ctx/build_files/dx/05-claude-desktop.sh",
+                ],
             },
             "delete": [],
         },
@@ -183,6 +187,11 @@ class BuildCustomizer:
         # /usr/lib/eclipse by the dx build step chained after 03 via LINE_MODS. Relies on
         # subversion-javahl from ADDITION_LIST for Subclipse's JavaHL adapter.
         ("mods/04-eclipse-ide.sh", "build_files/dx/04-eclipse-ide.sh"),
+        # Claude desktop app from the community RPM repo, installed by the dx build step
+        # chained after 04 via LINE_MODS. The repo's signing key is committed and read
+        # from /ctx, so the build never trusts a key fetched alongside the package.
+        ("mods/05-claude-desktop.sh", "build_files/dx/05-claude-desktop.sh"),
+        ("mods/claude-desktop/KEY.gpg", "build_files/dx/claude-desktop/KEY.gpg", 0o644),
         # INNOGRIT IG5236 NVMe APST workaround. A system-setup hook rather than a build
         # script: it has to inspect the running machine's PCI devices, so it cannot be
         # decided at build time. Lands in system_files/shared (not dx) because the quirk
