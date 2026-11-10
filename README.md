@@ -211,6 +211,36 @@ installed as the `claude-desktop-unofficial` RPM into
   `CLAUDE_USE_WAYLAND=1 claude-desktop-unofficial` forces native Wayland.
   `claude-desktop-unofficial --doctor` prints the launcher's diagnostics.
 
+## Remote desktop (ujust setup-remote-desktop / rdp-add-host / rdp-connect)
+
+Pixel-exact RDP between dx4bluefin machines, using the stock `gnome-remote-desktop`
+(g-r-d) as server and the FreeRDP flatpak (`sdl-freerdp`) as client. Recipes live in
+`mods/just/60-dx4homelab.just`.
+
+| Recipe | Where | Does |
+|---|---|---|
+| `ujust setup-remote-desktop [enable\|disable\|status]` | host | 3389 = GDM remote login (own session, sized to the client window at its scale); 3390 = live session (mirror of the primary monitor, input enabled). Per-host self-signed TLS (SAN: host, host.lan, Tailscale name/IP), user `rdp` + password. |
+| `ujust rdp-add-host HOST` | client | Stores the RDP password in the GNOME keyring, pins both TLS fingerprints in `~/.config/dx4homelab/rdp-hosts.conf` (fetched over ssh if possible), installs `com.freerdp.FreeRDP`. |
+| `ujust rdp-connect HOST [login\|session]` | client | `/gfx:RFX`, 32 bpp, `/network:lan`, `/scale-desktop` = this display's scale, `/dynamic-resolution` for login. Arguments (incl. password) go via stdin, never argv. Env: `RDP_CODEC=AVC444`, `RDP_ADDR=<tailscale name>`, `RDP_SCALE`, `RDP_SIZE`. |
+
+**Why RemoteFX, not H.264.** Measured 2026-11-08 on g-r-d 50.2 against the host's
+pre-encode frame (Mutter ScreenCast), share of text-edge pixels off by >32 levels:
+RemoteFX 0.00 % (minis4dx) / 0.03 % (fury4dx); AVC444 0.79 % / 3.86 %; AVC420 4.55 %.
+Geometry is exact (0 px shift, client draws remote pixels 1:1 on a 2x monitor). Not
+bit-exact: every codec shows a uniform ~1-level colour bias (AVC range signalling is
+fixed upstream in g-r-d 51.0). Mirror mode is only 1:1 when the client screen is at
+least as large as the host's primary monitor.
+
+**g-r-d 50.2 workarounds baked into the recipe** (re-check on 51+):
+`grdctl rdp set-credentials` segfaults in user mode, and `grdctl --system rdp
+set-credentials` silently stores nothing when fed via stdin. The recipe writes the
+same storage directly: a libsecret item (schema `org.gnome.RemoteDesktop.RdpCredentials`,
+value `{'username': <'u'>, 'password': <'p'>}`) for the user daemon, and
+`[RDP] credentials=...` in
+`/var/lib/gnome-remote-desktop/.local/share/gnome-remote-desktop/credentials.ini`
+(TPM unavailable -> GKeyFile fallback) for the system daemon. It then verifies both
+with `grdctl status --show-credentials`.
+
 ## Runbook: VS Code Wayland "Share Screen" popup
 
 **Symptom:** on VS Code launch — or when a display sleeps/wakes
