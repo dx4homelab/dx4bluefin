@@ -220,3 +220,165 @@ setup-languagetool action="install":
         exit 1
         ;;
     esac
+
+# ---------------------------------------------------------------------------
+# Remote desktop (gnome-remote-desktop RDP), tuned for pixel-exact text.
+#   host :3389  remote login -> its own GDM session, sized to the client window
+#   host :3390  live session -> mirror of the host's primary monitor
+# Client side uses the FreeRDP flatpak with RemoteFX (/gfx:RFX): measured on g-r-d
+# 50.2 it keeps text edges far cleaner than AVC444/AVC420 (0.00-0.03 % vs 0.8-4.6 %
+# of edge pixels off by >32 levels), with 1:1 pixel geometry.
+# ---------------------------------------------------------------------------
+
+# Usage: ujust setup-remote-desktop [enable|disable|status]
+# Prompts for the RDP password (or generates one); the GDM login password is still
+# asked at the greeter. Needs sudo.
+# Serve this host over RDP: 3389 remote login, 3390 live session (pixel-exact setup)
+[group('dx4homelab')]
+setup-remote-desktop action="enable":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SYSD=/var/lib/gnome-remote-desktop/.local/share/gnome-remote-desktop
+    USRD="$HOME/.local/share/gnome-remote-desktop"
+    H="$(hostname -s)"
+    fp() { openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d= -f2 | tr -d : | tr A-F a-f; }
+    show() {
+        echo "Add this host on a client with:  ujust rdp-add-host $H"
+        echo "  login   3389  $(sudo cat "$SYSD/rdp-tls.crt" 2>/dev/null | fp || true)"
+        echo "  session 3390  $(fp < "$USRD/rdp-tls.crt" 2>/dev/null || true)"
+    }
+    case "{{ action }}" in
+    enable)
+        RDP_USER=rdp
+        read -rsp "RDP password for '$RDP_USER' on $H (empty = generate): " RDP_PASS || true; echo
+        if [[ -z "$RDP_PASS" ]]; then
+            RDP_PASS="$(openssl rand -base64 33 | tr -d '/+=' | cut -c1-28)"
+            echo "Generated RDP password (shown once): $RDP_PASS"
+        fi
+        [[ "$RDP_PASS" != *"'"* && "$RDP_PASS" != *'\'* ]] || { echo "Password may not contain ' or \\" >&2; exit 1; }
+        TS_DNS="$(tailscale status --self --json 2>/dev/null | sed -n 's/.*"DNSName": *"\([^"]*\)\.".*/\1/p' | head -n1 || true)"
+        TS_IP="$(tailscale ip -4 2>/dev/null | head -n1 || true)"
+        SAN="DNS:${H},DNS:${H}.lan${TS_DNS:+,DNS:${TS_DNS}}${TS_IP:+,IP:${TS_IP}}"
+        mkcert() { # $1=dir, rest=run-as prefix
+            local d="$1"; shift
+            if ! "$@" test -s "$d/rdp-tls.crt"; then
+                "$@" mkdir -p "$d"
+                "$@" openssl req -new -x509 -nodes -newkey rsa:4096 -sha256 -days 3650 \
+                    -subj "/CN=${H}.lan" -addext "subjectAltName=${SAN}" \
+                    -keyout "$d/rdp-tls.key" -out "$d/rdp-tls.crt" 2>/dev/null
+                "$@" chmod 600 "$d/rdp-tls.key"
+            fi
+        }
+        CRED="{'username': <'$RDP_USER'>, 'password': <'$RDP_PASS'>}"
+        # 1. system daemon: GDM remote login. `grdctl --system rdp set-credentials` (50.2)
+        #    accepts stdin but stores nothing; write the GKeyFile entry it would write.
+        mkcert "$SYSD" sudo -u gnome-remote-desktop
+        sudo grdctl --system rdp set-tls-key  "$SYSD/rdp-tls.key"
+        sudo grdctl --system rdp set-tls-cert "$SYSD/rdp-tls.crt"
+        printf '[RDP]\ncredentials=%s\n' "$CRED" \
+            | sudo -u gnome-remote-desktop tee "$SYSD/credentials.ini" >/dev/null
+        sudo chmod 600 "$SYSD/credentials.ini"
+        sudo grdctl --system rdp set-port 3389
+        sudo grdctl --system rdp enable
+        sudo systemctl enable gnome-remote-desktop.service
+        sudo systemctl restart gnome-remote-desktop.service
+        # 2. user daemon: live session. `grdctl rdp set-credentials` (50.2) segfaults;
+        #    store the same libsecret item it would.
+        mkcert "$USRD"
+        grdctl rdp set-tls-key  "$USRD/rdp-tls.key"
+        grdctl rdp set-tls-cert "$USRD/rdp-tls.crt"
+        printf '%s' "$CRED" | secret-tool store --label="GNOME Remote Desktop RDP credentials" \
+            xdg:schema org.gnome.RemoteDesktop.RdpCredentials
+        grdctl rdp set-port 3390
+        grdctl rdp disable-port-negotiation
+        grdctl rdp disable-view-only
+        gsettings set org.gnome.desktop.remote-desktop.rdp screen-share-mode 'mirror-primary'
+        grdctl rdp enable
+        systemctl --user enable gnome-remote-desktop.service
+        systemctl --user restart gnome-remote-desktop.service
+        # Verify both daemons actually read the credentials back.
+        sudo grdctl --system status --show-credentials 2>/dev/null | grep -q "Username: $RDP_USER" \
+            || { echo "! system daemon credentials not readable" >&2; exit 1; }
+        grdctl status --show-credentials 2>/dev/null | grep -q "Username: $RDP_USER" \
+            || { echo "! user daemon credentials not readable (is the login keyring unlocked?)" >&2; exit 1; }
+        echo "✓ RDP enabled on $H (3389 remote login, 3390 live session)."
+        show
+        ;;
+    disable)
+        grdctl rdp disable || true
+        systemctl --user disable --now gnome-remote-desktop.service || true
+        sudo grdctl --system rdp disable || true
+        sudo systemctl disable --now gnome-remote-desktop.service || true
+        echo "✓ RDP disabled on $H (certificates and credentials kept)."
+        ;;
+    status)
+        echo "system (3389): $(systemctl is-active gnome-remote-desktop.service || true)"
+        echo "user   (3390): $(systemctl --user is-active gnome-remote-desktop.service || true)"
+        ss -ltnH '( sport = :3389 or sport = :3390 )' | awk '{print "  listening " $4}'
+        show
+        ;;
+    *)
+        echo "Usage: ujust setup-remote-desktop [enable|disable|status]" >&2
+        exit 1
+        ;;
+    esac
+
+# Usage: ujust rdp-add-host HOST
+# Fetches the fingerprints over ssh when possible, else asks for them (shown by
+# `ujust setup-remote-desktop status` on the host).
+# Register an RDP host on this client (password -> keyring, TLS fingerprints pinned)
+[group('dx4homelab')]
+rdp-add-host host:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    H="{{ host }}"; H="${H%%.*}"
+    CONF="${XDG_CONFIG_HOME:-$HOME/.config}/dx4homelab/rdp-hosts.conf"
+    mkdir -p "$(dirname "$CONF")"; touch "$CONF"
+    FPS="$(ssh -n -o BatchMode=yes -o ConnectTimeout=5 "$H.lan" \
+        'f() { openssl x509 -noout -fingerprint -sha256 | cut -d= -f2 | tr -d : | tr A-F a-f; }
+         echo "L=$(sudo -n cat /var/lib/gnome-remote-desktop/.local/share/gnome-remote-desktop/rdp-tls.crt 2>/dev/null | f)"
+         echo "S=$(f < ~/.local/share/gnome-remote-desktop/rdp-tls.crt 2>/dev/null)"' \
+        2>/dev/null || true)"
+    FP_LOGIN="$(sed -n 's/^L=//p' <<< "$FPS")"; FP_SESSION="$(sed -n 's/^S=//p' <<< "$FPS")"
+    [[ ${#FP_LOGIN} -eq 64 ]]   || read -rp "sha256 fingerprint of $H login (3389): " FP_LOGIN
+    [[ ${#FP_SESSION} -eq 64 ]] || read -rp "sha256 fingerprint of $H session (3390): " FP_SESSION
+    for f in "$FP_LOGIN" "$FP_SESSION"; do
+        [[ "$f" =~ ^[0-9a-f]{64}$ ]] || { echo "bad fingerprint: $f" >&2; exit 1; }
+    done
+    read -rsp "RDP password for $H: " P || true; echo
+    [[ -n "$P" ]] || { echo "empty password" >&2; exit 1; }
+    printf '%s' "$P" | secret-tool store --label="RDP $H (dx4homelab)" service dx4homelab-rdp host "$H" user rdp
+    grep -vE "^$H[[:space:]]" "$CONF" > "$CONF.tmp" || true
+    printf '%-9s login    3389  %s\n%-9s session  3390  %s\n' "$H" "$FP_LOGIN" "$H" "$FP_SESSION" >> "$CONF.tmp"
+    mv -f "$CONF.tmp" "$CONF"
+    flatpak info com.freerdp.FreeRDP >/dev/null 2>&1 || flatpak install -y flathub com.freerdp.FreeRDP
+    echo "✓ $H added. Connect: ujust rdp-connect $H [login|session]"
+
+# Usage: ujust rdp-connect HOST [login|session] [extra FreeRDP args]
+#   login (default) = own session resized to the window; session = the host's live desktop.
+# Env: RDP_CODEC=AVC444 (video), RDP_ADDR=<tailscale name>, RDP_SCALE=1.5, RDP_SIZE=80%
+# Connect to a registered RDP host, pixel-exact (RemoteFX, 1:1, this display's scale)
+[group('dx4homelab')]
+rdp-connect host mode="login" *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    H="{{ host }}"; MODE="{{ mode }}"; HS="${H%%.*}"
+    CONF="${XDG_CONFIG_HOME:-$HOME/.config}/dx4homelab/rdp-hosts.conf"
+    read -r PORT FP < <(awk -v h="$HS" -v m="$MODE" '$1==h && $2==m {print $3, $4}' "$CONF" 2>/dev/null) || true
+    [[ -n "${FP:-}" ]] || { echo "Unknown host/mode '$HS $MODE' — run: ujust rdp-add-host $HS" >&2; exit 1; }
+    PASS="$(secret-tool lookup service dx4homelab-rdp host "$HS")" \
+        || { echo "No RDP password in keyring for $HS — run: ujust rdp-add-host $HS" >&2; exit 1; }
+    ADDR="${RDP_ADDR:-$H}"; [[ "$ADDR" == *.* ]] || ADDR="$ADDR.lan"
+    SCALE="${RDP_SCALE:-$(gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+        --object-path /org/gnome/Mutter/DisplayConfig --method org.gnome.Mutter.DisplayConfig.GetCurrentState \
+        | grep -oP '\(-?\d+, -?\d+, \K[0-9.]+(?=, (uint32 )?\d+, true)' | head -n1 || true)}"
+    PCT="$(awk -v s="${SCALE:-1}" 'BEGIN{printf "%d", s*100+0.5}')"
+    DEV=100; if (( PCT >= 180 )); then DEV=180; elif (( PCT >= 140 )); then DEV=140; fi
+    ARGS=("/v:$ADDR:$PORT" "/u:rdp" "/p:$PASS" "/cert:fingerprint:sha256:$FP"
+          "/gfx:${RDP_CODEC:-RFX}" "/bpp:32" "/network:lan"
+          "/scale-desktop:$PCT" "/scale-device:$DEV"
+          "+clipboard" "/sound:sys:pulse" "/auto-reconnect" "/title:$HS ($MODE)")
+    [[ "$MODE" == login ]] && ARGS+=("/dynamic-resolution" "/size:${RDP_SIZE:-80%}")
+    for a in {{ args }}; do ARGS+=("$a"); done
+    # All arguments, password included, go through stdin — never argv.
+    printf '%s\n' "${ARGS[@]}" | exec flatpak run --command=sdl-freerdp com.freerdp.FreeRDP /args-from:stdin
