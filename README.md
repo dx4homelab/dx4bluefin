@@ -170,6 +170,35 @@ Gotchas:
   `distrobox create --image ghcr.io/dx4homelab/eclipse-box`). The keyring PAT
   lacks `workflow` scope; push the new workflow via `gh auth git-credential`.
 
+## Claude desktop (05-claude-desktop.sh)
+
+The dx image bakes the Claude desktop app. Anthropic ships no Linux build, so
+this is the community repackaging of the official Electron app
+([aaddrick/claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian)),
+installed as the `claude-desktop-unofficial` RPM into
+`/usr/lib/claude-desktop-unofficial` and launched as
+`/usr/bin/claude-desktop-unofficial` ("Claude" in the app grid).
+
+- **Updates come only from the image.** Each build installs whatever version
+  the repo currently serves, so a new release lands with the next Friday build.
+  A bad release lands the same way: `bootc rollback` returns to the previous
+  deployment.
+- **Trust.** This is a third-party repo whose package runs a root scriptlet at
+  build time and handles the Claude login at runtime. The signing key is
+  committed at `mods/claude-desktop/KEY.gpg` (fingerprint
+  `8749 4CF7 3ACC 0F23 AA95 57B8 6E29 E413 B912 E0F1`) rather than fetched at
+  build time; package and repo metadata are both signature-checked. A key
+  rotation upstream fails the build: verify the new key out of band before
+  replacing the file.
+- **No repo is left in the image.** The `.repo` file exists only during the
+  step, so `validate-repos.sh` passes.
+- **Build gates:** nothing installed under `/opt`, `/var` or `/usr/local`; the
+  setuid `chrome-sandbox` is intact; every shared library the binary links
+  against resolves (the RPM declares no dependencies).
+- **Wayland.** The launcher runs the app on XWayland by default;
+  `CLAUDE_USE_WAYLAND=1 claude-desktop-unofficial` forces native Wayland.
+  `claude-desktop-unofficial --doctor` prints the launcher's diagnostics.
+
 ## Runbook: VS Code Wayland "Share Screen" popup
 
 **Symptom:** on VS Code launch — or when a display sleeps/wakes
