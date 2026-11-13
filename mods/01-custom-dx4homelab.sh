@@ -27,14 +27,26 @@ dnf -y install squashfs-tools jq
 SNAP_CACHE="${SNAP_CACHE:-/var/tmp/dx4homelab-snapcache}"
 CURL_RETRY=(--retry 5 --retry-delay 3 --retry-all-errors --connect-timeout 30)
 snap_dl() {
-  local name="$1" out="$2" url cache
-  # first() inside jq, not `| head -1`: an early-exiting pipe reader SIGPIPEs the
-  # writer, which pipefail turns into a build-killing 141.
-  url="$(curl -sSL "${CURL_RETRY[@]}" -H 'Snap-Device-Series: 16' \
-        "https://api.snapcraft.io/v2/snaps/info/${name}?fields=download" \
-      | jq -r 'first(.["channel-map"][]
+  local name="$1" out="$2" url="" cache info="$WORK/$1.info.json" try
+  # The store now and then answers with a body that is not JSON. curl's own retries
+  # cannot cover that, and piping curl into jq made it worse: once jq died on the bad
+  # body every curl retry failed writing to the closed pipe (exit 23). So fetch to a
+  # file and retry fetch + parse together.
+  for try in 1 2 3 4 5; do
+    # first() inside jq, not `| head -1`: an early-exiting pipe reader SIGPIPEs the
+    # writer, which pipefail turns into a build-killing 141.
+    if curl -fsSL "${CURL_RETRY[@]}" -H 'Snap-Device-Series: 16' -o "$info" \
+          "https://api.snapcraft.io/v2/snaps/info/${name}?fields=download" \
+       && url="$(jq -r 'first(.["channel-map"][]
                | select(.channel.name=="stable" and .channel.architecture=="amd64")
-               | .download.url)')"
+               | .download.url) // empty' "$info")" \
+       && [ -n "$url" ]; then
+      break
+    fi
+    url=""
+    echo "snap_dl: no usable store answer for ${name} (attempt ${try}/5)" >&2
+    sleep $((try * 5))
+  done
   test -n "$url"
   mkdir -p "$SNAP_CACHE"
   cache="$SNAP_CACHE/$(basename "$url")"
