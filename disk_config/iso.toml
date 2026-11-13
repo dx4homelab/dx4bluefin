@@ -1,3 +1,34 @@
+# Installer ISO config (bootc-image-builder, anaconda-iso).
+#
+# Supplying kickstart contents is what makes the installer INTERACTIVE. Without it
+# bootc-image-builder generates a fully unattended kickstart with `clearpart --all`
+# + `autopart`: no questions asked, every disk in the machine is wiped (this erased
+# the factory Windows install on a two-NVMe laptop, 2026-11). With it, the builder
+# still adds the install source and the `bootc switch` to the registry image itself
+# and leaves everything else - above all the choice of target disk - to Anaconda.
+#
+# Do not add clearpart/autopart/ignoredisk here, and do not delete this section.
+[customizations.installer.kickstart]
+contents = """
+# dx4homelab: interactive install - pick the target disk in "Installation Destination".
+"""
+
+# Same module set as ublue-os/image-template's GNOME ISO: storage stays interactive;
+# user, timezone and network are left to GNOME Initial Setup on first boot.
+[customizations.installer.modules]
+enable = [
+  "org.fedoraproject.Anaconda.Modules.Storage",
+  "org.fedoraproject.Anaconda.Modules.Runtime"
+]
+disable = [
+  "org.fedoraproject.Anaconda.Modules.Network",
+  "org.fedoraproject.Anaconda.Modules.Security",
+  "org.fedoraproject.Anaconda.Modules.Services",
+  "org.fedoraproject.Anaconda.Modules.Users",
+  "org.fedoraproject.Anaconda.Modules.Subscription",
+  "org.fedoraproject.Anaconda.Modules.Timezone"
+]
+
 [[customizations.filesystem]]
 mountpoint = "/"
 minsize = "20 GiB"
