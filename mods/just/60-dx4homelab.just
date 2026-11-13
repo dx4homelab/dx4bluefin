@@ -382,3 +382,22 @@ rdp-connect host mode="login" *args:
     for a in {{ args }}; do ARGS+=("$a"); done
     # All arguments, password included, go through stdin — never argv.
     printf '%s\n' "${ARGS[@]}" | exec flatpak run --command=sdl-freerdp com.freerdp.FreeRDP /args-from:stdin
+
+# Usage: ujust install-f5go [--config FILE] [--headless] [--no-build] [--help] ...
+# Runs scripts/f5goUi/install.sh from a local f5go checkout (default
+# ~/workspaces/homelab/f5go, or $F5GO_REPO); every argument goes to it. Only this
+# launcher is in the image: the sources and your VPN config stay with you.
+# Build + install the f5go VPN panel (f5go-ui, alias f5ui) and its engine service (f5god)
+[group('dx4homelab')]
+install-f5go *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    REPO="${F5GO_REPO:-$HOME/workspaces/homelab/f5go}"
+    INSTALLER="$REPO/scripts/f5goUi/install.sh"
+    if [[ ! -x "$INSTALLER" ]]; then
+        echo "No f5go installer at: $INSTALLER" >&2
+        echo "Check out the f5go branch that carries the panel there, or point at another checkout:" >&2
+        echo "  F5GO_REPO=/path/to/f5go ujust install-f5go" >&2
+        exit 1
+    fi
+    exec "$INSTALLER" {{ args }}
