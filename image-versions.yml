@@ -3,18 +3,14 @@ images:
   # resolves the version dynamically and the stable/latest streams do not always
   # sit on different releases. The entry name must be
   # `silverblue-main-${fedora_version}`; add a new one at each Fedora rollover.
-  - name: silverblue-main-43
-    image: ghcr.io/ublue-os/silverblue-main
-    tag: 44
-    digest: sha256:565a488ded1cc46342c48b04951cadfcab52d555bb219c7da4db169dfac1c2f0
   - name: silverblue-main-44
     image: ghcr.io/ublue-os/silverblue-main
     tag: 44
-    digest: sha256:565a488ded1cc46342c48b04951cadfcab52d555bb219c7da4db169dfac1c2f0
+    digest: sha256:99b744cf5c37e7ba59a3efc41022b0d595fbcc347a08862ec231a5604b249846
   - name: silverblue-main-45
     image: ghcr.io/ublue-os/silverblue-main
     tag: 45
-    digest: sha256:3bca0cbd0c1d9dfb5631776af0dac9b7fa7e40a844716070f150af842f6e3aad
+    digest: sha256:84155b29beca87102851865b5ab580aeab93f6ec0394fb390ecbe3306cbdb6d9
   - name: common
     image: ghcr.io/projectbluefin/common
     tag: latest
@@ -22,4 +18,4 @@ images:
   - name: brew
     image: ghcr.io/ublue-os/brew
     tag: latest
-    digest: sha256:393b567da078f0f0638450c388e229011dae06f94a90017cb7525b57d9faa46e
+    digest: sha256:2993b28cf9a54efebdc418ef42228618f5c68e8b931430f2d60eddc190e30016
