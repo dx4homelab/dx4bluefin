@@ -160,3 +160,17 @@ echo "AWS WickrGov installed natively to $APPROOT ($(du -sh "$APPROOT" | cut -f1
 # agent.env.example), so enabling the socket here costs nothing on
 # un-provisioned machines.
 systemctl enable nvme-watch.service smartd.service podman.socket
+
+# --- 9. Installer ISO: keep Fedora's own repos visible in /etc/yum.repos.d ---
+# Fedora 45+ ships fedora*.repo in /usr/share/dnf5/repos.d and leaves /etc/yum.repos.d
+# to third-party repos, every one of which this build disables. bootc-image-builder
+# depsolves the installer from <image>/etc/yum.repos.d alone, so the ISO build stopped
+# with "NoReposError: There are no enabled repositories". Link the distro files back in.
+# Relative links on purpose: the builder reads them through a mount of the image, where
+# an absolute target would point into the builder's own root. dnf still lists each repo
+# once. No-op on releases that keep the files in /etc/yum.repos.d.
+for repo in fedora fedora-updates; do
+  if [ -e "/usr/share/dnf5/repos.d/$repo.repo" ] && [ ! -e "/etc/yum.repos.d/$repo.repo" ]; then
+    ln -s "../../usr/share/dnf5/repos.d/$repo.repo" "/etc/yum.repos.d/$repo.repo"
+  fi
+done
