@@ -1,1 +1,0 @@
-https://developer.gnome.org/documentation/tutorials/search-provider.html

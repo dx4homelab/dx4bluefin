@@ -87,6 +87,7 @@ FEDORA_PACKAGES=(
     waypipe
     wireguard-tools
     wl-clipboard
+    xdg-native-messaging-proxy
     xdg-terminal-exec
     xprop
     zenity
@@ -149,7 +150,6 @@ copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 
 # From ublue-os/packages
 copr_install_isolated "ublue-os/packages" "uupd"
-copr_install_isolated "ublue-os/packages" "gnome-rounded-blur"
 
 # Version-specific COPR packages
 # case "$FEDORA_MAJOR_VERSION" in
@@ -170,6 +170,7 @@ EXCLUDED_PACKAGES=(
     gnome-shell-extension-background-logo
     gnome-software
     gnome-software-rpm-ostree
+    gnome-system-monitor
     gnome-terminal-nautilus
     podman-docker
     yelp

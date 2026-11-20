@@ -7,7 +7,7 @@ echo "::group:: Copy Files"
 # Speeds up local builds
 dnf config-manager setopt keepcache=1
 
-# We need to remove this package here because lots of files we add from `projectbluefin/common` override the rpm files and they also go away when you do `dnf remove`
+# We need to remove this package here because lots of files we add in `system_files/shared` (vendored from `projectbluefin/common`) override the rpm files and they also go away when you do `dnf remove`
 dnf remove -y ublue-os-luks ublue-os-just ublue-os-udev-rules ublue-os-signing ublue-os-update-services
 
 # Keep *-logos in RPM DB for downstream package installations
@@ -17,6 +17,12 @@ rpm --erase --nodeps --nodb generic-logos
 
 # Copy Files to Container
 rsync -rvK /ctx/system_files/shared/ /
+
+# ChairLift (Control Center) and brew-preinstall ship on non-DX images only.
+# On DX they would overlap with the DX tooling and confuse more than help.
+if [[ "${IMAGE_FLAVOR}" != "dx" ]]; then
+    rsync -rvK /ctx/system_files/chairlift/ /
+fi
 
 mkdir -p /tmp/scripts/helpers
 install -Dm0755 /ctx/build_files/shared/utils/ghcurl /tmp/scripts/helpers/ghcurl

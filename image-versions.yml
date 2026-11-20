@@ -6,16 +6,16 @@ images:
   - name: silverblue-main-44
     image: ghcr.io/ublue-os/silverblue-main
     tag: 44
-    digest: sha256:99b744cf5c37e7ba59a3efc41022b0d595fbcc347a08862ec231a5604b249846
+    digest: sha256:31ea15e048a45d93eb27dfc9fadddfda2090e2d0868e43f8b2f1eaaea7e6b158
   - name: silverblue-main-45
     image: ghcr.io/ublue-os/silverblue-main
     tag: 45
-    digest: sha256:84155b29beca87102851865b5ab580aeab93f6ec0394fb390ecbe3306cbdb6d9
-  - name: common
-    image: ghcr.io/projectbluefin/common
+    digest: sha256:587ba1fbb2f3847dd26ff75cdb52b720b6155d13447845266c08958ffdc0ad42
+  - name: bluefin-wallpapers-gnome
+    image: ghcr.io/ublue-os/bluefin-wallpapers-gnome
     tag: latest
-    digest: sha256:fbcef9b1636bc67c2cb58327527f01c9798280229ad5a91c2f8dac0a5d3b6f3c
+    digest: sha256:af65efd5068d5fe4f8d11976d9a9cc28a71cec6866476edd01f2a8b97dc22491
   - name: brew
     image: ghcr.io/ublue-os/brew
     tag: latest
-    digest: sha256:2993b28cf9a54efebdc418ef42228618f5c68e8b931430f2d60eddc190e30016
+    digest: sha256:9e0492dbc471258657564c94dae18b58dd96ddb998a06f2b15e8209efb48042b

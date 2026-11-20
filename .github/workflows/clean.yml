@@ -17,6 +17,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           packages: bluefin,bluefin-nvidia,bluefin-nvidia-open,bluefin-dx,bluefin-dx-nvidia,bluefin-dx-nvidia-open
           older-than: 90 days
+          # Bluefin LTS (ublue-os/bluefin-lts) publishes into bluefin and bluefin-dx too.
+          # Never delete its stable images, so an LTS release gap can't remove :lts again.
+          # Dated *-testing tags still age out. Keep this on one line: the action splits
+          # on "," without trimming spaces.
+          exclude-tags: lts,lts.*,lts-hwe,lts-hwe.*,stream10,stream10.*,stream10-hwe,stream10-hwe.*,lts-testing,lts-hwe-testing
           delete-orphaned-images: true
           keep-n-tagged: 7
           keep-n-untagged: 7

@@ -12,6 +12,8 @@ import {
     Docking,
 } from './imports.js';
 
+// Dash to dock supports replacing vfuncs in GObject classes and we need
+// this to monkey them.
 const {_gi: Gi} = imports;
 
 export const SignalsHandlerFlags = Object.freeze({
@@ -460,9 +462,13 @@ export class VFuncInjectionsHandler extends BasicHandler {
     }
 
     _replaceVFunc(prototype, name, func) {
-        if (Gi.gobject_prototype_symbol && Gi.gobject_prototype_symbol in prototype)
+        // shexli-ci: EGO-I-004 - required to override vfuncs
+        if (Gi.gobject_prototype_symbol && Gi.gobject_prototype_symbol in prototype) {
+            // shexli-ci: EGO-I-004 - override vfuncs
             prototype = prototype[Gi.gobject_prototype_symbol];
+        }
 
+        // shexli-ci: EGO-I-004 - override vfuncs
         return prototype[Gi.hook_up_vfunc_symbol](name, func);
     }
 }
@@ -485,11 +491,24 @@ export class PropertyInjectionsHandler extends BasicHandler {
         const originalPropertyDescriptor = Object.getOwnPropertyDescriptor(prototype, name) ??
             Object.getOwnPropertyDescriptor(instance, name);
 
-        Object.defineProperty(instance, name, {
+        const isAccessor = 'get' in injectedPropertyDescriptor ||
+            'set' in injectedPropertyDescriptor;
+
+        injectedPropertyDescriptor = {
             ...originalPropertyDescriptor,
             ...injectedPropertyDescriptor,
             ...{configurable: true},
-        });
+        };
+
+        if (isAccessor) {
+            delete injectedPropertyDescriptor.value;
+            delete injectedPropertyDescriptor.writable;
+        } else {
+            delete injectedPropertyDescriptor.get;
+            delete injectedPropertyDescriptor.set;
+        }
+
+        Object.defineProperty(instance, name, injectedPropertyDescriptor);
         return [instance, name, originalPropertyDescriptor];
     }
 
@@ -726,6 +745,19 @@ class CancellableChild extends Gio.Cancellable {
  */
 export function getMonitorManager() {
     return global.backend.get_monitor_manager?.() ?? Meta.MonitorManager.get();
+}
+
+/**
+ * Gets the cursor tracker, using the API available in the current
+ * GNOME Shell version: `global.backend.get_cursor_tracker()` is only
+ * available since GNOME Shell 48, while older versions require using
+ * `Meta.CursorTracker.get_for_display()`.
+ *
+ * @returns {Meta.CursorTracker} The cursor tracker.
+ */
+export function getCursorTracker() {
+    return global.backend.get_cursor_tracker?.() ??
+        Meta.CursorTracker.get_for_display(global.display);
 }
 
 /**
